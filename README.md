@@ -43,10 +43,12 @@ The objective of this project is to design and develop an intelligent, automated
 ## Scenario 1: Automatic Scoring Updates
 
 ### Actors
+
 - **Max**: Event Referee
 - **Alice**, **Bob**: Audience
 
 ### Flow of Events
+
 1. Max finishes his scoring and enters the data into the official scoring software. His scoring completes the first round of matches.
 2. The system recognizes that the first round is finished and initiates a switch to the leaderboard view.
 3. The connected clients recognize the switch and show the leaderboard.
@@ -55,7 +57,6 @@ The objective of this project is to design and develop an intelligent, automated
 6. Max, sitting in the team area, receives the same information on a different display. He happily meets up with Alice to celebrate.
 
 
-
 [^1]: HANDS on TECHNOLOGY e.V. - Wirkungsbericht 2023 (https://www.hands-on-technology.org/de/vision/wirkungsberichte?file=files/Dateiverwaltung%20NEU/Dokumente/Presse%20%26%20Downloads/Wirkung/Wirkungsbericht_HANDS%20on%20TECHNOLOGY_2023.pdf&cid=9519) last accessed 07.05.2025
 
-[^2] WRO 2024 Competition Overview (https://www.worldrobotolympiad.de/saison-2024/wettbewerbe) last accessed 07.05.2025
+[^2]:  WRO 2024 Competition Overview (https://www.worldrobotolympiad.de/saison-2024/wettbewerbe) last accessed 07.05.2025
