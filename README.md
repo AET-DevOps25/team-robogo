@@ -57,4 +57,5 @@ The objective of this project is to design and develop an intelligent, automated
 
 
 [^1]: HANDS on TECHNOLOGY e.V. - Wirkungsbericht 2023 (https://www.hands-on-technology.org/de/vision/wirkungsberichte?file=files/Dateiverwaltung%20NEU/Dokumente/Presse%20%26%20Downloads/Wirkung/Wirkungsbericht_HANDS%20on%20TECHNOLOGY_2023.pdf&cid=9519) last accessed 07.05.2025
+
 [^2] WRO 2024 Competition Overview (https://www.worldrobotolympiad.de/saison-2024/wettbewerbe) last accessed 07.05.2025
