@@ -1,5 +1,12 @@
 # Weekly Project Report
 
+# Subsystem Ownership
+
+| Component Name | Team Member |
+|:---------------|:------------|
+| Server         | Lucas       |
+| Client         | Jingwen     |
+| AI             | Zeyu        |
 
 
 ## Week 1: Problem Statement
