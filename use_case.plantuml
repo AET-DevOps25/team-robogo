@@ -1,0 +1,23 @@
+@startuml use_case
+actor Max
+actor Alice
+actor Bob
+
+rectangle "Scoring System" {
+  usecase "Enter scoring data" as UC1
+  usecase "Detect round completion" as UC2
+  usecase "All clients switch to leaderboard view" as UC3
+  usecase "Update Screens" as UC4
+  usecase "Display updated leaderboard" as UC5
+}
+
+Max --> UC1
+UC1 --> UC2: <<include>>
+UC2 --> UC3: <<include>>
+Max --> UC4
+UC3 --> UC5
+UC4 --> UC5
+
+Alice --> UC5
+Bob --> UC5
+@enduml
