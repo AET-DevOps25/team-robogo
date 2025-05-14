@@ -1,0 +1,59 @@
+@startuml
+hide circle
+hide empty fields
+hide empty methods
+
+class Competition {
+name
+}
+
+class SlideDeck {
+transitionTime
+}
+
+abstract class Slide {
+
+}
+
+class ImageSlide {
+image
+}
+
+class WebContentSlide {
+url
+}
+
+class ScoringCategory {
+name
+}
+
+class Team {
+name
+rank
+}
+
+class Score {
+points
+highlight
+}
+
+
+
+class ScoringSlide {
+teamPerPage
+fontColor
+background
+}
+
+ImageSlide -up-|> Slide
+WebContentSlide -up-|> Slide
+ScoringSlide -up-|> Slide
+
+Competition o--right- "*" SlideDeck
+SlideDeck  o--right- "*" Slide
+
+ScoringCategory  --right-> "*" Team
+Team  --right-> "0...3" Score
+ScoringSlide ..> ScoringCategory
+
+@enduml
