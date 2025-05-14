@@ -1,27 +1,4 @@
-@startuml
-skinparam node {
-  BackgroundColor lightgreen
-  BorderColor black
-}
-
-node "Organizer PC/Tablet" as organizer_device
-node "Cloud Server" as cloud_server
-node "Local Network Gateway" as gateway
-node "Raspberry Pi / Screen Device" as screen_device
-node "AI Cloud Service" as ai_cloud
-node "External Scoreboard" as ext_score
-
-note right of cloud_server
-  Contains:
-  - Backend API
-  - Database
+note right of ext_score
+  External scoring system used by
+  referees to enter team scores.
 end note
-
-organizer_device --> cloud_server : Internet
-cloud_server --> gateway : Local Network
-gateway --> screen_device : LAN
-cloud_server --> ai_cloud : Internet
-cloud_server --> ext_score : Internet
-
-title Deployment Diagram
-@enduml
