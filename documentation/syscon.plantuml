@@ -1,0 +1,30 @@
+@startuml
+skinparam rectangle {
+  BackgroundColor lightblue
+  BorderColor black
+}
+
+actor "Event Organizer" as organizer
+actor "Audience" as audience
+actor "Team Members" as teams
+
+[Scoring System] as scoring_system
+[AI Service] as ai_service
+
+rectangle "Intelligent Display Scheduling System" as system {
+  [Display Management]
+  [Content Scheduler]
+  [Client Communication]
+  [UI Backend]
+  [Database]
+}
+
+organizer --> system : Uses
+audience .> system : Views content
+teams .> system : Views content
+system --> scoring_system : Fetches live scores
+system --> ai_service : Requests image/content suggestions
+ai_service --> system : Returns generated content
+
+title System Context Diagram
+@enduml
