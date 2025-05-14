@@ -49,10 +49,11 @@ ImageSlide -up-|> Slide
 WebContentSlide -up-|> Slide
 ScoringSlide -up-|> Slide
 
-Competition --right-> "*" SlideDeck
-SlideDeck  --right-> "*" Slide
+Competition o--right- "*" SlideDeck
+SlideDeck  o--right- "*" Slide
 
 ScoringCategory  --right-> "*" Team
 Team  --right-> "0...3" Score
+ScoringSlide ..> ScoringCategory
 
 @enduml
