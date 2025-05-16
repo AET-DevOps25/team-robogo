@@ -5,16 +5,16 @@ package "Client Subsystem" {
   [Screen Client App] as client_app
   [Offline Fallback Display] as fallback_display
   [Display Renderer] as renderer
+  [User Interface (UI)] as ui
+  [Content Management Interface] as content_mgmt
 }
 
 package "Server Subsystem" {
   [Display Management Module] as display_mgmt
   [Content Scheduling Engine] as content_engine
   [Event Phase Monitor] as event_monitor
-  [Content Management Interface] as content_mgmt
   [Scoring Integration Module] as scoring_integ
   [System Database] as database
-  [User Interface (UI)] as ui
   [Client Communication Manager] as comm_manager
 }
 
