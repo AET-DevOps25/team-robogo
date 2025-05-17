@@ -1,0 +1,79 @@
+@startuml
+skinparam componentStyle rectangle
+
+package "Client Subsystem" {
+  [Screen Client App] as client_app
+  [Offline Fallback Display] as fallback_display
+  [Display Renderer] as renderer
+  [User Interface (UI)] as ui
+  [Content Management Interface] as content_mgmt
+}
+
+package "Server Subsystem" {
+  [Display Management Module] as display_mgmt
+  [Content Scheduling Engine] as content_engine
+  [Event Phase Monitor] as event_monitor
+  [Scoring Integration Module] as scoring_integ
+  [System Database] as database
+  [Client Communication Manager] as comm_manager
+}
+
+package "AI Subsystem" {
+  [AI Assistant Module] as ai_assistant
+  [Image Generation Service] as image_gen
+  [Content Suggestion Engine] as content_suggest
+}
+
+' Relationships
+
+client_app --> fallback_display : fallback on disconnect
+client_app --> renderer : renders content
+comm_manager --> client_app : sends updates
+
+display_mgmt --> comm_manager : manages clients
+content_engine --> comm_manager : pushes scheduled content
+event_monitor --> content_engine : notifies phase change
+content_engine --> event_monitor : listens to changes
+
+content_mgmt --> database : stores custom content
+database --> content_engine : provides templates
+
+scoring_integ --> content_engine : supplies live scores
+scoring_integ --> database : stores leaderboard data
+
+ai_assistant --> content_engine : suggests content
+image_gen --> ai_assistant : generates images
+content_suggest --> ai_assistant : provides suggestions
+ai_assistant --> content_mgmt : auto-generates content
+
+ui --> display_mgmt : register screens
+ui --> content_mgmt : manage content
+ui --> scoring_integ : view live data
+ui --> ai_assistant : enable AI features
+ui --> database : configure settings
+
+note right of ui
+  GUI for organizers to control
+  and monitor the system.
+end note
+
+note right of content_engine
+  Core logic for scheduling
+  content based on time, phase,
+  and events.
+end note
+
+note left of scoring_integ
+  Integrates with external
+  scoring systems to fetch
+  real-time leaderboards.
+end note
+
+note right of ai_assistant
+  Provides intelligent content
+  suggestions and image generation
+  to enhance display quality.
+end note
+
+title Component Diagram - Subsystem Boundaries
+@enduml
