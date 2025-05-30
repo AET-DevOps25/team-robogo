@@ -13,7 +13,7 @@ COPY settings.gradle .
 COPY build.gradle .
 
 COPY server/src ./server/src
-COPY core/src ./core/src
+COPY ../core/src ./core/src
 
 
 RUN ./gradlew clean build -x test --no-daemon

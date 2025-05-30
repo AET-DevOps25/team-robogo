@@ -13,7 +13,7 @@ COPY settings.gradle .
 COPY build.gradle .
 
 COPY api-gateway/src ./api-gateway/src
-COPY core/src ./core/src
+COPY ../core/src ./core/src
 
 RUN ./gradlew clean build -x test --no-daemon
 
