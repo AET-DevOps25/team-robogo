@@ -7,8 +7,21 @@ LABEL description="Team Robogo Server"
 LABEL org.opencontainers.image.source="https://github.com/AET-DevOps25/team-robogo"
 
 WORKDIR /app
-COPY . .
-RUN gradle clean build -x test --no-daemon
+
+
+COPY gradle.properties .
+COPY settings.gradle .
+COPY build.gradle .
+
+COPY server/src ./server/src
+COPY core/src ./core/src
+
+COPY gradlew .
+COPY gradle ./gradle
+
+RUN chmod +x ./gradlew
+
+RUN ./gradlew clean build -x test --no-daemon
 
 # ---- Runtime Stage ----
 FROM eclipse-temurin:17-jre
