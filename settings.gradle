@@ -1,2 +1,3 @@
-rootProject.name = 'screen'
+rootProject.name = 'robogo'
 include 'core', 'server', 'api-gateway'
+
