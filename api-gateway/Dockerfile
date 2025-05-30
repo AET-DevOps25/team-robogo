@@ -16,7 +16,6 @@ COPY api-gateway/src ./api-gateway/src
 COPY core/src ./core/src
 
 COPY gradlew .
-COPY gradle ./gradle
 
 RUN chmod +x ./gradlew
 

@@ -8,7 +8,6 @@ LABEL org.opencontainers.image.source="https://github.com/AET-DevOps25/team-robo
 
 WORKDIR /app
 
-
 COPY gradle.properties .
 COPY settings.gradle .
 COPY build.gradle .
@@ -17,7 +16,6 @@ COPY server/src ./server/src
 COPY core/src ./core/src
 
 COPY gradlew .
-COPY gradle ./gradle
 
 RUN chmod +x ./gradlew
 
