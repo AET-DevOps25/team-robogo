@@ -15,10 +15,6 @@ COPY build.gradle .
 COPY api-gateway/src ./api-gateway/src
 COPY core/src ./core/src
 
-COPY gradlew .
-
-RUN chmod +x ./gradlew
-
 RUN ./gradlew clean build -x test --no-daemon
 
 # ---- Runtime Stage ----
