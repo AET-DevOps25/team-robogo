@@ -19,6 +19,7 @@ services:
     depends_on:
       - db
     environment:
+      SERVER_PORT: 8081
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/robogo_db
       SPRING_DATASOURCE_USERNAME: robogo
       SPRING_DATASOURCE_PASSWORD: robogo_pass
