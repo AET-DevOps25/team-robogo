@@ -37,11 +37,9 @@ jobs:
 
       - name: Grant Gradle Wrapper permission
         run: chmod +x ./gradlew
-        working-directory: ./server
 
       - name: Build Spring Boot (Gradle)
         run: ./gradlew build
-        working-directory: ./server
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
@@ -53,7 +51,8 @@ jobs:
       - name: Build and push server Docker image
         uses: docker/build-push-action@v4 
         with:
-          context: ./server
+          context: .
+          file: ./server/Dockerfile
           push: true
           tags: |
             ghcr.io/aet-devops25/team-robogo/server:latest
@@ -99,7 +98,8 @@ jobs:
       - name: Build and push client Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./client
+          context: .
+          file: ./client/Dockerfile
           push: true
           tags: |
             ghcr.io/aet-devops25/team-robogo/client:latest
@@ -123,10 +123,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Grant Gradle Wrapper permission
+        run: chmod +x ./gradlew
+  
+      - name: Build Spring Boot (Gradle)
+        run: ./gradlew build
+      
       - name: Build and push API Gateway Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./api-gateway
+          context: .
+          file: ./api-gateway/Dockerfile
           push: true
           tags: |
             ghcr.io/aet-devops25/team-robogo/api-gateway:latest
