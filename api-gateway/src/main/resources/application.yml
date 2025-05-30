@@ -7,10 +7,9 @@ spring:
 
 gateway:
   routes:
-    - id: example_route
+    - id: server_route
       uri: http://localhost:8081
       predicates:
-        - Path=/example/**
+        - Path=/api/server/**
       filters:
         - StripPrefix=1
-# 这里可以继续添加更多路由

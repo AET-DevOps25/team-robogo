@@ -24,6 +24,11 @@ public final class Team {
     @OrderColumn(name = "round")
     private final List<Score> scores;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    @JsonIgnore
+    private Category category;
+
     public Team() {
         this("");
     }

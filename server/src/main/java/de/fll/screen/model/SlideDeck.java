@@ -1,5 +1,6 @@
 package de.fll.screen.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
@@ -24,6 +25,11 @@ public class SlideDeck {
 	@OneToMany(mappedBy = "slidedeck", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderColumn(name = "index")
 	private final List<Slide> slides;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "competition_id")
+	@JsonIgnore
+	private Competition competition;
 
 	public SlideDeck() {
 		this("", 0, new ArrayList<>());

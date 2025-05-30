@@ -1,6 +1,7 @@
 plugins {
 	id 'java'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.springframework.boot' version '3.2.0'
 }
 
 group = 'de.fll.server'
@@ -23,6 +24,7 @@ dependencies {
 	implementation 'org.springframework.integration:spring-integration-mqtt'
 	implementation "org.springframework.boot:spring-boot-starter-data-jpa"
 
+	implementation 'org.postgresql:postgresql'
 	implementation "jakarta.annotation:jakarta.annotation-api"
 
 	implementation project(':core')
@@ -43,7 +45,12 @@ dependencyManagement {
 		mavenBom "org.projectlombok:lombok:${lombokVersion}"
 		mavenBom "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
 		mavenBom "org.junit.jupiter:junit-jupiter:${junitVersion}"
+		mavenBom "org.postgresql:postgresql:${postgresqlVersion}"
 	}
+}
+
+bootJar {
+    mainClass = 'de.fll.screen.FllScreenApplication'
 }
 
 tasks.named('test') {

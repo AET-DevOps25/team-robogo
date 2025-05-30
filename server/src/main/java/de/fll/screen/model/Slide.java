@@ -16,6 +16,10 @@ public class Slide {
 	@Column(name = "name", nullable = true)
 	private String name;
 
+	@ManyToOne
+	@JoinColumn(name = "slidedeck_id", nullable = false)
+	private SlideDeck slidedeck;
+
 	public Slide() {
 
 	}
