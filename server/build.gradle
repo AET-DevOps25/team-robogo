@@ -9,7 +9,7 @@ version = '0.0.1'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(24)
+		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
 
@@ -26,12 +26,14 @@ dependencies {
 
 	implementation "jakarta.annotation:jakarta.annotation-api"
 
+	implementation project(':core')
 
 	// developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'com.h2database:h2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

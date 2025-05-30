@@ -1,8 +1,8 @@
 package de.fll.core.common;
 
 public enum ResultCode {
-    SUCCESS(200, "成功"),
-    ERROR(500, "服务器错误");
+    SUCCESS(200, "success"),
+    ERROR(500, "error");
 
     private final int code;
     private final String message;
