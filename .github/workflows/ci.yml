@@ -2,14 +2,28 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: 
+      - main
+      - 'feat/**'  # matches all feature branches
+      - 'develop'
   pull_request:
-    branches: [ main ]
+    branches: 
+      - main
+      - 'feat/**'  # matches all feature branches
+      - 'develop'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+  release:
+    types: [created, published]
 
 jobs:
   backend:
     name: Build Backend
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout code
@@ -21,17 +35,44 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Generate Gradle Wrapper
+        run: gradle wrapper
+
       - name: Grant Gradle Wrapper permission
         run: chmod +x ./gradlew
-        working-directory: ./server
 
       - name: Build Spring Boot (Gradle)
         run: ./gradlew build
-        working-directory: ./server
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push server Docker image
+        uses: docker/build-push-action@v4 
+        with:
+          context: .
+          file: ./server/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/aet-devops25/team-robogo/server:latest
+            ghcr.io/aet-devops25/team-robogo/server:${{ github.sha }}
+
+      - name: Upload server artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-artifact
+          path: ./server/build/libs/*.jar
 
   frontend:
     name: Build Frontend
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout code
@@ -49,4 +90,63 @@ jobs:
       - name: Build Vue app
         run: npm run build
         working-directory: ./client
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push client Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./client
+          push: true
+          tags: |
+            ghcr.io/aet-devops25/team-robogo/client:latest
+            ghcr.io/aet-devops25/team-robogo/client:${{ github.sha }}
+
+  api-gateway:
+    name: Build API Gateway
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Generate Gradle Wrapper
+        run: gradle wrapper
+
+      - name: Grant Gradle Wrapper permission
+        run: chmod +x ./gradlew
+
+      - name: Build Spring Boot (Gradle)
+        run: ./gradlew build
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push API Gateway Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./api-gateway/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/aet-devops25/team-robogo/api-gateway:latest
+            ghcr.io/aet-devops25/team-robogo/api-gateway:${{ github.sha }}
 
