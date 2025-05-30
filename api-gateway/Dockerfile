@@ -8,14 +8,11 @@ LABEL org.opencontainers.image.source="https://github.com/AET-DevOps25/team-robo
 
 WORKDIR /app
 
-COPY gradle.properties .
-COPY settings.gradle .
-COPY build.gradle .
+COPY . .
 
-COPY api-gateway/src ./api-gateway/src
-COPY ../core/src ./core/src
+RUN chmod +x ./gradlew
 
-RUN ./gradlew clean build -x test --no-daemon
+RUN gradle clean build -x test --no-daemon
 
 # ---- Runtime Stage ----
 FROM eclipse-temurin:17-jre
