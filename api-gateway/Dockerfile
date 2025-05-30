@@ -10,8 +10,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN chmod +x ./gradlew
-
 RUN gradle clean build -x test --no-daemon
 
 # ---- Runtime Stage ----
