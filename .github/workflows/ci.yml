@@ -29,6 +29,50 @@ jobs:
         run: ./gradlew build
         working-directory: ./server
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push server Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./server
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/${{ github.repository }}/server:latest
+            ghcr.io/${{ github.repository }}/server:${{ github.sha }}
+
+      - name: Grant Gradle Wrapper permission
+        run: chmod +x ./gradlew
+        working-directory: ./server
+
+      - name: Build Spring Boot (Gradle)
+        run: ./gradlew build
+        working-directory: ./server
+      - name: Build and push client Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./client
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/${{ github.repository }}/client:latest
+            ghcr.io/${{ github.repository }}/client:${{ github.sha }}
+      - name: Build and push API Gateway Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./api-gateway
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ghcr.io/${{ github.repository }}/api-gateway:latest
+            ghcr.io/${{ github.repository }}/api-gateway:${{ github.sha }}
+      - name: Upload server artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: server-artifact
+
   frontend:
     name: Build Frontend
     runs-on: ubuntu-latest
