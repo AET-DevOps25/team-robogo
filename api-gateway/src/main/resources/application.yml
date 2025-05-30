@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+gateway:
+  routes:
+    - id: example_route
+      uri: http://localhost:8081
+      predicates:
+        - Path=/example/**
+      filters:
+        - StripPrefix=1
+# 这里可以继续添加更多路由
