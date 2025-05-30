@@ -56,8 +56,8 @@ jobs:
           context: ./server
           push: true
           tags: |
-            ghcr.io/${{ format(github.repository, 'tolower') }}/server:latest
-            ghcr.io/${{ format(github.repository, 'tolower') }}/server:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/team-robogo/server:latest
+            ghcr.io/${{ github.repository_owner }}/team-robogo/server:${{ github.sha }}
 
       - name: Upload server artifact
         uses: actions/upload-artifact@v4
@@ -102,8 +102,8 @@ jobs:
           context: ./client
           push: true
           tags: |
-            ghcr.io/${{ format(github.repository, 'tolower') }}/client:latest
-            ghcr.io/${{ format(github.repository, 'tolower') }}/client:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/team-robogo/client:latest
+            ghcr.io/${{ github.repository_owner }}/team-robogo/client:${{ github.sha }}
 
   api-gateway:
     name: Build API Gateway
@@ -129,6 +129,6 @@ jobs:
           context: ./api-gateway
           push: true
           tags: |
-            ghcr.io/${{ format(github.repository, 'tolower') }}/api-gateway:latest
-            ghcr.io/${{ format(github.repository, 'tolower') }}/api-gateway:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/team-robogo/api-gateway:latest
+            ghcr.io/${{ github.repository_owner }}/team-robogo/api-gateway:${{ github.sha }}
 
