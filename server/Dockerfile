@@ -13,7 +13,7 @@ COPY . .
 RUN gradle clean build -x test --no-daemon
 
 # ---- Runtime Stage ----
-FROM eclipse-temurin:17-jre
+FROM gcr.io/distroless/java17-debian12
 WORKDIR /app
 COPY --from=build /app/server/build/libs/*.jar app.jar
 EXPOSE 8081
