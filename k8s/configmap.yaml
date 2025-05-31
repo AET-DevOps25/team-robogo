@@ -6,4 +6,4 @@ metadata:
 data:
   # The API URL should be your ingress hostname without the /api path
   # TODO unsure about that
-  api_url: http://gateway:8080
+  api_url: http://gateway-server:8080
