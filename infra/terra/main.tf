@@ -115,7 +115,7 @@ resource "kubernetes_deployment" "db" {
       }
     }
   }
-} 
+}
 
 
 // Create api gateway service
@@ -176,16 +176,16 @@ resource "kubernetes_deployment" "gateway" {
   }
 }
 
-# Create service for frontend
-resource "kubernetes_service" "frontend_service" {
+# Create service for client
+resource "kubernetes_service" "client_service" {
   metadata {
-    name      = "frontend-service"
+    name      = "client-service"
     namespace = kubernetes_namespace.screen.metadata[0].name
   }
 
   spec {
     selector = {
-      app = "frontend"
+      app = "client"
     }
 
     port {
@@ -200,10 +200,10 @@ resource "kubernetes_service" "frontend_service" {
 }
 
 
-# Create deployment for frontend
-resource "kubernetes_deployment" "frontend" {
+# Create deployment for client
+resource "kubernetes_deployment" "client" {
   metadata {
-    name      = "frontend"
+    name      = "client"
     namespace = kubernetes_namespace.screen.metadata[0].name
   }
 
@@ -212,20 +212,20 @@ resource "kubernetes_deployment" "frontend" {
 
     selector {
       match_labels = {
-        app = "frontend"
+        app = "client"
       }
     }
 
     template {
       metadata {
         labels = {
-          app = "frontend"
+          app = "client"
         }
       }
 
       spec {
         container {
-          name  = "frontend"
+          name  = "client"
           image = "ghcr.io/aet-devops25/team-robogo/client:main"
           port {
             container_port = 80
@@ -236,16 +236,16 @@ resource "kubernetes_deployment" "frontend" {
   }
 }
 
-# Create backend service
-resource "kubernetes_service" "backend_service" {
+# Create server service
+resource "kubernetes_service" "server_service" {
   metadata {
-    name      = "backend-service"
+    name      = "server-service"
     namespace = kubernetes_namespace.screen.metadata[0].name
   }
 
   spec {
     selector = {
-      app = "backend"
+      app = "server"
     }
 
     port {
@@ -259,10 +259,10 @@ resource "kubernetes_service" "backend_service" {
   }
 }
 
-# Create deployment for backend
-resource "kubernetes_deployment" "backend" {
+# Create deployment for server
+resource "kubernetes_deployment" "server" {
   metadata {
-    name      = "backend"
+    name      = "server"
     namespace = kubernetes_namespace.screen.metadata[0].name
   }
 
@@ -271,20 +271,20 @@ resource "kubernetes_deployment" "backend" {
 
     selector {
       match_labels = {
-        app = "backend"
+        app = "server"
       }
     }
 
     template {
       metadata {
         labels = {
-          app = "backend"
+          app = "server"
         }
       }
 
       spec {
         container {
-          name  = "backend"
+          name  = "server"
           image = "ghcr.io/aet-devops25/team-robogo/server:main"
           port {
             container_port = 8081
