@@ -1,0 +1,3 @@
+environment = "development"
+namespace   = "team-robogo"
+debug       = true 
