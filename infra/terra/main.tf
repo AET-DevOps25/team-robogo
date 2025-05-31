@@ -12,11 +12,11 @@ provider "kubernetes" {
 }
 
 # Create namespace
-resource "kubernetes_namespace" "screen" {
+resource "kubernetes_namespace" "team-robogo" {
   metadata {
-    name = "screen"
+    name = "team-robogo"
     labels = {
-      name = "screen"
+      name = "team-robogo"
     }
   }
 }
@@ -25,7 +25,7 @@ resource "kubernetes_namespace" "screen" {
 resource "kubernetes_config_map" "screen_config" {
   metadata {
     name      = "screen-config"
-    namespace = kubernetes_namespace.screen.metadata[0].name
+    namespace = kubernetes_namespace.team-robogo.metadata[0].name
   }
 
   data = {
@@ -37,7 +37,7 @@ resource "kubernetes_config_map" "screen_config" {
 resource "kubernetes_service" "db_service" {
   metadata {
     name      = "db-service"
-    namespace = kubernetes_namespace.screen.metadata[0].name
+    namespace = kubernetes_namespace.team-robogo.metadata[0].name
   }
 
   spec {
@@ -59,7 +59,7 @@ resource "kubernetes_service" "db_service" {
 resource "kubernetes_deployment" "db" {
   metadata {
     name      = "db"
-    namespace = kubernetes_namespace.screen.metadata[0].name
+    namespace = kubernetes_namespace.team-robogo.metadata[0].name
   }
 
   spec {
@@ -122,7 +122,7 @@ resource "kubernetes_deployment" "db" {
 resource "kubernetes_service" "gateway_service" {
   metadata {
     name      = "gateway-service"
-    namespace = kubernetes_namespace.screen.metadata[0].name
+    namespace = kubernetes_namespace.team-robogo.metadata[0].name
   }
 
   spec {
@@ -144,7 +144,7 @@ resource "kubernetes_service" "gateway_service" {
 resource "kubernetes_deployment" "gateway" {
   metadata {
     name      = "gateway"
-    namespace = kubernetes_namespace.screen.metadata[0].name
+    namespace = kubernetes_namespace.team-robogo.metadata[0].name
   }
 
   spec {
@@ -180,7 +180,7 @@ resource "kubernetes_deployment" "gateway" {
 resource "kubernetes_service" "client_service" {
   metadata {
     name      = "client-service"
-    namespace = kubernetes_namespace.screen.metadata[0].name
+    namespace = kubernetes_namespace.team-robogo.metadata[0].name
   }
 
   spec {
@@ -204,7 +204,7 @@ resource "kubernetes_service" "client_service" {
 resource "kubernetes_deployment" "client" {
   metadata {
     name      = "client"
-    namespace = kubernetes_namespace.screen.metadata[0].name
+    namespace = kubernetes_namespace.team-robogo.metadata[0].name
   }
 
   spec {
@@ -240,7 +240,7 @@ resource "kubernetes_deployment" "client" {
 resource "kubernetes_service" "server_service" {
   metadata {
     name      = "server-service"
-    namespace = kubernetes_namespace.screen.metadata[0].name
+    namespace = kubernetes_namespace.team-robogo.metadata[0].name
   }
 
   spec {
@@ -263,7 +263,7 @@ resource "kubernetes_service" "server_service" {
 resource "kubernetes_deployment" "server" {
   metadata {
     name      = "server"
-    namespace = kubernetes_namespace.screen.metadata[0].name
+    namespace = kubernetes_namespace.team-robogo.metadata[0].name
   }
 
   spec {

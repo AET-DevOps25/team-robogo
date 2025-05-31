@@ -1,0 +1,28 @@
+namespace:
+  name: team-robogo
+  create: false
+
+configMap:
+  name: screen-config
+
+database:
+  service:
+    name: db-service
+    port: 5432
+
+gateway:
+  service:
+    name: gateway-service
+    port: 8080
+
+client:
+  service:
+    name: client-service
+    port: 80
+    nodePort: 30000
+
+server:
+  service:
+    name: server-service
+    port: 8081
+    nodePort: 30001

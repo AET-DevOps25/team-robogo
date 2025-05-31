@@ -1,7 +1,7 @@
 variable "namespace" {
   description = "Kubernetes namespace name"
   type        = string
-  default     = "screen"
+  default     = "team-robogo"
 }
 
 variable "postgres_user" {
@@ -26,7 +26,7 @@ variable "gateway_url" {
   description = "API gateway URL"
   type        = string
   default     = "http://gateway-service:8080/api"
-} 
+}
 
 variable "db_url" {
   description = "Database URL"

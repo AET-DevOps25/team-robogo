@@ -1,6 +1,6 @@
 output "namespace" {
   description = "Created namespace name"
-  value       = kubernetes_namespace.screen.metadata[0].name
+  value       = kubernetes_namespace.team-robogo.metadata[0].name
 }
 
 output "db_service_name" {
