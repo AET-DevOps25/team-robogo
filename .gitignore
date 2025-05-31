@@ -379,3 +379,6 @@ sketch
 # Recommended template: Node.gitignore
 
 .gradle/
+
+# Kubernetes
+.kube/
