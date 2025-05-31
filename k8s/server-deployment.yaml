@@ -26,4 +26,6 @@ spec:
               value: "robogo"
             - name: SPRING_DATASOURCE_PASSWORD
               value: "robogo_pass"
+            - name: SERVER_PORT
+              value: "8081"
 
