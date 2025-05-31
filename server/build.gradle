@@ -29,6 +29,7 @@ dependencies {
 
 	implementation project(':core')
 
+	developmentOnly 'com.h2database:h2:2.3.232'
 	// developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
