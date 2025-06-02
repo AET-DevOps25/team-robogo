@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-
+import ScreenCard from './components/ScreenCard.vue';
 const testResponse = ref('') // display Returned Text from API
 
 const callTestApi = async () => {
@@ -13,6 +13,39 @@ const callTestApi = async () => {
     testResponse.value = 'Error calling API'
   }
 }
+
+const screens = ref([
+  {
+    id: 1,
+    name: 'Screen 1',
+    status: 'online',
+    currentContent: 'Image A',
+    thumbnailUrl: './5.png'
+  },
+  {
+    id: 2,
+    name: 'Screen 2',
+    status: 'offline',
+    currentContent: 'Image B',
+    thumbnailUrl: './5.png'
+  }
+  ,
+  {
+    id: 3,
+    name: 'Screen 3',
+    status: 'offline',
+    currentContent: 'Image C',
+    thumbnailUrl: './5.png'
+  }
+  ,
+  {
+    id: 4,
+    name: 'Screen 4',
+    status: 'offline',
+    currentContent: 'Image 4',
+    thumbnailUrl: './5.png'
+  }
+]);
 </script>
 
 
@@ -21,7 +54,7 @@ const callTestApi = async () => {
     <!--Screens Preview -->
     <section>
       <h2 class="text-2xl font-bold mb-4">Screens Preview</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div class="flex flex-wrap gap-6 justify-start">
         <ScreenCard v-for="screen in screens" :key="screen.id" :screen="screen" />
       </div>
     </section>
