@@ -16,3 +16,7 @@ spring:
   web:
     resources:
       static-locations: []
+
+logging:
+  level:
+    root: DEBUG
