@@ -1,11 +1,11 @@
 name: CI Pipeline
 
 on:
-  push: # 所有分支的 push 都会触发
+  push: # Trigger all pushes
   pull_request:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # 每天凌晨 UTC 时间执行
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
   release:
     types: [created, published]
 
