@@ -1,13 +1,13 @@
 name: CI Pipeline
 
 on:
-  push: # All pushes
+  push: # 所有分支的 push 都会触发
   pull_request:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+    - cron: '0 0 * * *'  # 每天凌晨 UTC 时间执行
   release:
-    types: [ created, published ]
+    types: [created, published]
 
 jobs:
   server:
@@ -20,6 +20,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up tag (replace / with -)
+        id: server_tag
+        run: |
+          SAFE_TAG=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          echo "tag=$SAFE_TAG" >> $GITHUB_OUTPUT
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -37,7 +43,7 @@ jobs:
           tags: |
             ghcr.io/aet-devops25/team-robogo/server:latest
             ghcr.io/aet-devops25/team-robogo/server:${{ github.sha }}
-            ghcr.io/aet-devops25/team-robogo/server:${{ replace(github.ref_name, '/', '-') }}
+            ghcr.io/aet-devops25/team-robogo/server:${{ steps.server_tag.outputs.tag }}
 
   client:
     name: Build Client
@@ -49,6 +55,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up tag (replace / with -)
+        id: client_tag
+        run: |
+          SAFE_TAG=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          echo "tag=$SAFE_TAG" >> $GITHUB_OUTPUT
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -65,7 +77,7 @@ jobs:
           tags: |
             ghcr.io/aet-devops25/team-robogo/client:latest
             ghcr.io/aet-devops25/team-robogo/client:${{ github.sha }}
-            ghcr.io/aet-devops25/team-robogo/client:${{ replace(github.ref_name, '/', '-') }}
+            ghcr.io/aet-devops25/team-robogo/client:${{ steps.client_tag.outputs.tag }}
 
   api-gateway:
     name: Build API Gateway
@@ -77,6 +89,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up tag (replace / with -)
+        id: gateway_tag
+        run: |
+          SAFE_TAG=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          echo "tag=$SAFE_TAG" >> $GITHUB_OUTPUT
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -94,4 +112,4 @@ jobs:
           tags: |
             ghcr.io/aet-devops25/team-robogo/api-gateway:latest
             ghcr.io/aet-devops25/team-robogo/api-gateway:${{ github.sha }}
-            ghcr.io/aet-devops25/team-robogo/api-gateway:${{ replace(github.ref_name, '/', '-') }}
+            ghcr.io/aet-devops25/team-robogo/api-gateway:${{ steps.gateway_tag.outputs.tag }}
