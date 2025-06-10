@@ -1,0 +1,52 @@
+name: AWS Deployment
+
+# For testing purposes I want this to be inputed manually right now.
+# When everything is working, I will change this to secrets.
+on:
+  workflow_dispatch:
+    inputs:
+      PRIVATE_KEY:
+        description: 'aws ssh key in a pem file'
+        required: true
+      EC2_USER:
+        description: 'the user to ssh into the ec2 instance'
+        required: true
+        default: 'ubuntu'
+      EC2_HOST:
+        description: 'public ip of the ec2 instance'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Write ssh key to infra/pk.pem
+        run: |
+          echo "${{ github.event.inputs.PRIVATE_KEY }}" > infra/pk.pem
+          chmod 400 infra/pk.pem
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.12.1
+
+      - name: Helm installieren
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.11.0'
+
+      - name: Run Terraform
+        run: |
+          terraform -chdir=infra/terra init
+          terraform -chdir=infra/terra apply -auto-approve
+
+      - name: Deploy using Helm
+        run: |
+          ssh -i infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} << 'EOF'
+          export KUBECONFIG=/home/${{ github.event.inputs.EC2_USER }}/kubeconfig
+          helm upgrade --install team-robogo ./infra/helm/screen --namespace team-robogo --create-namespaces
+          EOF    
