@@ -1,0 +1,47 @@
+name: AWS Deployment
+
+# For testing purposes I want this to be inputed manually right now.
+# When everything is working, I will change this to secrets.
+on:
+  workflow_dispatch:
+    inputs:
+      PRIVATE_KEY:
+        description: 'aws ssh key in a pem file'
+        required: true
+      AWS_ACCESS_KEY_ID:
+        description: 'aws access key id'
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        description: 'aws secret key'
+        required: true
+      AWS_SESSION_TOKEN:
+        description: 'running aws session token'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Write ssh key to infra/pk.pem
+        run: |
+          echo "${{ github.event.inputs.PRIVATE_KEY }}" > infra/terra/pk.pem
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.12.1
+
+      - name: Create EC2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ github.event.inputs.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ github.event.inputs.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ github.event.inputs.AWS_SESSION_TOKEN }}
+        run: |
+          cd infra/terra
+          chmod 400 pk.pem
+          ssh -i pk.pem admin@$(shell terraform output -raw ip)
+          terraform init -input=false
+          terraform apply -input=false --auto-approve
