@@ -8,27 +8,45 @@ on:
       PRIVATE_KEY:
         description: 'aws ssh key in a pem file'
         required: true
+      EC2_USER:
+        description: 'the user to ssh into the ec2 instance'
+        required: true
+        default: 'ubuntu'
+      EC2_HOST:
+        description: 'public ip of the ec2 instance'
+        required: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Write ssh key to infra/pk.pem
         run: |
-          echo "${{ github.event.inputs.PRIVATE_KEY }}" > infra/terra/pk.pem
+          echo "${{ github.event.inputs.PRIVATE_KEY }}" > infra/pk.pem
+          chmod 400 infra/pk.pem
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.12.1
 
-      - name: Create EC2
+      - name: Helm installieren
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.11.0'
+
+      - name: Run Terraform
         run: |
-          cd infra/terra
-          chmod 400 pk.pem
-          ssh -i pk.pem admin@$(shell terraform output -raw ip)
-          terraform init -input=false
-          terraform apply -input=false --auto-approve
+          terraform -chdir=infra/terra init
+          terraform -chdir=infra/terra apply -auto-approve
+
+      - name: Deploy using Helm
+        run: |
+          ssh -i infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} << 'EOF'
+          export KUBECONFIG=/home/${{ github.event.inputs.EC2_USER }}/kubeconfig
+          helm upgrade --install team-robogo ./infra/helm/screen --namespace team-robogo --create-namespaces
+          EOF    
