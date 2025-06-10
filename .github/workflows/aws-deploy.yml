@@ -44,14 +44,24 @@ jobs:
         with:
           version: 'v1.26.0'
 
-      - name: Run Ansible Playbooks
-        run: |
-          ssh -t -i infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} << 'EOF'
-          sudo apt update
-          sudo apt install -y ansible
-          ansible-playbook -i "localhost," -c local infra/ansible/playbooks/install-docker.yml
-          ansible-playbook -i "localhost," -c local infra/ansible/playbooks/install-kubernetes.yml
-          EOF
+      - name: Run Ansible Docker playbook
+        uses: dawidd6/action-ansible-playbook@v3
+        with:
+          playbook: infra/ansible/playbooks/install-docker.yml
+          key: infra/pk.pem
+          inventory: |
+            [all]
+            ${{ github.event.inputs.EC2_HOST }} ansible_user=${{ github.event.inputs.EC2_USER }}
+
+
+      - name: Run Ansible Kubernetes playbook
+        uses: dawidd6/action-ansible-playbook@v3
+        with:
+          playbook: infra/ansible/playbooks/install-kubernetes.yml
+          key: infra/pk.pem
+          inventory: |
+            [all]
+            ${{ github.event.inputs.EC2_HOST }} ansible_user=${{ github.event.inputs.EC2_USER }}
 
       - name: Run Terraform
         run: |
