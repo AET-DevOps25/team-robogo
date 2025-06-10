@@ -34,10 +34,15 @@ jobs:
         with:
           terraform_version: 1.12.1
 
-      - name: Helm installieren
-        uses: azure/setup-helm@v3
+      - name: Install Helm
+        uses: azure/setup-helm@v4
         with:
           version: 'v3.11.0'
+
+      - name: Set up Kubernetes
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.26.0'
 
       - name: Run Terraform
         run: |
