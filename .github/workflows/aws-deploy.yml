@@ -46,7 +46,7 @@ jobs:
 
       - name: Run Ansible Playbooks
         run: |
-          ssh -i infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} << 'EOF'
+          ssh -t -i infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} << 'EOF'
           sudo apt update
           sudo apt install -y ansible
           ansible-playbook -i "localhost," -c local infra/ansible/playbooks/install-docker.yml
