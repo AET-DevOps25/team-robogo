@@ -8,15 +8,6 @@ on:
       PRIVATE_KEY:
         description: 'aws ssh key in a pem file'
         required: true
-      AWS_ACCESS_KEY_ID:
-        description: 'aws access key id'
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        description: 'aws secret key'
-        required: true
-      AWS_SESSION_TOKEN:
-        description: 'running aws session token'
-        required: true
 
 jobs:
   deploy:
@@ -35,10 +26,6 @@ jobs:
           terraform_version: 1.12.1
 
       - name: Create EC2
-        env:
-          AWS_ACCESS_KEY_ID: ${{ github.event.inputs.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ github.event.inputs.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ github.event.inputs.AWS_SESSION_TOKEN }}
         run: |
           cd infra/terra
           chmod 400 pk.pem
