@@ -1,41 +1,30 @@
 ---
-- name: Install Kubernetes
-  hosts: all
+- name: Setup Kubernetes (k3s) on EC2
+  hosts: ec2
   become: true
+
   tasks:
-    - name: Update apt package index
-      apt:
-        update_cache: yes
-
     - name: Install required packages
-      apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
+      yum:
+        name: curl
         state: present
 
-    - name: Add Kubernetes apt-key
-      get_url:
-        url: https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key
-        dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
-        mode: "0644"
-        force: true
+    - name: Install k3s
+      shell: curl -sfL https://get.k3s.io | sh -
 
-    - name: Add Kubernetes Repository
-      apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /"
-        state: present
-        update_cache: yes
+    - name: Wait for kubeconfig to be ready
+      wait_for:
+        path: /etc/rancher/k3s/k3s.yaml
+        timeout: 30
 
-    - name: Update apt package index
-      apt:
-        update_cache: yes
+    - name: Copy kubeconfig to regular user
+      become_user: ec2-user
+      shell: |
+        mkdir -p /home/ec2-user/.kube
+        cp /etc/rancher/k3s/k3s.yaml /home/ec2-user/.kube/config
+        chown ec2-user:ec2-user /home/ec2-user/.kube/config
+        sed -i "s/127.0.0.1/localhost/" /home/ec2-user/.kube/config
 
-    - name: Install Kubernetes components
-      apt:
-        name:
-          - kubelet
-          - kubeadm
-          - kubectl
-        state: present
+    - name: Install Helm
+      shell: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash

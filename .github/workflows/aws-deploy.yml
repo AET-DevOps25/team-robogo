@@ -44,24 +44,27 @@ jobs:
         with:
           version: 'v1.26.0'
 
-      - name: Run Ansible Docker playbook
-        uses: dawidd6/action-ansible-playbook@v3
-        with:
-          playbook: infra/ansible/playbooks/install-docker.yml
-          key: infra/pk.pem
-          inventory: |
-            [all]
-            ${{ github.event.inputs.EC2_HOST }} ansible_user=${{ github.event.inputs.EC2_USER }}
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Generate Ansible inventory
+        run: |
+          cd infra
+          echo "[ec2]" > inventory.ini
+          echo "target ansible_host=${{ github.event.inputs.EC2_HOST }} ansible_user=${{ github.event.inputs.EC2_USER }} ansible_ssh_private_key_file=./pk.pem" >> inventory.ini
 
 
-      - name: Run Ansible Kubernetes playbook
-        uses: dawidd6/action-ansible-playbook@v3
-        with:
-          playbook: infra/ansible/playbooks/install-kubernetes.yml
-          key: infra/pk.pem
-          inventory: |
-            [all]
-            ${{ github.event.inputs.EC2_HOST }} ansible_user=${{ github.event.inputs.EC2_USER }}
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook -i infra/inventory.ini infra/ansible/playbooks/install-kubernetes.yml
+
+      #- name: Configure AWS CLI
+      #  run: |
+      #    aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #    aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #    aws configure set region us-east-1
 
       - name: Run Terraform
         run: |
