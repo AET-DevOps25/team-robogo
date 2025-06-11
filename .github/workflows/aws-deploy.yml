@@ -26,8 +26,20 @@ jobs:
 
       - name: Write ssh key to infra/pk.pem
         run: |
-          echo "${{ github.event.inputs.PRIVATE_KEY }}" > infra/pk.pem
-          chmod 600 infra/pk.pem
+          echo "${{ github.event.inputs.PRIVATE_KEY }}" > ./infra/pk.pem
+          chmod 600 ./infra/pk.pem
+          ssh-keygen -y -f ./infra/pk.pem > /dev/null
+          if [ $? -ne 0 ]; then
+            echo "Invalid private key provided. Please check the PRIVATE_KEY input."
+            exit 1
+          fi
+
+      - name: Add server to known_hosts
+        run: ssh-keyscan -H "${{ github.event.inputs.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ./infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} 'echo "SSH connection successful"'
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
@@ -52,7 +64,7 @@ jobs:
       - name: Generate Ansible inventory
         run: |
           echo "[ec2]" > infra/inventory.ini
-          echo "target ansible_host=${{ github.event.inputs.EC2_HOST }} ansible_user=${{ github.event.inputs.EC2_USER }} ansible_ssh_private_key_file=infra/pk.pem" >> infra/inventory.ini
+          echo "target ansible_host=${{ github.event.inputs.EC2_HOST }} ansible_user=${{ github.event.inputs.EC2_USER }} ansible_ssh_private_key_file=./infra/pk.pem" >> infra/inventory.ini
 
       - name: Run Ansible Playbook
         env:
