@@ -10,8 +10,15 @@
         state: present
         update_cache: yes
 
-    - name: Install k3s
-      shell: curl -sfL https://get.k3s.io | sh -
+    - name: Install k3s if not already installed
+      shell: |
+        if ! command -v k3s >/dev/null 2>&1; then
+          curl -sfL https://get.k3s.io | sh -
+        else
+          echo "k3s already installed"
+        fi
+      become: true
+
 
     - name: Wait for kubeconfig to be ready
       wait_for:
