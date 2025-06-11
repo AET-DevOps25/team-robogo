@@ -34,13 +34,6 @@ jobs:
             exit 1
           fi
 
-      - name: Add server to known_hosts
-        run: ssh-keyscan -H "${{ github.event.inputs.EC2_HOST }}" >> ~/.ssh/known_hosts
-
-      - name: Test SSH connection
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ./infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} 'echo "SSH connection successful"'
-
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
         with:
