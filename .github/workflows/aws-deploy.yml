@@ -27,7 +27,7 @@ jobs:
       - name: Write ssh key to infra/pk.pem
         run: |
           echo "${{ github.event.inputs.PRIVATE_KEY }}" > infra/pk.pem
-          chmod 400 infra/pk.pem
+          chmod 600 infra/pk.pem
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
