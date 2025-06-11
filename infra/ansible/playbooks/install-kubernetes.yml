@@ -4,12 +4,12 @@
   become: true
 
   tasks:
-    - name: Install required packages
-      apt:
-        name: curl
-        state: present
-        update_cache: yes
-      become: true
+    #- name: Install required packages
+    #  apt:
+    #    name: curl
+    #    state: present
+    #    update_cache: yes
+    #  become: true
 
     - name: Install k3s if not already installed
       shell: |
