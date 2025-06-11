@@ -51,10 +51,8 @@ jobs:
 
       - name: Generate Ansible inventory
         run: |
-          cd infra
-          echo "[ec2]" > inventory.ini
-          echo "target ansible_host=${{ github.event.inputs.EC2_HOST }} ansible_user=${{ github.event.inputs.EC2_USER }} ansible_ssh_private_key_file=./pk.pem" >> inventory.ini
-
+          echo "[ec2]" > infra/inventory.ini
+          echo "target ansible_host=${{ github.event.inputs.EC2_HOST }} ansible_user=${{ github.event.inputs.EC2_USER }} ansible_ssh_private_key_file=infra/pk.pem" >> infra/inventory.ini
 
       - name: Run Ansible Playbook
         env:
