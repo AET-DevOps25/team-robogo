@@ -67,7 +67,7 @@ jobs:
 
       - name: Copy Helm chart to EC2
         run: |
-          scp -o StrictHostKeyChecking=no -i infra/pk.pem -r ./infra/helm/screen ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/screen-chart
+          scp -o StrictHostKeyChecking=no -i infra/pk.pem -r ./infra/helm/screen ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }}:/home/ubuntu/screen-chart
 
 
       - name: Deploy using Helm
