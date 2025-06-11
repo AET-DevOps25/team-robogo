@@ -74,7 +74,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} << 'EOF'
           export KUBECONFIG=/home/${{ github.event.inputs.EC2_USER }}/.kube/config
-          kubectl get ns team-robogo || kubectl create namespace team-robogo
           helm upgrade --install team-robogo /home/ubuntu/screen-chart --namespace team-robogo --create-namespace
           rm -rf /home/ubuntu/screen-chart
           EOF
