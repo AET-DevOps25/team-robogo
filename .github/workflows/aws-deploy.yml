@@ -63,7 +63,7 @@ jobs:
         env:
           ANSIBLE_HOST_KEY_CHECKING: 'false'
         run: |
-          ansible-playbook -i infra/inventory.ini infra/ansible/playbooks/install-kubernetes.yml
+          ansible-playbook -i infra/inventory.ini infra/ansible/playbooks/install-kubernetes.yml -vvv
 
       - name: Deploy using Helm
         run: |
