@@ -18,13 +18,13 @@
         path: /etc/rancher/k3s/k3s.yaml
         timeout: 30
 
-    - name: Copy kubeconfig to regular user
-      become_user: ec2-user
+    - name: Copy kubeconfig to user manually
       shell: |
-        mkdir -p /home/ec2-user/.kube
-        cp /etc/rancher/k3s/k3s.yaml /home/ec2-user/.kube/config
-        chown ec2-user:ec2-user /home/ec2-user/.kube/config
-        sed -i "s/127.0.0.1/localhost/" /home/ec2-user/.kube/config
+        mkdir -p /home/ubuntu/.kube
+        cp /etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/config
+        chown -R ubuntu:ubuntu /home/ubuntu/.kube
+        sed -i "s/127.0.0.1/localhost/" /home/ubuntu/.kube/config
+      become: true
 
     - name: Install Helm
       shell: |
