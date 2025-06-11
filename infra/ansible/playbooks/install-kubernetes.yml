@@ -33,6 +33,12 @@
         sed -i "s/127.0.0.1/localhost/" /home/ubuntu/.kube/config
       become: true
 
-    - name: Install Helm
+    - name: Install Helm if not already installed
       shell: |
-        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+        if ! command -v helm >/dev/null 2>&1; then
+          curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+        else
+          echo "Helm is already installed"
+        fi
+      args:
+        executable: /bin/bash
