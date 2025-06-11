@@ -5,9 +5,10 @@
 
   tasks:
     - name: Install required packages
-      yum:
+      apt:
         name: curl
         state: present
+        update_cache: yes
 
     - name: Install k3s
       shell: curl -sfL https://get.k3s.io | sh -
