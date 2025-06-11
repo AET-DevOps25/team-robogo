@@ -78,7 +78,7 @@ jobs:
 
       - name: Deploy using Helm
         run: |
-          ssh -i infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} << 'EOF'
-          export KUBECONFIG=/home/${{ github.event.inputs.EC2_USER }}/kubeconfig
+          ssh -o StrictHostKeyChecking=no -i infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} << 'EOF'
+          export KUBECONFIG=/home/${{ github.event.inputs.EC2_USER }}/.kube/config
           helm upgrade --install team-robogo ./infra/helm/screen --namespace team-robogo --create-namespaces
           EOF    
