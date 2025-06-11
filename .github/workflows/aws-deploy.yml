@@ -67,13 +67,14 @@ jobs:
 
       - name: Copy Helm chart to EC2
         run: |
-          scp -o StrictHostKeyChecking=no -i infra/pk.pem -r ./infra/helm/screen ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }}:/home/ubuntu/screen-chart
+          scp -o StrictHostKeyChecking=no -i infra/pk.pem -r ./infra/helm/screen ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }}:/home/${{ github.event.inputs.EC2_USER }}/screen-chart
 
 
       - name: Deploy using Helm
         run: |
           ssh -o StrictHostKeyChecking=no -i infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} << 'EOF'
+          kubectl delete namespace team-robogo --ignore-not-found
           export KUBECONFIG=/home/${{ github.event.inputs.EC2_USER }}/.kube/config
-          helm upgrade --install team-robogo /home/ubuntu/screen-chart --namespace team-robogo --create-namespace
-          rm -rf /home/ubuntu/screen-chart
+          helm upgrade --install team-robogo /home/${{ github.event.inputs.EC2_USER }}/screen-chart --namespace team-robogo --create-namespace
+          rm -rf /home/${{ github.event.inputs.EC2_USER }}/screen-chart
           EOF
