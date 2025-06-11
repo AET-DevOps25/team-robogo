@@ -26,7 +26,7 @@ jobs:
 
       - name: Write ssh key to infra/pk.pem
         run: |
-          echo "${{ github.event.inputs.PRIVATE_KEY }}" > ./infra/pk.pem
+          echo "${{ github.event.inputs.PRIVATE_KEY }}" | sed 's/\\n/\n/g' > ./infra/pk.pem
           chmod 600 ./infra/pk.pem
           ssh-keygen -y -f ./infra/pk.pem > /dev/null
           if [ $? -ne 0 ]; then
