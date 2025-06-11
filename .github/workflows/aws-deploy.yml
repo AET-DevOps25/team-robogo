@@ -63,12 +63,18 @@ jobs:
         env:
           ANSIBLE_HOST_KEY_CHECKING: 'false'
         run: |
-          ansible-playbook -i infra/inventory.ini infra/ansible/playbooks/install-kubernetes.yml -vvv
+          ansible-playbook -i infra/inventory.ini infra/ansible/playbooks/install-kubernetes.yml -v
+
+      - name: Copy Helm chart to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no -i infra/pk.pem -r ./infra/helm/screen ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/screen-chart
+
 
       - name: Deploy using Helm
         run: |
           ssh -o StrictHostKeyChecking=no -i infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} << 'EOF'
           export KUBECONFIG=/home/${{ github.event.inputs.EC2_USER }}/.kube/config
           kubectl get ns team-robogo || kubectl create namespace team-robogo
-          helm upgrade --install team-robogo ./infra/helm/screen --namespace team-robogo --create-namespace
-          EOF    
+          helm upgrade --install team-robogo /home/ubuntu/screen-chart --namespace team-robogo --create-namespace
+          rm -rf /home/ubuntu/screen-chart
+          EOF
