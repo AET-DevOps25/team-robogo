@@ -5,13 +5,6 @@ name: AWS Deployment
 on:
   workflow_dispatch:
     inputs:
-      PRIVATE_KEY:
-        description: 'aws ssh key in a pem file'
-        required: true
-      EC2_USER:
-        description: 'the user to ssh into the ec2 instance'
-        required: true
-        default: 'ubuntu'
       EC2_HOST:
         description: 'public ip of the ec2 instance'
         required: true
@@ -26,7 +19,7 @@ jobs:
 
       - name: Write ssh key to infra/pk.pem
         run: |
-          echo "${{ github.event.inputs.PRIVATE_KEY }}" | sed 's/\\n/\n/g' > ./infra/pk.pem
+          echo "${{ secrets.PRIVATE_KEY }}" | sed 's/\\n/\n/g' > ./infra/pk.pem
           chmod 600 ./infra/pk.pem
           ssh-keygen -y -f ./infra/pk.pem > /dev/null
           if [ $? -ne 0 ]; then
@@ -57,7 +50,7 @@ jobs:
       - name: Generate Ansible inventory
         run: |
           echo "[ec2]" > infra/inventory.ini
-          echo "target ansible_host=${{ github.event.inputs.EC2_HOST }} ansible_user=${{ github.event.inputs.EC2_USER }} ansible_ssh_private_key_file=./infra/pk.pem" >> infra/inventory.ini
+          echo "target ansible_host=${{ github.event.inputs.EC2_HOST }} ansible_user=ubuntu ansible_ssh_private_key_file=./infra/pk.pem" >> infra/inventory.ini
 
       - name: Run Ansible Playbook
         env:
@@ -67,14 +60,14 @@ jobs:
 
       - name: Copy Helm chart to EC2
         run: |
-          scp -o StrictHostKeyChecking=no -i infra/pk.pem -r ./infra/helm/screen ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }}:/home/${{ github.event.inputs.EC2_USER }}/screen-chart
+          scp -o StrictHostKeyChecking=no -i infra/pk.pem -r ./infra/helm/screen ubuntu@${{ github.event.inputs.EC2_HOST }}:/home/ubuntu/screen-chart
 
 
       - name: Deploy using Helm
         run: |
-          ssh -o StrictHostKeyChecking=no -i infra/pk.pem ${{ github.event.inputs.EC2_USER }}@${{ github.event.inputs.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i infra/pk.pem ubuntu@${{ github.event.inputs.EC2_HOST }} << 'EOF'
           kubectl delete namespace team-robogo --ignore-not-found
-          export KUBECONFIG=/home/${{ github.event.inputs.EC2_USER }}/.kube/config
-          helm upgrade --install team-robogo /home/${{ github.event.inputs.EC2_USER }}/screen-chart --namespace team-robogo --create-namespace
-          rm -rf /home/${{ github.event.inputs.EC2_USER }}/screen-chart
+          export KUBECONFIG=/home/ubuntu/.kube/config
+          helm upgrade --install team-robogo /home/ubuntu/screen-chart --namespace team-robogo --create-namespace
+          rm -rf /home/ubuntu/screen-chart
           EOF
