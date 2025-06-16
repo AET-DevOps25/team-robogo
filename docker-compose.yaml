@@ -36,6 +36,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:80"
+  genai:
+    build:
+      context: ./genai
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
 
 volumes:
   postgres_data:
