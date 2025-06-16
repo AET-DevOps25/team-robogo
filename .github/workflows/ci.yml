@@ -113,3 +113,37 @@ jobs:
             ghcr.io/aet-devops25/team-robogo/api-gateway:latest
             ghcr.io/aet-devops25/team-robogo/api-gateway:${{ github.sha }}
             ghcr.io/aet-devops25/team-robogo/api-gateway:${{ steps.gateway_tag.outputs.tag }}
+  genai:
+    name: Build GenAI Service
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up tag (replace / with -)
+        id: genai_tag
+        run: |
+          SAFE_TAG=$(echo "${{ github.ref_name }}" | tr '/' '-')
+          echo "tag=$SAFE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push GenAI Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./genai
+          file: ./genai/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/aet-devops25/team-robogo/genai:latest
+            ghcr.io/aet-devops25/team-robogo/genai:${{ github.sha }}
+            ghcr.io/aet-devops25/team-robogo/genai:${{ steps.genai_tag.outputs.tag }}
