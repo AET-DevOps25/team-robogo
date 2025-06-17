@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package de.fll.core.proto;
+
+import "score.proto";
+
+message Team {
+    int64 id = 1;
+    string name = 2;
+    int32 rank = 3;
+    repeated Score scores = 4;
+}

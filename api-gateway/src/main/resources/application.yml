@@ -13,6 +13,12 @@ spring:
             - Path=/api/server/**
           filters:
             - StripPrefix=1
+        - id: genai_route
+          uri: http://genai:5000
+          predicates:
+            - Path=/api/genai/**
+          filters:
+            - StripPrefix=1
   web:
     resources:
       static-locations: []

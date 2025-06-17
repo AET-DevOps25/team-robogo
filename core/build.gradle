@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.protobuf' version '0.9.4'
 }
 
 group = 'de.fll.core'
@@ -19,6 +20,7 @@ repositories {
 dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'org.projectlombok:lombok'
+    implementation 'com.google.protobuf:protobuf-java:3.25.1'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
@@ -35,3 +37,22 @@ dependencyManagement {
         mavenBom "org.junit.jupiter:junit-jupiter:${junitVersion}"
     }
 }
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.25.1"
+    }
+    generatedFilesBaseDir = "$projectDir/src/generated"
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += 'src/generated/main/java'
+        }
+        proto {
+            srcDirs = ['proto']
+        }
+    }
+}
+
