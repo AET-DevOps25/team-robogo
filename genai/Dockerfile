@@ -18,4 +18,4 @@ FROM gcr.io/distroless/python3-debian12
 COPY --from=build-venv /venv /venv
 COPY . /app
 WORKDIR /app
-ENTRYPOINT ["/venv/bin/python3", "main.py"]
+ENTRYPOINT ["/venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5000"]
