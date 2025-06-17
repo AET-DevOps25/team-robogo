@@ -1,5 +1,7 @@
 package de.fll.screen.service.comparators;
 
+import de.fll.screen.model.Score;
+import de.fll.screen.model.Team;
 import de.fll.core.proto.TeamOuterClass;
 import de.fll.core.proto.ScoreOuterClass;
 
@@ -8,24 +10,21 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.springframework.lang.NonNull;
-
 abstract class AbstractFLLComparator implements CategoryComparator {
 
-	protected abstract List<ScoreOuterClass.Score> getRelevantScores(TeamOuterClass.Team team);
+	protected abstract List<Score> getRelevantScores(Team team);
 
-	protected List<TeamOuterClass.Team> assignRanks(Set<TeamOuterClass.Team> teams, 
-		@NonNull Function<TeamOuterClass.Team, ScoreOuterClass.Score> scoreExtractor) {
-		List<TeamOuterClass.Team> teamList = new ArrayList<>(teams.size());
-		List<TeamOuterClass.Team> sorted = new ArrayList<>(teams);
+	protected List<TeamOuterClass.Team> assignRanks(Set<Team> teams, Function<Team, Score> scoreExtractor) {
+		List<Team> sorted = new ArrayList<>(teams);
 		sorted.sort(this);
+		List<TeamOuterClass.Team> teamDTOs = new ArrayList<>(teams.size());
 
 		double previousScore = -1;
 		int rank = 0;
 		for (int i = 0; i < sorted.size(); i++) {
-			TeamOuterClass.Team team = sorted.get(i);
-			ScoreOuterClass.Score bestScore = scoreExtractor != null ? scoreExtractor.apply(team) : null;
-			if (bestScore != null && bestScore.getPoints() != previousScore) {
+			Team team = sorted.get(i);
+			Score bestScore = scoreExtractor.apply(team);
+			if (bestScore.getPoints() != previousScore) {
 				rank = i + 1;
 			}
 
@@ -35,32 +34,30 @@ abstract class AbstractFLLComparator implements CategoryComparator {
 					.map(score -> ScoreOuterClass.Score.newBuilder()
 						.setPoints(score.getPoints())
 						.setTime(score.getTime())
-						.setHighlight(highlightIndices.contains(team.getScoresList().indexOf(score)))
+						.setHighlight(highlightIndices.contains(team.getScores().indexOf(score)))
 						.build())
 					.toList();
-			teamList.add(TeamOuterClass.Team.newBuilder()
+			teamDTOs.add(TeamOuterClass.Team.newBuilder()
 				.setId(team.getId())
 				.setName(team.getName())
 				.setRank(rank)
 				.addAllScores(scores)
 				.build());
-			previousScore = bestScore != null ? bestScore.getPoints() : previousScore;
+			previousScore = bestScore.getPoints();
 		}
-		return teamList;
+		return teamDTOs;
 	}
 
-	protected int compareOneScore(TeamOuterClass.Team t1, TeamOuterClass.Team t2, int roundIndex) {
-		var s1 = t1.getScoresList().get(roundIndex);
-		var s2 = t2.getScoresList().get(roundIndex);
+	protected int compareOneScore(Team t1, Team t2, int roundIndex) {
+		var s1 = t1.getScoreForRound(roundIndex);
+		var s2 = t2.getScoreForRound(roundIndex);
 		if (s1 == null && s2 == null) {
 			return 0;
-		}
-		if (s1 == null) {
+		} else if (s1 == null) {
 			return 1;
-		}
-		if (s2 == null) {
+		} else if (s2 == null) {
 			return -1;
 		}
-		return Double.compare(s2.getPoints(), s1.getPoints());
+		return -s1.compareToWithTime(s2);
 	}
 }

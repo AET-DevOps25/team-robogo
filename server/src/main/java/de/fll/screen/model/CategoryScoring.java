@@ -1,7 +1,7 @@
 package de.fll.screen.model;
 
-import de.fll.screen.service.comparators.*;
 import de.fll.core.proto.TeamOuterClass;
+import de.fll.screen.service.comparators.*;
 
 import java.util.List;
 import java.util.Set;
@@ -20,17 +20,17 @@ public enum CategoryScoring implements CategoryComparator {
 	}
 
 	@Override
-	public int compare(TeamOuterClass.Team o1, TeamOuterClass.Team o2) {
+	public int compare(Team o1, Team o2) {
 		return categoryComparator.compare(o1, o2);
 	}
 
 	@Override
-	public List<TeamOuterClass.Team> assignRanks(Set<TeamOuterClass.Team> teams) {
+	public List<TeamOuterClass.Team> assignRanks(Set<Team> teams) {
 		return this.categoryComparator.assignRanks(teams);
 	}
 
 	@Override
-	public Set<Integer> getHighlightIndices(TeamOuterClass.Team team) {
+	public Set<Integer> getHighlightIndices(Team team) {
 		return this.categoryComparator.getHighlightIndices(team);
 	}
 }

@@ -1,7 +1,7 @@
 package de.fll.screen.service.comparators;
 
-import de.fll.core.proto.TeamOuterClass;
-import de.fll.core.proto.ScoreOuterClass;
+import de.fll.screen.model.Score;
+import de.fll.screen.model.Team;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,31 +9,31 @@ import java.util.Set;
 public class WRO2025Comparator extends AbstractWROComparator {
 
 	@Override
-	public int compare(TeamOuterClass.Team t1, TeamOuterClass.Team t2) {
-		ScoreOuterClass.Score t1Morning = getBestRoundMorning(t1);
-		ScoreOuterClass.Score t2Morning = getBestRoundMorning(t2);
+	public int compare(Team t1, Team t2) {
+		var t1Morning = getBestRoundMorning(t1);
+		var t2Morning = getBestRoundMorning(t2);
 
-		ScoreOuterClass.Score t1Afternoon = getBestRoundAfternoon(t1);
-		ScoreOuterClass.Score t2Afternoon = getBestRoundAfternoon(t2);
+		var t1Afternoon = getBestRoundAfternoon(t1);
+		var t2Afternoon = getBestRoundAfternoon(t2);
 
-		ScoreOuterClass.Score t1Points = addScores(t1Morning, t1Afternoon);
-		ScoreOuterClass.Score t2Points = addScores(t2Morning, t2Afternoon);
+		Score t1Points = t1Morning.add(t1Afternoon);
+		Score t2Points = t2Morning.add(t2Afternoon);
 
-		int resultBoth = compareWithTime(t1Points, t2Points);
+		int resultBoth = t1Points.compareToWithTime(t2Points);
 		if (resultBoth != 0) {
 			return resultBoth;
 		}
 
-		return compareWithTime(t1Morning, t2Morning);
+		return t1Morning.compareToWithTime(t2Morning);
 	}
 
-	private ScoreOuterClass.Score getBestRoundMorning(TeamOuterClass.Team team) {
-		var s1 = team.getScoresList().get(0);
-		var s2 = team.getScoresList().get(1);
+	private Score getBestRoundMorning(Team team) {
+		var s1 = team.getScores().get(0);
+		var s2 = team.getScores().get(1);
 		return getBetterRound(s1, s2);
 	}
 
-	private ScoreOuterClass.Score getBetterRound(ScoreOuterClass.Score s1, ScoreOuterClass.Score s2) {
+	private Score getBetterRound(Score s1, Score s2) {
 		if (s1.getPoints() > s2.getPoints()) {
 			return s1;
 		} else if (s1.getPoints() < s2.getPoints()) {
@@ -43,33 +43,18 @@ public class WRO2025Comparator extends AbstractWROComparator {
 		}
 	}
 
-	private ScoreOuterClass.Score getBestRoundAfternoon(TeamOuterClass.Team team) {
-		return getBetterRound(team.getScoresList().get(2), team.getScoresList().get(3));
-	}
-
-	private ScoreOuterClass.Score addScores(ScoreOuterClass.Score s1, ScoreOuterClass.Score s2) {
-		return ScoreOuterClass.Score.newBuilder()
-			.setPoints(s1.getPoints() + s2.getPoints())
-			.setTime(s1.getTime() + s2.getTime())
-			.build();
-	}
-
-	private int compareWithTime(ScoreOuterClass.Score s1, ScoreOuterClass.Score s2) {
-		int cmpPoints = Double.compare(s1.getPoints(), s2.getPoints());
-		if (cmpPoints == 0) {
-			return -Integer.compare(s1.getTime(), s2.getTime());
-		}
-		return cmpPoints;
+	private Score getBestRoundAfternoon(Team team) {
+		return getBetterRound(team.getScores().get(2), team.getScores().get(3));
 	}
 
 	@Override
-	public Set<Integer> getHighlightIndices(TeamOuterClass.Team team) {
-		ScoreOuterClass.Score bestMorning = getBestRoundMorning(team);
-		ScoreOuterClass.Score bestAfternoon = getBestRoundAfternoon(team);
+	public Set<Integer> getHighlightIndices(Team team) {
+		Score bestMorning = getBestRoundMorning(team);
+		Score bestAfternoon = getBestRoundAfternoon(team);
 
 		Set<Integer> highlightIndices = new HashSet<>();
-		for (int i = 0; i < team.getScoresList().size(); i++) {
-			var score = team.getScoresList().get(i);
+		for (int i = 0; i < team.getScores().size(); i++) {
+			var score = team.getScores().get(i);
 			if (score.equals(bestMorning) || score.equals(bestAfternoon)) {
 				highlightIndices.add(i);
 			}
