@@ -69,6 +69,7 @@ class OpenWebUILLM(LLM):
 
 llm = OpenWebUILLM()
 
+
 @router.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "LLM Suggestion Service"}
@@ -84,7 +85,7 @@ async def suggestion(req: SuggestionRequest) -> SuggestionResponse:
             f"{req.text}\n"
             "Please list your suggestions in concise English."
         )
-        suggestion = llm(prompt)
+        suggestion = llm.invoke(prompt)
         return SuggestionResponse(suggestion=suggestion)
     except HTTPException:
         raise
