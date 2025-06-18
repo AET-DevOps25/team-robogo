@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // backend address
+        target: 'http://api-gateway:8080', // backend address
         changeOrigin: true,
         secure: false,
       },
