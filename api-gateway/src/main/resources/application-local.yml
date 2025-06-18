@@ -17,6 +17,12 @@ spring:
           uri: http://server:8081
           predicates:
             - Path=/auth/login
+        - id: genai_route
+          uri: http://genai:5000
+          predicates:
+            - Path=/api/genai/**
+          filters:
+            - StripPrefix=1
   web:
     resources:
       static-locations: []

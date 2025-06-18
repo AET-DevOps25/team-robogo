@@ -1,9 +1,9 @@
 package de.fll.screen.service.comparators;
 
-import de.fll.core.dto.TeamDTO;
-import de.fll.core.dto.ScoreDTO;
 import de.fll.screen.model.Score;
 import de.fll.screen.model.Team;
+import de.fll.core.proto.TeamOuterClass;
+import de.fll.core.proto.ScoreOuterClass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +14,10 @@ abstract class AbstractFLLComparator implements CategoryComparator {
 
 	protected abstract List<Score> getRelevantScores(Team team);
 
-	protected List<TeamDTO> assignRanks(Set<Team> teams, Function<Team, Score> scoreExtractor) {
+	protected List<TeamOuterClass.Team> assignRanks(Set<Team> teams, Function<Team, Score> scoreExtractor) {
 		List<Team> sorted = new ArrayList<>(teams);
 		sorted.sort(this);
-		List<TeamDTO> teamDTOs = new ArrayList<>(teams.size());
+		List<TeamOuterClass.Team> teamDTOs = new ArrayList<>(teams.size());
 
 		double previousScore = -1;
 		int rank = 0;
@@ -31,9 +31,18 @@ abstract class AbstractFLLComparator implements CategoryComparator {
 			var highlightIndices = getHighlightIndices(team);
 
 			var scores = getRelevantScores(team).stream()
-					.map(score -> new ScoreDTO(score.getPoints(), score.getTime(), highlightIndices.contains(team.getScores().indexOf(score))))
+					.map(score -> ScoreOuterClass.Score.newBuilder()
+						.setPoints(score.getPoints())
+						.setTime(score.getTime())
+						.setHighlight(highlightIndices.contains(team.getScores().indexOf(score)))
+						.build())
 					.toList();
-			teamDTOs.add(new TeamDTO(team.getId(), team.getName(), rank, scores));
+			teamDTOs.add(TeamOuterClass.Team.newBuilder()
+				.setId(team.getId())
+				.setName(team.getName())
+				.setRank(rank)
+				.addAllScores(scores)
+				.build());
 			previousScore = bestScore.getPoints();
 		}
 		return teamDTOs;

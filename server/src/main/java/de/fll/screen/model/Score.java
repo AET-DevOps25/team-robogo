@@ -3,6 +3,7 @@ package de.fll.screen.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
+import de.fll.core.proto.ScoreOuterClass;
 
 import java.util.Objects;
 
@@ -113,5 +114,16 @@ public final class Score {
 
     public void setTeam(Team team) {
         this.team = team;
+    }
+
+    public static Score fromProto(ScoreOuterClass.Score proto) {
+        return new Score(proto.getPoints(), proto.getTime());
+    }
+
+    public ScoreOuterClass.Score toProto() {
+        return ScoreOuterClass.Score.newBuilder()
+            .setPoints(this.getPoints())
+            .setTime(this.getTime())
+            .build();
     }
 }

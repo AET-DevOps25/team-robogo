@@ -1,8 +1,8 @@
 package de.fll.screen.service.comparators;
 
-import de.fll.core.dto.TeamDTO;
 import de.fll.screen.model.Score;
 import de.fll.screen.model.Team;
+import de.fll.core.proto.TeamOuterClass;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +25,7 @@ public class FLLTestRoundComparator extends AbstractFLLComparator {
 	}
 
 	@Override
-	public List<TeamDTO> assignRanks(Set<Team> teams) {
+	public List<TeamOuterClass.Team> assignRanks(Set<Team> teams) {
 		return assignRanks(teams, team -> team.getScores().isEmpty() ? null : team.getScores().get(0));
 	}
 

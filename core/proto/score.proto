@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package de.fll.core.proto;
+
+message Score {
+    double points = 1;
+    int32 time = 2;
+    bool highlight = 3;
+}
