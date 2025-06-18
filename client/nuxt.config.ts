@@ -2,9 +2,9 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
-  css: ['@/assets/tailwind.css'],
   modules: [
     '@sidebase/nuxt-auth',
+    '@nuxt/ui',
     '@nuxtjs/i18n',
     '@pinia/nuxt'
   ],
@@ -30,5 +30,17 @@ export default defineNuxtConfig({
       { code: 'de', name: 'Deutsch', file: 'de.json' }
     ],
     defaultLocale: 'en',
-  }
+  },
+  vite: {
+    server: {
+      proxy: {
+        '/api': {
+          target: process.env.VITE_API_BASE_URL || 'http://localhost:8080',
+          changeOrigin: true,
+          secure: false,
+        },
+      },
+    },
+  },
+  css: ['~/assets/css/main.css']
 })

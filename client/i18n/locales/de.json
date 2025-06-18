@@ -1,6 +1,10 @@
 {
   "login": "Anmelden",
+  "loginTitle": "Melden Sie sich an",
+  "loginSubtitle": "Bitte geben Sie Ihren Benutzernamen und Ihr Passwort ein",
   "username": "Benutzername",
   "password": "Passwort",
+  "usernamePlaceholder": "Benutzernamen eingeben",
+  "passwordPlaceholder": "Passwort eingeben",
   "login_failed": "Benutzername oder Passwort ungültig"
 }

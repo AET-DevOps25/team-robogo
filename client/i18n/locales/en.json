@@ -1,6 +1,10 @@
 {
   "login": "Login",
+  "loginTitle": "Sign in to your account",
+  "loginSubtitle": "Please enter your username and password",
   "username": "Username",
   "password": "Password",
+  "usernamePlaceholder": "Enter your username",
+  "passwordPlaceholder": "Enter your password",
   "login_failed": "Invalid username or password"
 }
