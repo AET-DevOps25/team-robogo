@@ -22,7 +22,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Run build
         run: |
-          cd server
           ./gradlew build
       - name: Set up tag (replace / with -)
         id: server_tag
@@ -95,7 +94,6 @@ jobs:
 
       - name: Run build
         run: |
-          cd api-gateway
           ./gradlew build
 
       - name: Set up tag (replace / with -)
