@@ -21,32 +21,22 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useAuth } from '#imports'
 
 const form = ref({ username: '', password: '' })
 const loading = ref(false)
 const error = ref('')
 const router = useRouter()
-const authStore = useAuthStore()
+const { signIn } = useAuth()
 
 const onLogin = async () => {
   loading.value = true
   error.value = ''
-  try {
-    const { data, error: fetchError } = await useFetch('/auth/login', {
-      method: 'POST',
-      body: form.value
-    })
-    if (fetchError.value) throw new Error(fetchError.value.message)
-    if (data.value?.token) {
-      authStore.setToken(data.value.token)
-      authStore.setUser(data.value.user)
-      router.push('/')
-    } else {
-      error.value = $t('login_failed')
-    }
-  } catch (e: any) {
-    error.value = e.message || $t('login_failed')
+  const result = await signIn({ username: form.value.username, password: form.value.password })
+  if (result?.error) {
+    error.value = result.error
+  } else {
+    router.push('/')
   }
   loading.value = false
 }
