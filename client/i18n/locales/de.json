@@ -6,5 +6,16 @@
   "password": "Passwort",
   "usernamePlaceholder": "Benutzernamen eingeben",
   "passwordPlaceholder": "Passwort eingeben",
-  "login_failed": "Benutzername oder Passwort ungültig"
+  "login_failed": "Benutzername oder Passwort ungültig",
+  "homeTitle": "Intelligentes Event-Display-Management-System",
+  "homeSubtitle": "Eine Multi-Screen-Plattform für intelligente Inhaltssteuerung und Echtzeitinformationen bei Robotik-Wettbewerben – für ein besseres Event-Erlebnis und weniger Aufwand für Organisatoren.",
+  "featureGroup": "Multi-Screen-Gruppenverwaltung",
+  "featureGroupDesc": "Unterstützt Gruppierung und zentrale Steuerung mehrerer Displays, Inhalte wechseln automatisch je nach Eventphase.",
+  "featureRealtime": "Echtzeitdaten & Ranglisten",
+  "featureRealtimeDesc": "Synchronisiert Punktestände, Ranglisten und Zeitpläne in Echtzeit, damit alle immer auf dem neuesten Stand sind.",
+  "featureAI": "KI-Inhaltsempfehlung",
+  "featureAIDesc": "Analysiert den Eventablauf intelligent und empfiehlt oder generiert automatisch passende Inhalte.",
+  "projectGoalTitle": "Projektziel",
+  "projectGoalDesc": "Dieses System bietet effiziente, intelligente Tools für die Informationsveröffentlichung und Bildschirmverwaltung bei Robotik-Events – mit Inhaltsanpassung, Gruppendarstellung, Offline-Fallback, KI-Unterstützung und mehr.",
+  "tryNow": "Jetzt ausprobieren"
 }

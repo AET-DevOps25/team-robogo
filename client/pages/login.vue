@@ -8,8 +8,8 @@
           <p class="text-gray-500 dark:text-gray-300 text-lg">{{ $t('loginSubtitle') }}</p>
         </div>
       </template>
-      <UForm :state="form" @submit="onLogin" class="flex flex-col space-y-6">
-        <UFormGroup :label="$t('username')" name="username">
+      <UForm :state="form" @submit="onLogin" class="space-y-6">
+        <UFormField :label="$t('username')" name="username">
           <UInput
             v-model="form.username"
             size="xl"
@@ -17,8 +17,8 @@
             autocomplete="username"
             class="text-lg w-full"
           />
-        </UFormGroup>
-        <UFormGroup :label="$t('password')" name="password">
+        </UFormField>
+        <UFormField :label="$t('password')" name="password">
           <UInput
             v-model="form.password"
             type="password"
@@ -27,7 +27,7 @@
             autocomplete="current-password"
             class="text-lg w-full"
           />
-        </UFormGroup>
+        </UFormField>
         <UButton
           type="submit"
           color="primary"
@@ -48,24 +48,33 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuth } from '#imports'
 
 const form = ref({ username: '', password: '' })
 const loading = ref(false)
 const error = ref('')
-const router = useRouter()
 const { signIn } = useAuth()
 
 const onLogin = async () => {
   loading.value = true
   error.value = ''
-  const result = await signIn({ username: form.value.username, password: form.value.password })
-  if (result?.error) {
-    error.value = result.error
-  } else {
-    router.push('/')
+  try {
+    const result = await signIn({
+      username: form.value.username,
+      password: form.value.password,
+    }, {
+      redirect: false
+    })
+    if (result?.error) {
+      error.value = result.error
+    } else {
+      await navigateTo('/')
+    }
+  } catch (err) {
+    console.error('Unexpected error:', err)
+    error.value = 'Unknown error occurred during login'
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 }
 </script> 

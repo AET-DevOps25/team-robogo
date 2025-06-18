@@ -516,6 +516,13 @@
   dependencies:
     "@iconify/types" "*"
 
+"@iconify-json/lucide@^1.2.50":
+  version "1.2.50"
+  resolved "https://registry.yarnpkg.com/@iconify-json/lucide/-/lucide-1.2.50.tgz#dedb6260c378a3b7c3bbdc5185f680c95889dde1"
+  integrity sha512-ur4i4oDPK7o7EgBdln1HDvnX4vDQP28lZvFDF8zI4ynymIihEMuTeK7/NPRLqV/LiX1D8xIRh+P/8OxWVjXafg==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify/collections@^1.0.548":
   version "1.0.560"
   resolved "https://registry.yarnpkg.com/@iconify/collections/-/collections-1.0.560.tgz#f6e03c919e45350056b74ed90d891fe0093a3d20"

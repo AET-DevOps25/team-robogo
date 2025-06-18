@@ -34,11 +34,9 @@ export default defineNuxtConfig({
   vite: {
     server: {
       proxy: {
-        '/api': {
-          target: process.env.VITE_API_BASE_URL || 'http://localhost:8080',
-          changeOrigin: true,
-          secure: false,
-        },
+        '/api/auth': { target: 'http://localhost:8080', changeOrigin: true },
+        '/api/server': { target: 'http://localhost:8080', changeOrigin: true },
+        '/api/genai': { target: 'http://localhost:8080', changeOrigin: true },
       },
     },
   },
