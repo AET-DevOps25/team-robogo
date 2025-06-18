@@ -1,8 +1,8 @@
 package de.fll.screen.service.comparators;
 
-import de.fll.core.dto.TeamDTO;
 import de.fll.screen.model.Score;
 import de.fll.screen.model.Team;
+import de.fll.core.proto.TeamOuterClass;
 
 import java.util.*;
 
@@ -46,7 +46,7 @@ public class FLLRobotGameComparator extends AbstractFLLComparator {
 	}
 
 	@Override
-	public List<TeamDTO> assignRanks(Set<Team> teams) {
+	public List<TeamOuterClass.Team> assignRanks(Set<Team> teams) {
 		// For the FLL, ranks are only determined by the best score
 		// We cannot use the comparator for this since it uses all scores, so this compares only the best score.
 		return assignRanks(teams, team -> getRelevantScores(team).stream().max(Comparator.comparing(Score::getPoints)).orElse(null));
