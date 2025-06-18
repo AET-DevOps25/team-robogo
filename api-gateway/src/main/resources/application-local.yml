@@ -13,6 +13,10 @@ spring:
             - Path=/api/server/**
           filters:
             - StripPrefix=1
+        - id: auth_route
+          uri: http://server:8081
+          predicates:
+            - Path=/auth/login
         - id: genai_route
           uri: http://localhost:5000
           predicates:
