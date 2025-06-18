@@ -14,18 +14,17 @@ services:
   server:
     build:
       dockerfile: server/Dockerfile
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
     ports:
       - "8081:8081"
     depends_on:
       - db
-    environment:
-      SERVER_PORT: 8081
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/robogo_db
-      SPRING_DATASOURCE_USERNAME: robogo
-      SPRING_DATASOURCE_PASSWORD: robogo_pass
   gateway:
     build:
       dockerfile: api-gateway/Dockerfile
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
     ports:
       - "8080:8080"
     depends_on:
@@ -34,6 +33,9 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - VITE_API_BASE_URL=http://api-gateway:8080
     ports:
       - "80:80"
   genai:

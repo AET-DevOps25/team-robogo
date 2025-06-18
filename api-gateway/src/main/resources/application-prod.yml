@@ -7,26 +7,29 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: auth_session_route
+          uri: http://server:8081
+          predicates:
+            - Path=/api/auth/session
+          filters:
+            - StripPrefix=1
         - id: server_route
-          uri: http://localhost:8081
+          uri: http://server:8081
           predicates:
             - Path=/api/server/**
           filters:
             - StripPrefix=1
-        - id: auth_route
-          uri: http://server:8081
-          predicates:
-            - Path=/auth/login
         - id: genai_route
-          uri: http://localhost:5000
+          uri: http://genai:5000
           predicates:
             - Path=/api/genai/**
           filters:
             - StripPrefix=1
+
   web:
     resources:
       static-locations: []
 
 logging:
   level:
-    root: DEBUG
+    root: INFO 

@@ -1,8 +1,8 @@
 import { useAuth } from '#imports'
 
-export default defineNuxtRouteMiddleware(async (to, from) => {
+export default defineNuxtRouteMiddleware((to, from) => {
   const { status } = useAuth()
-  if (to.meta.auth && status.value !== 'authenticated') {
+  if (to.meta.auth && to.path !== '/login' && status.value !== 'authenticated') {
     return navigateTo('/login')
   }
 }) 
