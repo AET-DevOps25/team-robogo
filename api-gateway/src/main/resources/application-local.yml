@@ -8,13 +8,13 @@ spring:
     gateway:
       routes:
         - id: server_route
-          uri: http://server:8081
+          uri: http://localhost:8081
           predicates:
             - Path=/api/server/**
           filters:
             - StripPrefix=1
         - id: genai_route
-          uri: http://genai:5000
+          uri: http://localhost:5000
           predicates:
             - Path=/api/genai/**
           filters:
