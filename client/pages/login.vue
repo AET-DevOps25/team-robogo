@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useAuth } from '#imports'
 import type { LoginRequestDTO, LoginResponseDTO } from '~/interfaces/dto'
 
@@ -86,7 +86,13 @@ const form = ref<LoginRequestDTO>({
   password: ''
 })
 const error = ref('')
-const { signIn } = useAuth()
+const { signIn, status } = useAuth()
+
+onMounted(async () => {
+  if (status.value === 'authenticated') {
+    await navigateTo('/dashboard')
+  }
+})
 
 const onLogin = async () => {
   if (!form.value.username) {

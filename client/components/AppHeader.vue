@@ -33,14 +33,26 @@ const { t } = useI18n()
 
 const handleLogout = async () => {
   try {
-    await signOut()
+    const result = await signOut({ callbackUrl: '/login' })
+    
+    if (result?.error) {
+      toast.add({
+        title: t('logoutFailed'),
+        description: result.error,
+        color: 'error'
+      })
+      return
+    }
+    
     toast.add({
       title: t('logoutSuccess'),
       color: 'success'
     })
   } catch (error) {
+    console.error('Logout error:', error)
     toast.add({
       title: t('logoutFailed'),
+      description: error instanceof Error ? error.message : String(error),
       color: 'error'
     })
   }

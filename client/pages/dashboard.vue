@@ -73,30 +73,9 @@
 </template>
 
 <script setup lang="ts">
-import { useToast, useI18n } from '#imports'
-import { useAuth } from '#imports'
-import LanguageSwitcher from '~/components/LanguageSwitcher.vue'
+import AppHeader from '~/components/AppHeader.vue'
 
 definePageMeta({
   auth: true
 })
-
-const { signOut } = useAuth()
-const toast = useToast()
-const { t } = useI18n()
-
-const handleLogout = async () => {
-  try {
-    await signOut()
-    toast.add({
-      title: t('logoutSuccess'),
-      color: 'success'
-    })
-  } catch (error) {
-    toast.add({
-      title: t('logoutFailed'),
-      color: 'error'
-    })
-  }
-}
 </script>
