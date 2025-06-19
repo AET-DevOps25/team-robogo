@@ -6,7 +6,7 @@ import de.fll.core.dto.SessionResponseDTO;
 import de.fll.core.dto.SignupRequestDTO;
 import de.fll.core.dto.UserDTO;
 import de.fll.screen.model.User;
-import de.fll.screen.service.AuthService;
+import de.fll.screen.service.UserService;
 import de.fll.screen.service.JwtService;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +18,11 @@ import org.slf4j.LoggerFactory;
 @RequestMapping("/auth")
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-    private final AuthService authService;
+    private final UserService userService;
     private final JwtService jwtService;
 
-    public AuthController(AuthService authService, JwtService jwtService) {
-        this.authService = authService;
+    public AuthController(UserService userService, JwtService jwtService) {
+        this.userService = userService;
         this.jwtService = jwtService;
     }
 
@@ -39,7 +39,7 @@ public class AuthController {
                 .build());
         }
 
-        LoginResponseDTO response = authService.signup(request);
+        LoginResponseDTO response = userService.signup(request);
         if (response.getSuccess()) {
             logger.info("Signup successful for user: {}", request.getUsername());
         } else {
@@ -62,7 +62,7 @@ public class AuthController {
                 .build());
         }
 
-        LoginResponseDTO response = authService.login(request);
+        LoginResponseDTO response = userService.login(request);
         if (response.getSuccess()) {
             logger.info("Login successful for user: {}", request.getUsername());
         } else {
@@ -84,7 +84,7 @@ public class AuthController {
         try {
             Claims claims = jwtService.parseToken(token);
             String username = claims.getSubject();
-            User user = authService.findByUsername(username);
+            User user = userService.findByUsername(username);
 
             return ResponseEntity.ok(SessionResponseDTO.builder()
                 .valid(true)

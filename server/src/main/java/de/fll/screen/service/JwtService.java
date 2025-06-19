@@ -19,7 +19,7 @@ public class JwtService {
     @Value("${jwt.secret:my-very-secret-key-which-should-be-long-enough-123456}")
     private String secretKey;
     
-    @Value("${jwt.expiration:3600000}") // 默认1小时
+    @Value("${jwt.expiration:3600000}") // Default 1h
     private long expirationTime;
     
     private Key key;
