@@ -3,6 +3,12 @@ export interface LoginRequestDTO {
   password: string
 }
 
+export interface SignupRequestDTO {
+  username: string
+  email: string
+  password: string
+}
+
 export interface UserDTO {
   id: number
   username: string
@@ -11,9 +17,8 @@ export interface UserDTO {
 
 export interface LoginResponseDTO {
   success: boolean
-  token: string
+  token?: string
   error?: string
-  user: UserDTO
 }
 
 export interface SessionResponseDTO {
@@ -33,4 +38,4 @@ export interface TeamDTO {
   name: string
   rank: number
   scores: ScoreDTO[]
-} 
+}
