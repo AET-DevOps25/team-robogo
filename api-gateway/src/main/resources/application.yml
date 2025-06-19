@@ -29,6 +29,10 @@ spring:
   web:
     resources:
       static-locations: []
+  security:
+    cors:
+      allowed-origins:
+        - ${FRONTEND_ORIGIN:http://localhost:3000}
 
 logging:
   level:

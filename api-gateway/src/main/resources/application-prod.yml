@@ -29,7 +29,10 @@ spring:
   web:
     resources:
       static-locations: []
-
+  security:
+    cors:
+      allowed-origins:
+        - ${FRONTEND_ORIGIN:http://client:80}
 logging:
   level:
     root: INFO 

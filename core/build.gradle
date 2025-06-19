@@ -43,15 +43,25 @@ protobuf {
         artifact = "com.google.protobuf:protoc:3.25.1"
     }
     generatedFilesBaseDir = "$projectDir/src/generated"
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java { }
+            }
+        }
+    }
 }
 
 sourceSets {
     main {
         java {
-            srcDirs += 'src/generated/main/java'
+            srcDirs = ["$projectDir/src/main/java", "$projectDir/src/generated/main/java"]
         }
         proto {
-            srcDirs = ['proto']
+            srcDirs = ["proto"]
+        }
+        resources {
+            srcDirs = ["$projectDir/src/main/resources"]
         }
     }
 }

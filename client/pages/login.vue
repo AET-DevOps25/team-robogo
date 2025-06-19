@@ -8,6 +8,9 @@
           <p class="text-gray-500 dark:text-gray-300 text-lg">{{ $t('loginSubtitle') }}</p>
         </div>
       </template>
+      <UAlert v-if="error.length>0" color="error" variant="subtle" class="mt-2 text-base">
+        {{ error }}
+      </UAlert>
       <UForm :state="form" @submit="onLogin" class="space-y-6">
         <UFormField :label="$t('username')" name="username">
           <UInput
@@ -38,9 +41,6 @@
         >
           {{ $t('login') }}
         </UButton>
-        <UAlert v-if="error" color="red" variant="subtle" class="mt-2 text-base">
-          {{ error }}
-        </UAlert>
       </UForm>
     </UCard>
   </div>
@@ -49,30 +49,53 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useAuth } from '#imports'
+import { de } from '../src/proto/proto'
 
-const form = ref({ username: '', password: '' })
+type LoginRequest = de.fll.core.proto.ILoginRequest
+type LoginResponse = de.fll.core.proto.ILoginResponse
+const { LoginRequest, LoginResponse } = de.fll.core.proto
+
+const form = ref<LoginRequest>({
+  username: '',
+  password: ''
+})
 const loading = ref(false)
 const error = ref('')
 const { signIn } = useAuth()
 
 const onLogin = async () => {
+  if (!form.value.username) {
+    error.value = 'Please enter your username'
+    return
+  }
+  
+  if (!form.value.password) {
+    error.value = 'Please enter your password'
+    return
+  }
+
   loading.value = true
-  error.value = ''
   try {
-    const result = await signIn({
+    const response = await signIn({
       username: form.value.username,
-      password: form.value.password,
+      password: form.value.password
     }, {
       redirect: false
     })
-    if (result?.error) {
-      error.value = result.error
-    } else {
-      await navigateTo('/')
+
+    if (!response?.success) {
+      error.value = response?.error || 'Username or password is incorrect'
+      return
     }
+
+    await navigateTo('/')
   } catch (err) {
-    console.error('Unexpected error:', err)
-    error.value = 'Unknown error occurred during login'
+    console.error('Login failed:', err)
+    if (err instanceof Error) {
+      error.value = err.message || 'Login failed, please try again'
+    } else {
+      error.value = 'Login failed, please try again'
+    }
   } finally {
     loading.value = false
   }
