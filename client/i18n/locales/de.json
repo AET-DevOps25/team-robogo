@@ -17,5 +17,18 @@
   "featureAIDesc": "Analysiert den Eventablauf intelligent und empfiehlt oder generiert automatisch passende Inhalte.",
   "projectGoalTitle": "Projektziel",
   "projectGoalDesc": "Dieses System bietet effiziente, intelligente Tools für die Informationsveröffentlichung und Bildschirmverwaltung bei Robotik-Events – mit Inhaltsanpassung, Gruppendarstellung, Offline-Fallback, KI-Unterstützung und mehr.",
-  "tryNow": "Jetzt ausprobieren"
+  "tryNow": "Jetzt ausprobieren",
+  "dashboardTitle": "Dashboard",
+  "dashboardSubtitle": "Verwalten Sie Bildschirme, Inhalte und sehen Sie Echtzeit-Eventdaten.",
+  "screenOverview": "Bildschirmübersicht",
+  "screenOverviewDesc": "Alle verbundenen Display-Clients anzeigen und verwalten.",
+  "leaderboard": "Rangliste",
+  "leaderboardDesc": "Live-Punktestände und Ranglisten vom Event.",
+  "contentManagement": "Inhaltsverwaltung",
+  "contentManagementDesc": "Steuern und planen Sie, was auf jedem Bildschirm angezeigt wird.",
+  "aiRecommendation": "KI-Empfehlung",
+  "aiRecommendationDesc": "KI-Vorschläge für fehlende oder empfohlene Inhalte.",
+  "imageUpload": "Bild-Upload",
+  "imageUploadDesc": "Laden Sie eigene Bilder hoch, um sie auf Bildschirmen anzuzeigen.",
+  "placeholder": "Demnächst verfügbar..."
 }

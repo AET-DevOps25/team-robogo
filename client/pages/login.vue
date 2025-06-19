@@ -113,7 +113,7 @@ const onLogin = async () => {
       return
     }
 
-    await navigateTo('/')
+    await navigateTo('/dashboard')
   } catch (err) {
     console.error('Login failed:', err)
     if (err instanceof Error) {

@@ -51,6 +51,8 @@ export default defineNuxtConfig({
       { code: 'de', name: 'Deutsch', file: 'de.json' }
     ],
     defaultLocale: 'en',
+    lazy: true,
+    strategy: 'no_prefix',
   },
   vite: {
     server: {
