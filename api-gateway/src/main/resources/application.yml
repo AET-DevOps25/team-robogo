@@ -24,16 +24,18 @@ spring:
           predicates:
             - Path=/api/genai/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
 
   web:
     resources:
       static-locations: []
-  security:
-    cors:
-      allowed-origins:
-        - ${FRONTEND_ORIGIN:http://localhost:3000}
 
 logging:
   level:
-    root: DEBUG 
+    root: DEBUG
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.http.server.reactive: DEBUG
+    org.springframework.web.reactive: DEBUG
+    org.springframework.security: DEBUG
+    reactor.netty: DEBUG
+    redactor.netty.http.client: DEBUG 

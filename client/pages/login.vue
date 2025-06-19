@@ -8,10 +8,18 @@
           <p class="text-gray-500 dark:text-gray-300 text-lg">{{ $t('loginSubtitle') }}</p>
         </div>
       </template>
-      <UAlert v-if="error.length>0" color="error" variant="subtle" class="mt-2 text-base">
-        {{ error }}
-      </UAlert>
-      <UForm :state="form" @submit="onLogin" class="space-y-6">
+      <UForm :state="form" @submit="onLogin" class="space-y-4">
+        <div v-if="error" class="mt-2">
+          <UAlert
+            :title="$t('login_failed')"
+            color="error"
+            variant="soft"
+            icon="i-heroicons-exclamation-circle"
+            class="text-sm"
+          >
+            {{ error }}
+          </UAlert>
+        </div>
         <UFormField :label="$t('username')" name="username">
           <UInput
             v-model="form.username"
@@ -19,6 +27,7 @@
             :placeholder="$t('usernamePlaceholder')"
             autocomplete="username"
             class="text-lg w-full"
+            :error="error.length > 0"
           />
         </UFormField>
         <UFormField :label="$t('password')" name="password">
@@ -29,6 +38,7 @@
             :placeholder="$t('passwordPlaceholder')"
             autocomplete="current-password"
             class="text-lg w-full"
+            :error="error.length > 0"
           />
         </UFormField>
         <UButton
@@ -37,7 +47,7 @@
           size="xl"
           block
           :loading="loading"
-          class="text-lg h-14"
+          class="text-lg h-14 mt-6"
         >
           {{ $t('login') }}
         </UButton>
