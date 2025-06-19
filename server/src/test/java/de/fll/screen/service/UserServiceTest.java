@@ -31,11 +31,17 @@ class UserServiceTest {
     @Mock
     private JwtService jwtService;
 
+    @Mock
+    private EmailService emailService;
+
     private UserService userService;
 
     @BeforeEach
     void setUp() {
-        userService = new UserService(userRepository, passwordEncoder, jwtService);
+        userService = new UserService(userRepository,
+                passwordEncoder,
+                jwtService,
+                emailService);
     }
 
     @Test
@@ -172,7 +178,7 @@ class UserServiceTest {
     }
 
     @Test
-    void login_ShouldReturnToken_WhenCredentialsValid() {
+    void login_ShouldReturnError_WhenEmailNotVerified() {
         // Arrange
         LoginRequestDTO request = new LoginRequestDTO();
         request.setUsername("user");
@@ -180,6 +186,28 @@ class UserServiceTest {
 
         User user = new User("user", "encodedPassword", "user@example.com");
         user.setId(1L);
+        user.setEmailVerified(false);
+        when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
+
+        // Act
+        var response = userService.login(request);
+
+        // Assert
+        assertThat(response.getSuccess()).isFalse();
+        assertThat(response.getError()).isEqualTo("Please verify your email address before logging in");
+    }
+
+    @Test
+    void login_ShouldReturnToken_WhenCredentialsValidAndEmailVerified() {
+        // Arrange
+        LoginRequestDTO request = new LoginRequestDTO();
+        request.setUsername("user");
+        request.setPassword("password");
+
+        User user = new User("user", "encodedPassword", "user@example.com");
+        user.setId(1L);
+        user.setEmailVerified(true);
         when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
         when(jwtService.generateToken("user")).thenReturn("jwt-token");
@@ -192,6 +220,52 @@ class UserServiceTest {
         assertThat(response.getToken()).isEqualTo("jwt-token");
         assertThat(response.getUser().getUsername()).isEqualTo("user");
         assertThat(response.getUser().getEmail()).isEqualTo("user@example.com");
+    }
+
+    @Test
+    void verifyEmail_ShouldReturnFalse_WhenTokenNotFound() {
+        // Arrange
+        when(userRepository.findByVerificationToken("invalid-token")).thenReturn(Optional.empty());
+
+        // Act
+        boolean result = userService.verifyEmail("invalid-token");
+
+        // Assert
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void verifyEmail_ShouldReturnFalse_WhenTokenExpired() {
+        // Arrange
+        User user = new User("user", "password", "user@example.com");
+        user.setVerificationToken("valid-token");
+        user.setVerificationTokenExpiry(java.time.LocalDateTime.now().minusHours(25)); // Token expired
+        when(userRepository.findByVerificationToken("valid-token")).thenReturn(Optional.of(user));
+
+        // Act
+        boolean result = userService.verifyEmail("valid-token");
+
+        // Assert
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void verifyEmail_ShouldReturnTrue_WhenTokenValid() {
+        // Arrange
+        User user = new User("user", "password", "user@example.com");
+        user.setVerificationToken("valid-token");
+        user.setVerificationTokenExpiry(java.time.LocalDateTime.now().plusHours(23)); // Token still valid
+        when(userRepository.findByVerificationToken("valid-token")).thenReturn(Optional.of(user));
+
+        // Act
+        boolean result = userService.verifyEmail("valid-token");
+
+        // Assert
+        assertThat(result).isTrue();
+        assertThat(user.isEmailVerified()).isTrue();
+        assertThat(user.getVerificationToken()).isNull();
+        assertThat(user.getVerificationTokenExpiry()).isNull();
+        verify(userRepository).save(user);
     }
 
     @Test
