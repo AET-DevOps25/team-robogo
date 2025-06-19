@@ -1,5 +1,5 @@
 # ---- Build Stage ----
-FROM node:18 AS builder
+FROM node:20 AS builder
 
 LABEL maintainer="Team Robogo"
 LABEL version="1.0"
@@ -8,13 +8,13 @@ LABEL org.opencontainers.image.source="https://github.com/AET-DevOps25/team-robo
 
 WORKDIR /app
 COPY . .
-RUN npm install
-RUN npm run build
+RUN yarn install --frozen-lockfile
+RUN yarn build
 
 # ---- Runtime Stage ----
 FROM nginx:alpine
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/.output/public /usr/share/nginx/html
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 

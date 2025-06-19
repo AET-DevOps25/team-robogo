@@ -8,8 +8,6 @@ import org.springframework.lang.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fll.core.proto.TeamOuterClass;
-import de.fll.core.proto.ScoreOuterClass;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Entity
@@ -83,29 +81,4 @@ public final class Team {
         return id;
     }
 
-    public static Team fromProto(TeamOuterClass.Team proto) {
-        Team team = new Team();
-        team.setId(proto.getId());
-        team.setName(proto.getName());
-        for (ScoreOuterClass.Score scoreProto : proto.getScoresList()) {
-            Score score = new Score(scoreProto.getPoints(), scoreProto.getTime());
-            team.getScores().add(score);
-        }
-        return team;
-    }
-
-    public TeamOuterClass.Team toProto() {
-        TeamOuterClass.Team.Builder builder = TeamOuterClass.Team.newBuilder()
-            .setId(this.getId())
-            .setName(this.getName());
-        for (Score score : this.getScores()) {
-            builder.addScores(
-                ScoreOuterClass.Score.newBuilder()
-                    .setPoints(score.getPoints())
-                    .setTime(score.getTime())
-                    .build()
-            );
-        }
-        return builder.build();
-    }
 }

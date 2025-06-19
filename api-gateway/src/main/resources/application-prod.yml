@@ -1,0 +1,34 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: auth_session_route
+          uri: http://server:8081
+          predicates:
+            - Path=/api/auth/session
+          filters:
+            - StripPrefix=1
+        - id: server_route
+          uri: http://server:8081
+          predicates:
+            - Path=/api/server/**
+          filters:
+            - StripPrefix=1
+        - id: genai_route
+          uri: http://genai:5000
+          predicates:
+            - Path=/api/genai/**
+          filters:
+            - StripPrefix=1
+
+  web:
+    resources:
+      static-locations: []
+logging:
+  level:
+    root: INFO 

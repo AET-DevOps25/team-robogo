@@ -1,0 +1,21 @@
+{
+  "login": "Login",
+  "loginTitle": "Sign in to your account",
+  "loginSubtitle": "Please enter your username and password",
+  "username": "Username",
+  "password": "Password",
+  "usernamePlaceholder": "Enter your username",
+  "passwordPlaceholder": "Enter your password",
+  "login_failed": "Invalid username or password",
+  "homeTitle": "Intelligent Event Display Management System",
+  "homeSubtitle": "A multi-screen intelligent content scheduling and real-time information platform for robotics competitions, enhancing event experience and reducing organizer workload.",
+  "featureGroup": "Multi-screen Group Management",
+  "featureGroupDesc": "Support grouping and unified scheduling of multiple displays, with content automatically switching according to event phases.",
+  "featureRealtime": "Real-time Data & Ranking",
+  "featureRealtimeDesc": "Synchronize scores, rankings, and schedules in real time, so everyone stays up to date.",
+  "featureAI": "AI Content Recommendation",
+  "featureAIDesc": "Intelligently analyze event flow and automatically recommend or generate suitable content.",
+  "projectGoalTitle": "Project Objective",
+  "projectGoalDesc": "This system aims to provide efficient, intelligent information publishing and screen management tools for robotics event organizers and participants, supporting content customization, group display, offline fallback, AI assistance, and more.",
+  "tryNow": "Try Now"
+}

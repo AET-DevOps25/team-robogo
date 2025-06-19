@@ -20,7 +20,8 @@ repositories {
 dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'org.projectlombok:lombok'
-    implementation 'com.google.protobuf:protobuf-java:3.25.1'
+    implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
+    implementation "com.google.protobuf:protobuf-java-util:${protobufVersion}"
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
@@ -43,15 +44,25 @@ protobuf {
         artifact = "com.google.protobuf:protoc:3.25.1"
     }
     generatedFilesBaseDir = "$projectDir/src/generated"
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java { }
+            }
+        }
+    }
 }
 
 sourceSets {
     main {
         java {
-            srcDirs += 'src/generated/main/java'
+            srcDirs = ["$projectDir/src/main/java", "$projectDir/src/generated/main/java"]
         }
         proto {
-            srcDirs = ['proto']
+            srcDirs = ["proto"]
+        }
+        resources {
+            srcDirs = ["$projectDir/src/main/resources"]
         }
     }
 }

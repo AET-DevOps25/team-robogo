@@ -1,7 +1,7 @@
 package de.fll.screen.service.comparators;
 
 import de.fll.screen.model.Team;
-import de.fll.core.proto.TeamOuterClass;
+import de.fll.core.dto.TeamDTO;
 
 import java.util.Comparator;
 import java.util.List;
@@ -14,6 +14,6 @@ public interface CategoryComparator extends Comparator<Team> {
 	/**
 	 * Use the comparator to assign ranks to the teams and convert to TeamDTOs
 	 */
-	List<TeamOuterClass.Team> assignRanks(Set<Team> teams);
+	List<TeamDTO> assignRanks(Set<Team> teams);
 
 }
