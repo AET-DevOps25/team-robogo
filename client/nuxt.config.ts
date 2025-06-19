@@ -18,11 +18,32 @@ export default defineNuxtConfig({
     provider: {
       type: 'local',
       endpoints: {
-        signIn: { path: '/api/auth/login', method: 'post' },
-        signOut: { path: '/api/auth/logout', method: 'post' },
-        getSession: { path: '/api/auth/session', method: 'get' }
+        signIn: { 
+          path: '/api/auth/login', 
+          method: 'post'
+        },
+        signOut: { 
+          path: '/api/auth/logout', 
+          method: 'post' 
+        },
+        getSession: { 
+          path: '/api/auth/session', 
+          method: 'get' 
+        }
+      },
+      token: {
+        type: 'Bearer',
+        headerName: 'Authorization',
+        maxAgeInSeconds: 3600
+      },
+      pages: {
+        login: '/login'
       }
     },
+    globalAppMiddleware: {
+      isEnabled: true,
+      addDefaultCallbackUrl: true
+    }
   },
   i18n: {
     locales: [

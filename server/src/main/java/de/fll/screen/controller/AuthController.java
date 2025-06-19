@@ -1,14 +1,13 @@
 package de.fll.screen.controller;
 
 // Import protobuf generated request/response types
-import de.fll.core.proto.Auth.LoginRequest;
-import de.fll.core.proto.Auth.LoginResponse;
-import de.fll.core.proto.Auth.SessionResponse;
-import de.fll.core.proto.UserOuterClass.User;
+import de.fll.core.dto.LoginRequestDTO;
+import de.fll.core.dto.LoginResponseDTO;
+import de.fll.core.dto.SessionResponseDTO;
+import de.fll.core.dto.UserDTO;
 // JWT utilities
 import de.fll.screen.util.JwtUtil;
 import io.jsonwebtoken.Claims;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
@@ -32,16 +31,16 @@ public class AuthController {
     // consumes: Accepts protobuf request formats
     // produces: Supports protobuf response formats
     @PostMapping(value = "/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
         logger.debug("Received login request for user: {}", request.getUsername());
         
         // Validate username and password are not empty
         if (request.getUsername() == null || request.getPassword() == null || 
             request.getUsername().isEmpty() || request.getPassword().isEmpty()) {
             logger.warn("Login failed: username or password is empty");
-            return ResponseEntity.badRequest().body(LoginResponse.newBuilder()
-                .setSuccess(false)
-                .setError("Username or password is empty")
+            return ResponseEntity.badRequest().body(LoginResponseDTO.builder()
+                .success(false)
+                .error("Username or password is empty")
                 .build());
         }
 
@@ -52,16 +51,16 @@ public class AuthController {
         logger.debug("Generated token for user: {}", request.getUsername());
 
         // Build user information
-        User user = User.newBuilder()
-            .setId(1)
-            .setUsername(request.getUsername())
+        UserDTO user = UserDTO.builder()
+            .id(1L)
+            .username(request.getUsername())
             .build();
 
         // Construct login response
-        LoginResponse response = LoginResponse.newBuilder()
-            .setSuccess(true)
-            .setToken(token)
-            .setUser(user)
+        LoginResponseDTO response = LoginResponseDTO.builder()
+            .success(true)
+            .token(token)
+            .user(user)
             .build();
         
         logger.debug("Login successful for user: {}", request.getUsername());
@@ -70,7 +69,7 @@ public class AuthController {
 
     // Endpoint to retrieve user information
     @GetMapping("/user")
-    public ResponseEntity<User> user(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<UserDTO> user(@RequestHeader("Authorization") String authHeader) {
         // Extract token from request header
         String token = extractToken(authHeader);
         if (token == null) {
@@ -82,9 +81,9 @@ public class AuthController {
         String username = claims.getSubject();
 
         // Build and return user information
-        User user = User.newBuilder()
-            .setId(1)
-            .setUsername(username)
+        UserDTO user = UserDTO.builder()
+            .id(1L)
+            .username(username)
             .build();
 
         return ResponseEntity.ok(user);
@@ -92,11 +91,11 @@ public class AuthController {
 
     // Endpoint to validate session status
     @GetMapping("/session")
-    public ResponseEntity<SessionResponse> session(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+    public ResponseEntity<SessionResponseDTO> session(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         // Check if Authorization header exists and has correct format
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.ok(SessionResponse.newBuilder()
-                .setValid(false)
+            return ResponseEntity.ok(SessionResponseDTO.builder()
+                .valid(false)
                 .build());
         }
 
@@ -107,33 +106,33 @@ public class AuthController {
             String username = claims.getSubject();
 
             // Build user information
-            User user = User.newBuilder()
-                .setId(1)
-                .setUsername(username)
+            UserDTO user = UserDTO.builder()
+                .id(1L)
+                .username(username)
                 .build();
 
             // Return valid session response
-            SessionResponse response = SessionResponse.newBuilder()
-                .setValid(true)
-                .setUser(user)
+            SessionResponseDTO response = SessionResponseDTO.builder()
+                .valid(true)
+                .user(user)
                 .build();
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             // Return error response for invalid token
-            return ResponseEntity.ok(SessionResponse.newBuilder()
-                .setValid(false)
-                .setError("Invalid token")
+            return ResponseEntity.ok(SessionResponseDTO.builder()
+                .valid(false)
+                .error("Invalid token")
                 .build());
         }
     }
 
     // Logout endpoint
     @PostMapping("/logout")
-    public ResponseEntity<LoginResponse> logout() {
+    public ResponseEntity<LoginResponseDTO> logout() {
         // Simply return success response, actual token invalidation should be handled by client
-        return ResponseEntity.ok(LoginResponse.newBuilder()
-            .setSuccess(true)
+        return ResponseEntity.ok(LoginResponseDTO.builder()
+            .success(true)
             .build());
     }
 

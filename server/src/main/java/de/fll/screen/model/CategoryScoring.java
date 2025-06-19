@@ -1,6 +1,6 @@
 package de.fll.screen.model;
 
-import de.fll.core.proto.TeamOuterClass;
+import de.fll.core.dto.TeamDTO;
 import de.fll.screen.service.comparators.*;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public enum CategoryScoring implements CategoryComparator {
 	}
 
 	@Override
-	public List<TeamOuterClass.Team> assignRanks(Set<Team> teams) {
+	public List<TeamDTO> assignRanks(Set<Team> teams) {
 		return this.categoryComparator.assignRanks(teams);
 	}
 

@@ -11,7 +11,7 @@
       <UForm :state="form" @submit="onLogin" class="space-y-4">
         <div v-if="error" class="mt-2">
           <UAlert
-            :title="$t('login_failed')"
+            :title="error || $t('login_failed')"
             color="error"
             variant="soft"
             icon="i-heroicons-exclamation-circle"
@@ -59,13 +59,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useAuth } from '#imports'
-import { de } from '../src/proto/proto'
+import type { LoginRequestDTO, LoginResponseDTO } from '~/interfaces/dto'
 
-type LoginRequest = de.fll.core.proto.ILoginRequest
-type LoginResponse = de.fll.core.proto.ILoginResponse
-const { LoginRequest, LoginResponse } = de.fll.core.proto
-
-const form = ref<LoginRequest>({
+const form = ref<LoginRequestDTO>({
   username: '',
   password: ''
 })
@@ -86,15 +82,34 @@ const onLogin = async () => {
 
   loading.value = true
   try {
-    const response = await signIn({
+    // 先直接获取登录响应
+    const loginResponse = await $fetch<LoginResponseDTO>('/api/auth/login', {
+      method: 'POST',
+      body: {
+        username: form.value.username,
+        password: form.value.password
+      }
+    })
+
+    console.log('Login API response:', loginResponse)
+
+    if (!loginResponse.success) {
+      error.value = loginResponse.error || 'Login failed, please try again'
+      console.error('Login failed:', loginResponse)
+      return
+    }
+
+    const authResponse = await signIn({
       username: form.value.username,
       password: form.value.password
     }, {
-      redirect: false
+      redirect: false,
+      token: loginResponse.token
     })
 
-    if (!response?.success) {
-      error.value = response?.error || 'Username or password is incorrect'
+
+    if (authResponse?.error) {
+      error.value = authResponse.error
       return
     }
 
