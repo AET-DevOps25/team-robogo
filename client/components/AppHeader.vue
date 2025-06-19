@@ -33,8 +33,11 @@ const { t } = useI18n()
 
 const handleLogout = async () => {
   try {
-    const result = await signOut({ callbackUrl: '/login' })
-    
+    const result = await signOut({
+      callbackUrl: '/login',
+      redirect: true
+    })
+
     if (result?.error) {
       toast.add({
         title: t('logoutFailed'),
@@ -48,6 +51,8 @@ const handleLogout = async () => {
       title: t('logoutSuccess'),
       color: 'success'
     })
+
+    await navigateTo('/login')
   } catch (error) {
     console.error('Logout error:', error)
     toast.add({
