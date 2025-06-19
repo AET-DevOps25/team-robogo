@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ import java.util.Date;
 import java.util.function.Function;
 
 @Service
-public class JwtService {
+public class JwtService implements InitializingBean {
     
     @Value("${jwt.secret:my-very-secret-key-which-should-be-long-enough-123456}")
     private String secretKey;
@@ -24,6 +25,7 @@ public class JwtService {
     
     private Key key;
     
+    @Override
     public void afterPropertiesSet() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
