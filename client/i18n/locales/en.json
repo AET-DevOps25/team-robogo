@@ -41,5 +41,8 @@
   "aiRecommendationDesc": "AI suggestions for missing or recommended content.",
   "imageUpload": "Image Upload",
   "imageUploadDesc": "Upload custom images to display on screens.",
-  "placeholder": "Coming soon..."
+  "placeholder": "Coming soon...",
+  "logout": "Logout",
+  "logoutSuccess": "Logged out successfully",
+  "logoutFailed": "Failed to logout"
 }

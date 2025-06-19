@@ -41,5 +41,8 @@
   "aiRecommendationDesc": "KI-Vorschläge für fehlende oder empfohlene Inhalte.",
   "imageUpload": "Bild-Upload",
   "imageUploadDesc": "Laden Sie eigene Bilder hoch, um sie auf Bildschirmen anzuzeigen.",
-  "placeholder": "Demnächst verfügbar..."
+  "placeholder": "Demnächst verfügbar...",
+  "logout": "Abmelden",
+  "logoutSuccess": "Erfolgreich abgemeldet",
+  "logoutFailed": "Abmeldung fehlgeschlagen"
 }
