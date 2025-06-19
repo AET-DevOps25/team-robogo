@@ -110,6 +110,20 @@ public class AuthController {
             .build());
     }
 
+    @GetMapping("/verify-email")
+    public ResponseEntity<String> verifyEmail(@RequestParam String token) {
+        logger.debug("Received email verification request with token: {}", token);
+        
+        boolean verified = userService.verifyEmail(token);
+        if (verified) {
+            logger.info("Email verification successful for token: {}", token);
+            return ResponseEntity.ok("Email verified successfully. You can now log in.");
+        } else {
+            logger.warn("Email verification failed for token: {}", token);
+            return ResponseEntity.badRequest().body("Invalid or expired verification token.");
+        }
+    }
+
     private String extractToken(String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);

@@ -14,7 +14,21 @@
             </p>
           </div>
         </template>
-        <UForm :state="form" class="space-y-4" @submit="onSignup">
+        
+        <div v-if="signupSuccess" class="text-center">
+          <UIcon name="i-heroicons-check-circle" class="text-green-500 w-16 h-16 mx-auto mb-4" />
+          <h3 class="text-2xl font-bold text-primary mb-2">
+            {{ $t('signupSuccessTitle') }}
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400">
+            {{ $t('checkYourInbox') }}
+          </p>
+          <UButton to="/login" variant="link" class="mt-6">
+            {{ $t('backToLogin') }}
+          </UButton>
+        </div>
+
+        <UForm v-else :state="form" class="space-y-4" @submit="onSignup">
           <div v-if="error" class="mt-2">
             <UAlert
               :title="error"
@@ -110,6 +124,7 @@ const form = ref({
   confirmPassword: ''
 })
 const error = ref('')
+const signupSuccess = ref(false)
 const { signIn } = useAuth()
 
 const validateEmail = (email: string) => {
@@ -158,36 +173,10 @@ const onSignup = async () => {
       return
     }
 
-    const loginResponse = await $fetch<LoginResponseDTO>('/api/auth/login', {
-      method: 'POST',
-      body: {
-        username: form.value.username,
-        password: form.value.password
-      }
-    })
+    // On successful signup, show the verification message
+    signupSuccess.value = true
+    error.value = '' // Clear previous errors
 
-    if (!loginResponse.success) {
-      error.value = loginResponse.error || 'Auto login failed after signup'
-      return
-    }
-
-    const authResponse = await signIn(
-      {
-        username: form.value.username,
-        password: form.value.password
-      },
-      {
-        redirect: false,
-        token: loginResponse.token
-      }
-    )
-
-    if (authResponse?.error) {
-      error.value = authResponse.error
-      return
-    }
-
-    await navigateTo('/dashboard')
   } catch (err) {
     if (err instanceof Error) {
       error.value = err.message || 'Signup failed, please try again'

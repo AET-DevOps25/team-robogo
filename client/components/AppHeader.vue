@@ -46,7 +46,6 @@ const handleLogout = async () => {
       })
       return
     }
-    
     toast.add({
       title: t('logoutSuccess'),
       color: 'success'
@@ -54,7 +53,6 @@ const handleLogout = async () => {
 
     await navigateTo('/login')
   } catch (error) {
-    console.error('Logout error:', error)
     toast.add({
       title: t('logoutFailed'),
       description: error instanceof Error ? error.message : String(error),
