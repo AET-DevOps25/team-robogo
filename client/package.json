@@ -8,7 +8,9 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "proto": "pbjs -t static-module -w es6 -o src/proto/proto.js ../core/proto/*.proto && pbts -o src/proto/proto.d.ts src/proto/proto.js"
+    "proto": "pbjs -t static-module -w es6 -o src/proto/proto.js ../core/proto/*.proto && pbts -o src/proto/proto.d.ts src/proto/proto.js",
+    "lint": "eslint --ext .ts,.js,.vue .",
+    "lint:fix": "eslint --ext .ts,.js,.vue . --fix"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.50",
@@ -26,6 +28,7 @@
     "protobufjs-cli": "^1.1.3",
     "typescript": "^5.8.3",
     "vue": "^3.5.17",
+    "vue-i18n": "^11.1.6",
     "vue-router": "^4.5.1"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
@@ -34,6 +37,14 @@
     "@tailwindcss/postcss": "^4.1.10",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.10"
+    "tailwindcss": "^4.1.10",
+    "@nuxtjs/eslint-config-typescript": "^12.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-vue": "^9.22.0",
+    "prettier": "^3.2.5"
   }
 }
