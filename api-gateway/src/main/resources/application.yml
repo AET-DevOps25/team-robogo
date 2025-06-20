@@ -30,10 +30,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: "prometheus"
+        include: "prometheus,health"
   endpoint:
     prometheus:
       enabled: true
+    health:
+      show-details: always
 
 web:
   resources:
