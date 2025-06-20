@@ -89,8 +89,14 @@ services:
     image: grafana/grafana:10.1.5
     ports:
       - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning/:/etc/grafana/provisioning/
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_LOG_LEVEL=debug
+      - GF_SECURITY_ADMIN_USER=admin # TODO: change to a random string in production
+      - GF_SECURITY_ADMIN_PASSWORD=admin # TODO: change to a random string in production
+      - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - prometheus
       - loki
@@ -98,3 +104,4 @@ services:
 volumes:
   postgres_data:
   prometheus_data:
+  grafana_data:

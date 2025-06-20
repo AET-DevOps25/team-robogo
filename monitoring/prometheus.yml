@@ -5,13 +5,19 @@ global:
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ['prometheus:9090']
 
-  - job_name: 'spring-actuator'
+  - job_name: 'gateway'
     metrics_path: '/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['gateway:8080', 'server:8081']
+      - targets: ['gateway:8080']
+
+  - job_name: 'server'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['server:8081']
 
   - job_name: 'postgres-exporter'
     static_configs:
