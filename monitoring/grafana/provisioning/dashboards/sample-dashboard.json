@@ -55,7 +55,7 @@
       },
       "targets": [
         {
-          "expr": "sum(rate(http_server_requests_seconds_count{job=~\\\"gateway|server\\\", outcome=\\\"SUCCESS\\\"}[5m])) by (uri, instance)",
+          "expr": "sum(rate(http_server_requests_seconds_count{job=~\"gateway|server\", outcome=\"SUCCESS\"}[5m])) by (uri, instance)",
           "legendFormat": "{{uri}} - {{instance}}",
           "refId": "A"
         }
@@ -77,7 +77,7 @@
       },
       "targets": [
         {
-          "expr": "jvm_memory_used_bytes{area=\\\"heap\\\", job=~\\\"gateway|server\\\"}",
+          "expr": "jvm_memory_used_bytes{area=\"heap\", job=~\"gateway|server\"}",
           "legendFormat": "{{instance}}",
           "refId": "A"
         }
@@ -118,6 +118,6 @@
   "timezone": "",
   "title": "Sample Service Dashboard",
   "uid": "sample-dashboard",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 } 
