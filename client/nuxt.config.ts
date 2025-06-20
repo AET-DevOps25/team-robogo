@@ -2,12 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
-  modules: [
-    '@sidebase/nuxt-auth',
-    '@nuxt/ui',
-    '@nuxtjs/i18n',
-    '@pinia/nuxt'
-  ],
+  modules: ['@sidebase/nuxt-auth', '@nuxt/ui', '@nuxtjs/i18n', '@pinia/nuxt'],
   runtimeConfig: {
     public: {
       apiBase: process.env.VITE_API_BASE_URL || 'http://localhost:8080'
@@ -18,17 +13,17 @@ export default defineNuxtConfig({
     provider: {
       type: 'local',
       endpoints: {
-        signIn: { 
-          path: '/api/auth/login', 
+        signIn: {
+          path: '/api/auth/login',
           method: 'post'
         },
-        signOut: { 
-          path: '/api/auth/logout', 
-          method: 'post' 
+        signOut: {
+          path: '/api/auth/logout',
+          method: 'post'
         },
-        getSession: { 
-          path: '/api/auth/session', 
-          method: 'get' 
+        getSession: {
+          path: '/api/auth/session',
+          method: 'get'
         }
       },
       token: {
@@ -51,15 +46,22 @@ export default defineNuxtConfig({
       { code: 'de', name: 'Deutsch', file: 'de.json' }
     ],
     defaultLocale: 'en',
+    lazy: true,
+    strategy: 'no_prefix'
   },
   vite: {
     server: {
       proxy: {
         '/api/auth': { target: 'http://localhost:8080', changeOrigin: true },
         '/api/server': { target: 'http://localhost:8080', changeOrigin: true },
-        '/api/genai': { target: 'http://localhost:8080', changeOrigin: true },
-      },
-    },
+        '/api/genai': { target: 'http://localhost:8080', changeOrigin: true }
+      }
+    }
   },
-  css: ['~/assets/css/main.css']
+  css: ['~/assets/css/main.css'],
+  app: {
+    head: {
+      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }]
+    }
+  }
 })

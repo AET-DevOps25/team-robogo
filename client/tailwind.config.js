@@ -1,4 +1,3 @@
-
 module.exports = {
   content: [
     './components/**/*.{vue,js,ts}',
@@ -6,10 +5,10 @@ module.exports = {
     './pages/**/*.vue',
     './plugins/**/*.{js,ts}',
     './app.vue',
-    './nuxt.config.{js,ts}',
+    './nuxt.config.{js,ts}'
   ],
   theme: {
-    extend: {},
+    extend: {}
   },
   plugins: [
     require('tailwind-scrollbar'),
