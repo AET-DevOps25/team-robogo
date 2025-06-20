@@ -302,7 +302,7 @@
       ],
       "datasource": "$datasource",
       "description": "The start time of the application",
-      "format": "dtdurations",
+      "format": "time:YYYY-MM-DD HH:mm:ss",
       "gauge": {
         "maxValue": 100,
         "minValue": 0,
@@ -346,7 +346,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "process_start_time_seconds{application=\"$application\", instance=\"$instance\"}",
+          "expr": "process_start_time_seconds{application=\"$application\", instance=\"$instance\"} * 1000",
           "format": "time_series",
           "instant": true,
           "intervalFactor": 1,
