@@ -26,9 +26,20 @@ spring:
           filters:
             - StripPrefix=2
 
-  web:
-    resources:
-      static-locations: []
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus,health"
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
+
+web:
+  resources:
+    static-locations: []
 
 logging:
   level:

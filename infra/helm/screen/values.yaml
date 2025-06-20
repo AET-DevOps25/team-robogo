@@ -14,6 +14,7 @@ gateway:
   service:
     name: gateway-service
     port: 8080
+  replicaCount: 1
 
 client:
   service:
@@ -26,3 +27,22 @@ server:
     name: server-service
     port: 8081
     nodePort: 30001
+  replicaCount: 1
+
+# Monitoring components
+kube-prometheus-stack:
+  enabled: true
+  prometheus:
+    prometheusSpec:
+      podMonitorSelectorNilUsesHelmValues: false
+      serviceMonitorSelectorNilUsesHelmValues: false
+      ruleSelectorNilUsesHelmValues: false
+      probeSelectorNilUsesHelmValues: false
+
+loki:
+  enabled: true
+  # Promtail is the agent that ships logs to Loki.
+  promtail:
+    enabled: true
+  grafana:
+    enabled: false # We use the Grafana from kube-prometheus-stack

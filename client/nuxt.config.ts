@@ -5,11 +5,11 @@ export default defineNuxtConfig({
   modules: ['@sidebase/nuxt-auth', '@nuxt/ui', '@nuxtjs/i18n', '@pinia/nuxt'],
   runtimeConfig: {
     public: {
-      apiBase: process.env.VITE_API_BASE_URL || 'http://localhost:8080'
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/'
     }
   },
   auth: {
-    baseURL: process.env.VITE_API_BASE_URL || 'http://localhost:8080',
+    baseURL: process.env.NUXT_PUBLIC_API_BASE || '/',
     provider: {
       type: 'local',
       endpoints: {
@@ -49,15 +49,18 @@ export default defineNuxtConfig({
     lazy: true,
     strategy: 'no_prefix'
   },
-  vite: {
-    server: {
-      proxy: {
-        '/api/auth': { target: 'http://localhost:8080', changeOrigin: true },
-        '/api/server': { target: 'http://localhost:8080', changeOrigin: true },
-        '/api/genai': { target: 'http://localhost:8080', changeOrigin: true }
-      }
-    }
-  },
+  vite:
+    process.env.NODE_ENV === 'development'
+      ? {
+          server: {
+            proxy: {
+              '/api/auth': { target: 'http://localhost:8080', changeOrigin: true },
+              '/api/server': { target: 'http://localhost:8080', changeOrigin: true },
+              '/api/genai': { target: 'http://localhost:8080', changeOrigin: true }
+            }
+          }
+        }
+      : {},
   css: ['~/assets/css/main.css'],
   app: {
     head: {
