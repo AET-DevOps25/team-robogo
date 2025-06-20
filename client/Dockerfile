@@ -1,22 +1,32 @@
 # ---- Build Stage ----
-FROM node:20 AS builder
-
-LABEL maintainer="Team Robogo"
-LABEL version="1.0"
-LABEL description="Team Robogo Frontend Application"
-LABEL org.opencontainers.image.source="https://github.com/AET-DevOps25/team-robogo"
-
+# Build the Nuxt application
+FROM node:20-slim AS builder
 WORKDIR /app
-COPY . .
+COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
+COPY . .
+# The API base is set to a relative path for production proxying
+ARG NUXT_PUBLIC_API_BASE=/
+ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
 RUN yarn build
 
 # ---- Runtime Stage ----
-FROM nginx:alpine
+# Use an Nginx base image and install Node.js
+FROM nginx:1.25-alpine
+RUN apk add --no-cache nodejs
+WORKDIR /app
 
-COPY --from=builder /app/.output/public /usr/share/nginx/html
+# Copy the built Nuxt app from the builder stage
+COPY --from=builder /app/.output ./.output
 
+# Copy the Nginx configuration and the entrypoint script
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
+# Set the internal port for the Nuxt server
+ENV PORT=3000
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+
+# Run the entrypoint script
+CMD ["/app/entrypoint.sh"]

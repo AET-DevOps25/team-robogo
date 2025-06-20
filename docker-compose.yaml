@@ -20,6 +20,7 @@ services:
       - "8081:8081"
     depends_on:
       - db
+
   gateway:
     build:
       dockerfile: api-gateway/Dockerfile
@@ -29,21 +30,51 @@ services:
       - "8080:8080"
     depends_on:
       - server
+
   client:
     build:
       context: ./client
       dockerfile: Dockerfile
-    environment:
-      - NODE_ENV=production
-      - VITE_API_BASE_URL=http://api-gateway:8080
     ports:
       - "80:80"
+
   genai:
     build:
       context: ./genai
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  loki:
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki-config.yaml:/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./monitoring/promtail-config.yaml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+
+  grafana:
+    image: grafana/grafana:10.1.5
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+      - loki
 
 volumes:
   postgres_data:
