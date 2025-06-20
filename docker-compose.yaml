@@ -99,7 +99,12 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - prometheus
+      - postgres-exporter
       - loki
+      - promtail
+      - server
+      - gateway
+      - client
 
 volumes:
   postgres_data:
