@@ -51,12 +51,7 @@
         </p>
       </div>
 
-      <UButton
-        to="/login"
-        size="xl"
-        color="primary"
-        class="px-10 py-4 text-lg font-bold rounded-full shadow-lg"
-      >
+      <UButton to="/login" size="xl" color="primary" class="px-10 py-4 text-lg font-bold rounded-full shadow-lg">
         {{ $t('tryNow') }}
       </UButton>
     </div>
