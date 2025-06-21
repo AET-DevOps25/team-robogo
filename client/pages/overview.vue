@@ -1,8 +1,23 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import { computed } from 'vue'
+
 import ScreenCard from '../components/ScreenCard.vue';
 import SlideCard from '../components/SlideCard.vue';
+import SlideGroupCard from '../components/SlideGroupCard.vue'
 const testResponse = ref('') // display Returned Text from API
+const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
+const value = ref('')
+interface SlideItem {
+    id: number
+    name: string
+    url: string
+}
+const selectedContent = ref<SlideItem | null>(null)
+
+function selectContent(item: SlideItem) {
+    selectedContent.value = item
+}
 
 const callTestApi = async () => {
     try {
@@ -79,6 +94,20 @@ const contentList = ref([
         url: './Folie6-B8wXdOXm.PNG'
     }
 ]);
+const slideGroups = ref([
+    {
+        id: 'Backlog',
+        content: contentList.value.filter(item => item.id <= 3)
+    },
+    {
+        id: 'Todo',
+        content: contentList.value.filter(item => item.id > 3)
+    }
+])
+const selectedGroupId = ref(slideGroups.value[0]?.id || '')
+const currentGroup = computed(() =>
+    slideGroups.value.find(g => g.id === selectedGroupId.value)
+)
 </script>
 
 
@@ -92,21 +121,25 @@ const contentList = ref([
             </div>
         </section>
 
-        <section class="grid grid-cols-2 gap-6 bg-gray-50 p-6 rounded-xl shadow">
+        <section class="grid grid-cols-[2fr_1fr] gap-6 bg-gray-50 p-6 rounded-xl shadow">
             <!-- Left: SlidesWH -->
 
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <h2 class="text-lg font-semibold">Slides</h2>
+                    <h2 class="text-lg font-semibold">Slide Groups</h2>
+                    <USelectMenu v-model="selectedGroupId" :items="slideGroups.map(g => g.id)" class="w-48" />
+                    <UButton color="neutral">Add Group</UButton>
                     <button class="text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                         @click="uploadSlide">
                         Upload Slide
                     </button>
+
                 </div>
                 <div class="h-[400px] overflow-y-auto border-gray-200  rounded p-2 flex flex-wrap gap-6 justify-start
                     scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
-                    <SlideCard v-for="item in contentList" :key="item.id" :item="item"
-                        :selected="selectedContent?.id === item.id" @click="selectContent(item)" />
+                    <SlideGroupCard v-if="currentGroup" :key="currentGroup.id" v-model:content="currentGroup.content"
+                        :allSlides="contentList" :selectedContent="selectedContent" @select="selectContent"
+                        @add="(item) => currentGroup.content.push(item)" />
                 </div>
             </div>
 
