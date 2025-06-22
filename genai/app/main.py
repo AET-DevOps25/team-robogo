@@ -9,7 +9,8 @@ app = FastAPI(
     version="1.0.0"
 )
 
-Instrumentator().instrument(app).expose(app, include_in_schema=False, endpoint="/metrics")
+Instrumentator().instrument(app, metric_namespace='genai', metric_subsystem='genai').expose(app)
+
 
 app.include_router(general.router, prefix="/genai", tags=["General"])
 app.include_router(suggestion.router, prefix="/genai", tags=["Suggestion"]) 
