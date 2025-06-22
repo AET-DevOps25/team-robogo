@@ -42,6 +42,8 @@ services:
     build:
       context: ./genai
       dockerfile: Dockerfile
+    env_file:
+      - ./genai/.env
     ports:
       - "5000:5000"
 
