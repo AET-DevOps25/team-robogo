@@ -1,9 +1,9 @@
 package de.fll.screen.service.comparators;
 
-import de.fll.core.dto.ScoreDTO;
-import de.fll.core.dto.TeamDTO;
 import de.fll.screen.model.Score;
 import de.fll.screen.model.Team;
+import de.fll.core.dto.TeamDTO;
+import de.fll.core.dto.ScoreDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +35,19 @@ abstract class AbstractWROComparator implements CategoryComparator {
 			List<ScoreDTO> scores = new ArrayList<>(team.getScores().size());
 			for (int j = 0; j < team.getScores().size(); j++) {
 				Score score = team.getScores().get(j);
-				scores.add(new ScoreDTO(score.getPoints(), score.getTime(), highlightIndices.contains(j)));
+				scores.add(ScoreDTO.builder()
+					.points(score.getPoints())
+					.time(score.getTime())
+					.highlight(highlightIndices.contains(j))
+					.build());
 			}
 
-			teamDTOs.add(new TeamDTO(team.getId(), team.getName(), rank, scores));
+			teamDTOs.add(TeamDTO.builder()
+				.id(team.getId())
+				.name(team.getName())
+				.rank(rank)
+				.scores(scores)
+				.build());
 		}
 
 		return teamDTOs;

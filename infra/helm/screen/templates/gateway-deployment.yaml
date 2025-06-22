@@ -4,7 +4,7 @@ metadata:
   name: gateway
   namespace: team-robogo
 spec:
-  replicas: 1
+  replicas: {{ .Values.gateway.replicaCount }}
   selector:
     matchLabels:
       app: gateway
@@ -12,6 +12,10 @@ spec:
     metadata:
       labels:
         app: gateway
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/path: '/actuator/prometheus'
+        prometheus.io/port: '8080'
     spec:
       containers:
         - name: gateway

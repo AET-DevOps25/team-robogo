@@ -114,4 +114,6 @@ public final class Score {
     public void setTeam(Team team) {
         this.team = team;
     }
+
+
 }

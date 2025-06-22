@@ -19,11 +19,11 @@ jobs:
 
       - name: Write ssh key to infra/pk.pem
         run: |
-          echo "${{ secrets.PRIVATE_KEY }}" | sed 's/\\n/\n/g' > ./infra/pk.pem
+          echo "${{ secrets.AWS_PRIVATE_KEY }}" | sed 's/\\n/\n/g' > ./infra/pk.pem
           chmod 600 ./infra/pk.pem
           ssh-keygen -y -f ./infra/pk.pem > /dev/null
           if [ $? -ne 0 ]; then
-            echo "Invalid private key provided. Please check the PRIVATE_KEY input."
+            echo "Invalid private key provided. Please check the AWS_PRIVATE_KEY secret."
             exit 1
           fi
 

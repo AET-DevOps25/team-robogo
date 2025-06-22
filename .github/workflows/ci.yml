@@ -20,10 +20,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Run build
-        run: |
-          cd server
-          ./gradlew build
       - name: Set up tag (replace / with -)
         id: server_tag
         run: |
@@ -92,11 +88,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Run build
-        run: |
-          cd api-gateway
-          ./gradlew build
 
       - name: Set up tag (replace / with -)
         id: gateway_tag

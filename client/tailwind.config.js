@@ -1,11 +1,16 @@
-// tailwind.config.js
 module.exports = {
-    content: [
-        "./index.html",
-        "./src/**/*.{vue,js,ts,jsx,tsx}",
-    ],
-    theme: {
-        extend: {},
-    },
-    plugins: [],
-};
+  content: [
+    './components/**/*.{vue,js,ts}',
+    './layouts/**/*.vue',
+    './pages/**/*.vue',
+    './plugins/**/*.{js,ts}',
+    './app.vue',
+    './nuxt.config.{js,ts}'
+  ],
+  theme: {
+    extend: {}
+  },
+  plugins: [
+    require('tailwind-scrollbar'),
+  ],
+}

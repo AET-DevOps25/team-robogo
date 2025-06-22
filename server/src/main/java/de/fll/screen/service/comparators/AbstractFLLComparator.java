@@ -1,9 +1,9 @@
 package de.fll.screen.service.comparators;
 
-import de.fll.core.dto.TeamDTO;
-import de.fll.core.dto.ScoreDTO;
 import de.fll.screen.model.Score;
 import de.fll.screen.model.Team;
+import de.fll.core.dto.ScoreDTO;
+import de.fll.core.dto.TeamDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +31,18 @@ abstract class AbstractFLLComparator implements CategoryComparator {
 			var highlightIndices = getHighlightIndices(team);
 
 			var scores = getRelevantScores(team).stream()
-					.map(score -> new ScoreDTO(score.getPoints(), score.getTime(), highlightIndices.contains(team.getScores().indexOf(score))))
+					.map(score -> ScoreDTO.builder()
+						.points(score.getPoints())
+						.time(score.getTime())
+						.highlight(highlightIndices.contains(team.getScores().indexOf(score)))
+						.build())
 					.toList();
-			teamDTOs.add(new TeamDTO(team.getId(), team.getName(), rank, scores));
+			teamDTOs.add(TeamDTO.builder()
+				.id(team.getId())
+				.name(team.getName())
+				.rank(rank)
+				.scores(scores)
+				.build());
 			previousScore = bestScore.getPoints();
 		}
 		return teamDTOs;

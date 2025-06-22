@@ -8,6 +8,7 @@ import org.springframework.lang.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Entity
 public final class Team {
@@ -79,4 +80,5 @@ public final class Team {
     public long getId() {
         return id;
     }
+
 }

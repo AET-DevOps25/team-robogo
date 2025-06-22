@@ -7,12 +7,46 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: auth_route
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
         - id: server_route
-          uri: http://server:8081
+          uri: http://localhost:8081
           predicates:
             - Path=/api/server/**
           filters:
             - StripPrefix=1
-  web:
-    resources:
-      static-locations: []
+        - id: genai_route
+          uri: http://localhost:5000
+          predicates:
+            - Path=/api/genai/**
+          filters:
+            - StripPrefix=2
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus,health"
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
+
+web:
+  resources:
+    static-locations: []
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.http.server.reactive: DEBUG
+    org.springframework.web.reactive: DEBUG
+    org.springframework.security: DEBUG
+    reactor.netty: DEBUG
+    redactor.netty.http.client: DEBUG 
