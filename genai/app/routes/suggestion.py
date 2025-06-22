@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from app.models.schemas import SuggestionRequest, SuggestionResponse
-from app.services.llm_service import llm
+from app.services.llm_service import llm_factory
 
 router = APIRouter(tags=["Suggestion"])
 
@@ -9,6 +9,9 @@ async def suggestion(req: SuggestionRequest) -> SuggestionResponse:
     try:
         if not req.text or not req.text.strip():
             raise HTTPException(status_code=400, detail="text cannot be empty")
+
+        llm = llm_factory.get_llm(req.service)
+
         prompt = (
             "Please analyze the following content, identify any potentially missing elements, "
             "and provide suggestions for improvement or completion.\n"
@@ -17,7 +20,7 @@ async def suggestion(req: SuggestionRequest) -> SuggestionResponse:
         )
         suggestion_text = llm.invoke(prompt)
         return SuggestionResponse(suggestion=suggestion_text)
-    except HTTPException:
+    except (ValueError, HTTPException):
         raise
     except Exception as e:
         print(f"Error generating suggestion: {str(e)}")
