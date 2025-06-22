@@ -24,7 +24,7 @@ spring:
           predicates:
             - Path=/api/genai/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=1
 
 management:
   endpoints:

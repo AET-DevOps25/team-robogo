@@ -20,6 +20,8 @@ services:
       - "8081:8081"
     depends_on:
       - db
+    labels:
+      - "logging.jobname=server"
 
   gateway:
     build:
@@ -30,6 +32,8 @@ services:
       - "8080:8080"
     depends_on:
       - server
+    labels:
+      - "logging.jobname=gateway"
 
   client:
     build:
@@ -37,6 +41,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:80"
+    labels:
+      - "logging.jobname=client"
 
   genai:
     build:
@@ -46,6 +52,8 @@ services:
       - ./genai/.env
     ports:
       - "5000:5000"
+    labels:
+      - "logging.jobname=genai"
 
   prometheus:
     image: prom/prometheus:v2.45.0
@@ -83,7 +91,7 @@ services:
   promtail:
     image: grafana/promtail:2.9.2
     volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
       - ./monitoring/promtail-config.yaml:/etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
 
@@ -101,9 +109,11 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - prometheus
+      - db
       - postgres-exporter
       - loki
       - promtail
+      - genai
       - server
       - gateway
       - client
