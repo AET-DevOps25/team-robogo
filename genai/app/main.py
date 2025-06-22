@@ -11,10 +11,5 @@ app = FastAPI(
 
 Instrumentator().instrument(app).expose(app, include_in_schema=False, endpoint="/metrics")
 
-routes = [
-    general.router,
-    suggestion.router
-]
-
-for route in routes:
-    app.include_router(route, prefix="/genai", tags=[route.tags[0]]) 
+app.include_router(general.router, prefix="/genai", tags=["General"])
+app.include_router(suggestion.router, prefix="/genai", tags=["Suggestion"]) 
