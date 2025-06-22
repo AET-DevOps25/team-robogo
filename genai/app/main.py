@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from app.api import router
 from prometheus_fastapi_instrumentator import Instrumentator
 
+from app.routes import general, suggestion
 
 app = FastAPI(
     title="LLM Suggestion Service",
@@ -11,4 +11,10 @@ app = FastAPI(
 
 Instrumentator().instrument(app).expose(app, include_in_schema=False, endpoint="/metrics")
 
-app.include_router(router, prefix="/genai") 
+routes = [
+    general.router,
+    suggestion.router
+]
+
+for route in routes:
+    app.include_router(route, prefix="/genai", tags=[route.tags[0]]) 
