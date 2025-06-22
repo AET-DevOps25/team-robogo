@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Literal
 
 class SuggestionRequest(BaseModel):
-    text: str = Field(..., description="The original content for AI analysis and suggestion.")
+    text: str = Field(..., description="The original content for AI analysis and suggestion.", min_length=1)
     service: Literal["openwebui", "openai"] = Field(
         "openwebui", 
         description="The LLM service to use for the suggestion."
