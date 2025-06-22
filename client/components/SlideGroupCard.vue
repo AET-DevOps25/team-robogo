@@ -1,8 +1,11 @@
 <template>
-    <div class=" rounded-xl shadow-lg p-4 bg-white space-y-3">
-        <div class="flex justify-between items-center">
+    <div class="w-full rounded-xl shadow-lg p-4 bg-white space-y-3">
+        <div class="flex gap-2 justify-between items-center">
             <h3 class="text-lg font-semibold">{{ title }}</h3>
-            <SpeedControl />
+            <div class="flex items-center gap-2 mt-2">
+                <span class="text-lg font-semibold">Speed</span>
+                <SpeedControl v-model="speed" />
+            </div>
 
         </div>
 
@@ -56,6 +59,7 @@ import { ref } from 'vue'
 import draggable from 'vuedraggable'
 import SlideCard from './SlideCard.vue'
 import SpeedControl from './SpeedControl.vue'
+const speed = ref(5)
 const showDialog = ref(false)
 interface SlideItem {
     id: number | string

@@ -46,15 +46,19 @@
             <div>
                 <div class="flex items-center justify-between mb-2">
                     <h2 class="text-lg font-semibold">Slide Groups</h2>
-                    <USelectMenu v-model="selectedGroupId" :items="slideGroups.map(g => g.id)" class="w-48" />
-                    <UButton color="neutral">Add Group</UButton>
+
                     <button class="text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                         @click="uploadSlide">
                         Upload Slide
                     </button>
 
                 </div>
-                <div class="h-[400px] overflow-y-auto border-gray-200  rounded p-2 flex flex-wrap gap-6 justify-start
+                <div>
+                    <USelectMenu v-model="selectedGroupId" :items="slideGroups.map(g => g.id)" class="w-48" />
+                    <UButton color="neutral" variant="outline">Add Group</UButton>
+
+                </div>
+                <div class="h-[400px] w-full overflow-y-auto border-gray-200  rounded p-2 flex flex-wrap gap-6 justify-start
                     scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
                     <SlideGroupCard v-if="currentGroup" :key="currentGroup.id" v-model:content="currentGroup.content"
                         :allSlides="contentList" :selectedContent="selectedContent" @select="selectContent"
@@ -113,6 +117,7 @@ import { onMounted } from 'vue'
 import ScreenCard from '../components/ScreenCard.vue';
 import SlideCard from '../components/SlideCard.vue';
 import SlideGroupCard from '../components/SlideGroupCard.vue'
+
 const testResponse = ref('') // display Returned Text from API
 const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
 const value = ref('')
