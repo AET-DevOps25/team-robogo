@@ -55,7 +55,7 @@
                 </div>
                 <div>
                     <USelectMenu v-model="selectedGroupId" :items="slideGroups.map(g => g.id)" class="w-48" />
-                    <UButton color="neutral" variant="outline">Add Group</UButton>
+                    <UButton color="neutral" variant="outline" @click="showAddGroupDialog = true">Add Group</UButton>
 
                 </div>
                 <div class="h-[400px] w-full overflow-y-auto border-gray-200  rounded p-2 flex flex-wrap gap-6 justify-start
@@ -99,6 +99,29 @@
                 </div>
             </div>
         </section>
+        <!-- Add Group Dialog -->
+        <div v-if="showAddGroupDialog"
+            class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded-xl shadow-lg w-[400px] relative">
+                <h3 class="text-lg font-semibold mb-4">Add New Group</h3>
+
+                <input v-model="newGroupName" placeholder="Group Name"
+                    class="w-full border border-gray-300 p-2 rounded mb-4" />
+
+                <div class="flex justify-end gap-2">
+                    <button class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400" @click="showAddGroupDialog = false">
+                        Cancel
+                    </button>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" @click="addGroup">
+                        Add
+                    </button>
+                </div>
+
+                <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                    @click="showAddGroupDialog = false">✕</button>
+            </div>
+        </div>
+
         <section class="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4">
             <button class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700" @click="callTestApi">
                 Test
@@ -290,5 +313,24 @@ const sendMessage = async () => {
     }, 500)
 
     userMessage.value = ''
+}
+
+const showAddGroupDialog = ref(false)
+const newGroupName = ref('')
+
+// 添加新分组
+const addGroup = () => {
+    const name = newGroupName.value.trim()
+    if (!name) return
+    // 避免重复
+    if (slideGroups.value.find(g => g.id === name)) return
+
+    slideGroups.value.push({
+        id: name,
+        content: []
+    })
+    selectedGroupId.value = name
+    newGroupName.value = ''
+    showAddGroupDialog.value = false
 }
 </script>
