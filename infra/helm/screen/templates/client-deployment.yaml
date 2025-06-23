@@ -1,21 +1,40 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: client
-  namespace: team-robogo
+  name: {{ .Chart.Name }}-client
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: client
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: client
+      app.kubernetes.io/name: client
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: client
+        app.kubernetes.io/name: client
+        app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
         - name: client
-          image: ghcr.io/aet-devops25/team-robogo/client:main
-          imagePullPolicy: Always
+          image: "{{ .Values.client.image.repository }}:{{ .Values.client.image.tag }}"
+          imagePullPolicy: {{ .Values.client.image.pullPolicy }}
           ports:
-            - containerPort: 80
+            - name: http
+              containerPort: {{ .Values.client.service.port }}
+              protocol: TCP
+          env:
+            - name: API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.configMap.name }}
+                  key: api_url
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            {{- if .Values.client.env }}
+            {{- toYaml .Values.client.env | nindent 12 }}
+            {{- end }}

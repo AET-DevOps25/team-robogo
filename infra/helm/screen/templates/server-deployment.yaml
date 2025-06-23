@@ -1,35 +1,50 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: server
-  namespace: team-robogo
+  name: {{ .Chart.Name }}-server
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: server
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.server.replicaCount }}
   selector:
     matchLabels:
-      app: server
+      app.kubernetes.io/name: server
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: server
+        app.kubernetes.io/name: server
+        app.kubernetes.io/instance: {{ .Release.Name }}
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/path: '/actuator/prometheus'
-        prometheus.io/port: '8081'
+        prometheus.io/port: {{ .Values.server.service.port | quote }}
     spec:
       containers:
         - name: server
-          image: ghcr.io/aet-devops25/team-robogo/server:main # Deploy the version pushed to main branch, not wip PR branches
-          imagePullPolicy: Always
+          image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
+          imagePullPolicy: {{ .Values.server.image.pullPolicy }}
           ports:
-            - containerPort: 8081
+            - name: http
+              containerPort: {{ .Values.server.service.port }}
+              protocol: TCP
           env:
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://db-service:5432/robogo_db"
+              value: "jdbc:postgresql://{{ .Values.database.service.name }}:{{ .Values.database.service.port }}/{{ .Values.postgres_db }}"
             - name: SPRING_DATASOURCE_USERNAME
-              value: "robogo"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secretName }}
+                  key: POSTGRES_USER
             - name: SPRING_DATASOURCE_PASSWORD
-              value: "robogo_pass"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secretName }}
+                  key: POSTGRES_PASSWORD
             - name: SERVER_PORT
-              value: "8081"
-
+              value: {{ .Values.server.service.port | quote }}
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod 

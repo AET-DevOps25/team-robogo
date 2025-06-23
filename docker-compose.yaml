@@ -39,6 +39,8 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+    environment:
+      - GATEWAY_HOST=gateway
     ports:
       - "80:80"
     labels:
