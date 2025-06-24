@@ -17,10 +17,13 @@ RUN apk add --no-cache nodejs
 WORKDIR /app
 
 # Copy the built Nuxt app from the builder stage
-COPY --from=builder /app/.output ./.output
+COPY --from=builder /app/.output /app/.output
+
+# Copy the static resources from the builder stage to Nginx
+COPY --from=builder /app/.output/public /usr/share/nginx/html
 
 # Copy the Nginx configuration and the entrypoint script
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 

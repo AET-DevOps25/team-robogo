@@ -1,44 +1,16 @@
-output "namespace" {
-  description = "Created namespace name"
-  value       = kubernetes_namespace.team_robogo.metadata[0].name
+output "app_namespace" {
+  description = "The Kubernetes namespace where the application is deployed."
+  value       = kubernetes_namespace.app_namespace.metadata[0].name
 }
 
-output "db_service_name" {
-  description = "Database service name"
-  value       = kubernetes_service.db_service.metadata[0].name
+output "helm_release_status" {
+  description = "The status of the Helm release."
+  value       = helm_release.app_release.status
 }
 
-output "db_service_port" {
-  description = "Database service port"
-  value       = kubernetes_service.db_service.spec[0].port[0].port
-}
-
-output "gateway_service_name" {
-  description = "API Gateway service name"
-  value       = kubernetes_service.gateway_service.metadata[0].name
-}
-
-output "gateway_service_port" {
-  description = "API Gateway service port"
-  value       = kubernetes_service.gateway_service.spec[0].port[0].port
-}
-
-output "client_service_name" {
-  description = "client service name"
-  value       = kubernetes_service.client_service.metadata[0].name
-}
-
-output "client_service_port" {
-  description = "client service port"
-  value       = kubernetes_service.client_service.spec[0].port[0].port
-}
-
-output "server_service_name" {
-  description = "server service name"
-  value       = kubernetes_service.server_service.metadata[0].name
-}
-
-output "server_service_port" {
-  description = "server service port"
-  value       = kubernetes_service.server_service.spec[0].port[0].port
+output "client_service_nodeport" {
+  description = "The NodePort for the client service to access the UI."
+  # Note: This requires the client service in your Helm chart to be of type NodePort
+  # and have a defined nodePort value. We access it from the Helm release resource.
+  value = helm_release.app_release.metadata[0].notes
 }

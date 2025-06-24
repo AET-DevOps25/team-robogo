@@ -2,317 +2,97 @@ terraform {
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.0"
+      version = "2.31.0"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "2.14.0"
     }
   }
 }
 
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+  config_path    = "~/.kube/config"
+  config_context = "docker-desktop"
 }
 
-# Create namespace
-resource "kubernetes_namespace" "team_robogo" {
-  metadata {
-    name = "team-robogo"
-    labels = {
-      name = "team-robogo"
-    }
+provider "helm" {
+  kubernetes {
+    config_path    = "~/.kube/config"
+    config_context = "docker-desktop"
   }
 }
 
-# Create ConfigMap
-resource "kubernetes_config_map" "team_robogo_config" {
+# Create the namespace for the application
+resource "kubernetes_namespace" "app_namespace" {
   metadata {
-    name      = "team-robogo-config"
-    namespace = kubernetes_namespace.team_robogo.metadata[0].name
+    name = var.namespace
+  }
+}
+
+# Create the secret for the GenAI service from variables
+resource "kubernetes_secret" "genai_secret" {
+  metadata {
+    name      = "genai-secret"
+    namespace = kubernetes_namespace.app_namespace.metadata[0].name
   }
 
   data = {
-    api_url = "http://gateway-service:8080"
+    CHAIR_API_KEY  = var.chair_api_key
+    OPENAI_API_KEY = var.openai_api_key
   }
+
+  type = "Opaque"
 }
 
-# Create database service
-resource "kubernetes_service" "db_service" {
+# Create the secret for the Database from variables
+resource "kubernetes_secret" "db_secret" {
   metadata {
-    name      = "db-service"
-    namespace = kubernetes_namespace.team_robogo.metadata[0].name
+    name      = "db-credentials"
+    namespace = kubernetes_namespace.app_namespace.metadata[0].name
   }
 
-  spec {
-    selector = {
-      app = "db"
-    }
-
-    port {
-      port        = 5432
-      target_port = 5432
-      protocol    = "TCP"
-    }
-
-    type = "ClusterIP"
+  data = {
+    POSTGRES_USER     = var.postgres_user
+    POSTGRES_PASSWORD = var.postgres_password
+    POSTGRES_DB       = var.postgres_db
   }
+
+  type = "Opaque"
 }
 
-# Create database deployment
-resource "kubernetes_deployment" "db" {
-  metadata {
-    name      = "db"
-    namespace = kubernetes_namespace.team_robogo.metadata[0].name
-  }
-
-  spec {
-    replicas = 1
-
-    selector {
-      match_labels = {
-        app = "db"
+# Deploy the application using the local Helm chart
+resource "helm_release" "app_release" {
+  name       = "robogo-release"
+  chart      = "../helm/screen" # Relative path to the chart
+  namespace  = kubernetes_namespace.app_namespace.metadata[0].name
+  
+  # Wait for resources to be ready
+  wait = true
+  
+  # This block is equivalent to the values.yaml file.
+  # Values set here will override the ones in the chart's values.yaml.
+  values = [
+    yamlencode({
+      genai = {
+        secretName = kubernetes_secret.genai_secret.metadata[0].name
       }
-    }
-
-    template {
-      metadata {
-        labels = {
-          app = "db"
-        }
+      database = {
+        secretName = kubernetes_secret.db_secret.metadata[0].name
       }
+      # You can override other values from your chart here if needed
+      # For example:
+      # client = {
+      #   service = {
+      #     nodePort = 30001
+      #   }
+      # }
+    })
+  ]
 
-      spec {
-        container {
-          image = "postgres:15"
-          name  = "postgres"
-
-          port {
-            container_port = 5432
-          }
-
-          env {
-            name  = "POSTGRES_USER"
-            value = var.postgres_user
-          }
-
-          env {
-            name  = "POSTGRES_PASSWORD"
-            value = var.postgres_password
-          }
-
-          env {
-            name  = "POSTGRES_DB"
-            value = var.postgres_db
-          }
-
-          volume_mount {
-            name       = "postgres-data"
-            mount_path = "/var/lib/postgresql/data"
-          }
-        }
-
-        volume {
-          name = "postgres-data"
-          empty_dir {}
-        }
-      }
-    }
-  }
-}
-
-
-// Create api gateway service
-resource "kubernetes_service" "gateway_service" {
-  metadata {
-    name      = "gateway-service"
-    namespace = kubernetes_namespace.team_robogo.metadata[0].name
-  }
-
-  spec {
-    selector = {
-      app = "gateway"
-    }
-
-    port {
-      port        = 8080
-      target_port = 8080
-      protocol    = "TCP"
-    }
-
-    type = "ClusterIP"
-  }
-}
-
-// Create api gateway deployment
-resource "kubernetes_deployment" "gateway" {
-  metadata {
-    name      = "gateway"
-    namespace = kubernetes_namespace.team_robogo.metadata[0].name
-  }
-
-  spec {
-    replicas = 1
-
-    selector {
-      match_labels = {
-        app = "gateway"
-      }
-    }
-
-    template {
-      metadata {
-        labels = {
-          app = "gateway"
-        }
-      }
-
-      spec {
-        container {
-          name  = "gateway"
-          image = "ghcr.io/aet-devops25/team-robogo/api-gateway:main"
-          port {
-            container_port = 8080
-          }
-        }
-      }
-    }
-  }
-}
-
-# Create service for client
-resource "kubernetes_service" "client_service" {
-  metadata {
-    name      = "client-service"
-    namespace = kubernetes_namespace.team_robogo.metadata[0].name
-  }
-
-  spec {
-    selector = {
-      app = "client"
-    }
-
-    port {
-      port        = 80
-      target_port = 80
-      node_port   = 30000
-      protocol    = "TCP"
-    }
-
-    type = "NodePort"
-  }
-}
-
-
-# Create deployment for client
-resource "kubernetes_deployment" "client" {
-  metadata {
-    name      = "client"
-    namespace = kubernetes_namespace.team_robogo.metadata[0].name
-  }
-
-  spec {
-    replicas = 1
-
-    selector {
-      match_labels = {
-        app = "client"
-      }
-    }
-
-    template {
-      metadata {
-        labels = {
-          app = "client"
-        }
-      }
-
-      spec {
-        container {
-          name  = "client"
-          image = "ghcr.io/aet-devops25/team-robogo/client:main"
-          port {
-            container_port = 80
-          }
-        }
-      }
-    }
-  }
-}
-
-# Create server service
-resource "kubernetes_service" "server_service" {
-  metadata {
-    name      = "server-service"
-    namespace = kubernetes_namespace.team_robogo.metadata[0].name
-  }
-
-  spec {
-    selector = {
-      app = "server"
-    }
-
-    port {
-      port        = 8081
-      target_port = 8081
-      node_port   = 30001
-      protocol    = "TCP"
-    }
-
-    type = "NodePort"
-  }
-}
-
-# Create deployment for server
-resource "kubernetes_deployment" "server" {
-  metadata {
-    name      = "server"
-    namespace = kubernetes_namespace.team_robogo.metadata[0].name
-  }
-
-  spec {
-    replicas = 1
-
-    selector {
-      match_labels = {
-        app = "server"
-      }
-    }
-
-    template {
-      metadata {
-        labels = {
-          app = "server"
-        }
-      }
-
-      spec {
-        container {
-          name  = "server"
-          image = "ghcr.io/aet-devops25/team-robogo/server:main"
-          port {
-            container_port = 8081
-          }
-
-          env {
-            name = "SPRING_DATASOURCE_URL"
-            value = var.db_url
-          }
-
-          env {
-            name = "SPRING_DATASOURCE_USERNAME"
-            value = var.postgres_user
-          }
-
-          env {
-            name = "SPRING_DATASOURCE_PASSWORD"
-            value = var.postgres_password
-          }
-
-          env {
-            name = "SERVER_PORT"
-            value = var.server_port
-          }
-        }
-      }
-    }
-  }
-
-  depends_on = [kubernetes_service.db_service]
+  # Ensures the secret is created before the helm chart is deployed
+  depends_on = [
+    kubernetes_secret.genai_secret,
+    kubernetes_secret.db_secret
+  ]
 }

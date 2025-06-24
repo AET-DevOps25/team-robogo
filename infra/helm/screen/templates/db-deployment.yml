@@ -1,34 +1,38 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db
-  namespace: team-robogo
+  name: {{ .Chart.Name }}-db
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: db
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: db
+      app.kubernetes.io/name: db
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: db
+        app.kubernetes.io/name: db
+        app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
         - name: postgres
-          image: postgres:15
-          imagePullPolicy: Always
+          image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}"
+          imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 5432
-          env:
-            - name: POSTGRES_USER
-              value: "robogo"
-            - name: POSTGRES_PASSWORD
-              value: "robogo_pass"
-            - name: POSTGRES_DB
-              value: "robogo_db"
+            - name: postgres
+              containerPort: {{ .Values.database.service.port }}
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: {{ .Values.database.secretName }}
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
       volumes:
         - name: postgres-data
-          emptyDir: {}
+          emptyDir: {} 

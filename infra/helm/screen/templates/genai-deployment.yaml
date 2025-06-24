@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-genai
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: genai
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.genai.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: genai
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: genai
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: genai
+          image: "{{ .Values.genai.image.repository }}:{{ .Values.genai.image.tag }}"
+          imagePullPolicy: {{ .Values.genai.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 5000
+              protocol: TCP
+          env:
+            {{- if .Values.genai.env }}
+            {{- toYaml .Values.genai.env | nindent 12 }}
+            {{- end }} 

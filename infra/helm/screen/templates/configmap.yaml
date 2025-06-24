@@ -1,9 +1,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: team-robogo-config
-  namespace: team-robogo
+  name: {{ .Values.configMap.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
-  # The API URL should be your ingress hostname without the /api path
-  # TODO unsure about that
-  api_url: http://gateway-server:8080
+  api_url: {{ .Values.configMap.apiUrl | quote }} 

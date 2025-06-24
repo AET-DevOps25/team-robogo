@@ -1,25 +1,24 @@
 variable "namespace" {
-  description = "Kubernetes namespace name"
+  description = "The Kubernetes namespace to deploy into."
   type        = string
-  default     = "team-robogo"
+  default     = "team-robogo-tf"
 }
 
 variable "postgres_user" {
-  description = "PostgreSQL username"
+  description = "Username for the PostgreSQL database."
   type        = string
-  default     = "robogo"
+  sensitive   = true
 }
 
 variable "postgres_password" {
-  description = "PostgreSQL password"
+  description = "Password for the PostgreSQL database."
   type        = string
-  default     = "robogo_pass"
+  sensitive   = true
 }
 
 variable "postgres_db" {
-  description = "PostgreSQL database name"
+  description = "Name of the PostgreSQL database."
   type        = string
-  default     = "robogo_db"
 }
 
 variable "gateway_url" {
@@ -35,7 +34,19 @@ variable "db_url" {
 }
 
 variable "server_port" {
-  description = "Server port"
+  description = "Port for the server"
+  type        = number
+  default     = 8081
+}
+
+variable "chair_api_key" {
+  description = "API key for the Chair service."
   type        = string
-  default     = "8081"
+  sensitive   = true
+}
+
+variable "openai_api_key" {
+  description = "API key for the OpenAI service."
+  type        = string
+  sensitive   = true
 }

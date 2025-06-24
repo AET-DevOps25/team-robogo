@@ -4,23 +4,44 @@ namespace:
 
 configMap:
   name: screen-config
+  apiUrl: "http://gateway-service:8080"
 
 database:
+  image:
+    repository: postgres
+    tag: "15"
   service:
     name: db-service
     port: 5432
+  secretName: "db-credentials"
 
 gateway:
   service:
     name: gateway-service
     port: 8080
+  image:
+    repository: ghcr.io/aet-devops25/team-robogo/api-gateway
+    pullPolicy: IfNotPresent
+    tag: "main"
   replicaCount: 1
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod
 
 client:
   service:
     name: client-service
     port: 80
     nodePort: 30000
+  image:
+    repository: ghcr.io/aet-devops25/team-robogo/client
+    pullPolicy: IfNotPresent
+    tag: "main"
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod
+    - name: GATEWAY_HOST
+      value: gateway-service
 
 server:
   service:
@@ -28,10 +49,19 @@ server:
     port: 8081
     nodePort: 30001
   replicaCount: 1
+  image:
+    repository: ghcr.io/aet-devops25/team-robogo/server
+    pullPolicy: IfNotPresent
+    tag: "main"
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod
 
 # Monitoring components
 kube-prometheus-stack:
   enabled: true
+  kubeEtcd:
+    enabled: false
   prometheus:
     prometheusSpec:
       podMonitorSelectorNilUsesHelmValues: false
@@ -46,3 +76,15 @@ loki:
     enabled: true
   grafana:
     enabled: false # We use the Grafana from kube-prometheus-stack
+
+genai:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/aet-devops25/team-robogo/genai
+    pullPolicy: IfNotPresent
+    tag: "main"
+  service:
+    name: genai-service
+  env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: prod
