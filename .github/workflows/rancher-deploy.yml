@@ -21,8 +21,11 @@ jobs:
         with:
           version: 'v3.11.0'
 
+      - name: Write Kubeconfig file
+        run: echo "${{ secrets.RANCHER_KUBECONFIG }}" > .kubeconfig
+
       - name: Helm Deployment ausführen
         env:
-          KUBECONFIG: ${{ github.secrets.RANCHER_KUBECONFIG }}
+          KUBECONFIG: ${{ github.workspace }}/.kubeconfig
         run: |
           helm upgrade --install devops25-team-robogo ./infra/helm/screen --namespace team-robogo --create-namespace
