@@ -33,17 +33,17 @@ spec:
               protocol: TCP
           env:
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://{{ .Values.database.service.name }}:{{ .Values.database.service.port }}/{{ .Values.postgres_db }}"
+              value: "jdbc:postgresql://{{ .Values.db.host }}:{{ .Values.db.port }}/{{ .Values.db.name }}"
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.database.secretName }}
-                  key: POSTGRES_USER
+                  key: DB_USER
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.database.secretName }}
-                  key: POSTGRES_PASSWORD
+                  key: DB_PASSWORD
             - name: SERVER_PORT
               value: {{ .Values.server.service.port | quote }}
             - name: SPRING_PROFILES_ACTIVE

@@ -6,6 +6,13 @@ configMap:
   name: screen-config
   apiUrl: "http://gateway-service:8080"
 
+db:
+  name: robogo_db
+  user: robogo
+  password: robogo_pass
+  host: db-service
+  port: 5432
+
 database:
   image:
     repository: postgres
@@ -13,7 +20,7 @@ database:
   service:
     name: db-service
     port: 5432
-  secretName: "db-credentials"
+  secretName: db-credentials
 
 gateway:
   service:
@@ -56,18 +63,6 @@ server:
   env:
     - name: SPRING_PROFILES_ACTIVE
       value: prod
-    - name: SPRING_DATASOURCE_URL
-      value: jdbc:postgresql://db-service:5432/robogo_db
-    - name: SPRING_DATASOURCE_USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: db-credentials
-          key: POSTGRES_USER
-    - name: SPRING_DATASOURCE_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: db-credentials
-          key: POSTGRES_PASSWORD
 
 # Monitoring components
 # kube-prometheus-stack:
