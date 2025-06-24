@@ -70,19 +70,18 @@ server:
           key: POSTGRES_PASSWORD
 
 # Monitoring components
-kube-prometheus-stack:
-  enabled: true
-  # Disable this in remote environment
+# kube-prometheus-stack:
+#   enabled: true
   # kubeEtcd:
   #   enabled: false
   # nodeExporter:
   #   enabled: false
-  prometheus:
-    prometheusSpec:
-      podMonitorSelectorNilUsesHelmValues: false
-      serviceMonitorSelectorNilUsesHelmValues: false
-      ruleSelectorNilUsesHelmValues: false
-      probeSelectorNilUsesHelmValues: false
+  # prometheus:
+  #   prometheusSpec:
+  #     podMonitorSelectorNilUsesHelmValues: false
+  #     serviceMonitorSelectorNilUsesHelmValues: false
+  #     ruleSelectorNilUsesHelmValues: false
+  #     probeSelectorNilUsesHelmValues: false
 
 loki:
   enabled: true
