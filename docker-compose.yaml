@@ -16,6 +16,9 @@ services:
       dockerfile: server/Dockerfile
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/robogo_db
+      - SPRING_DATASOURCE_USERNAME=robogo
+      - SPRING_DATASOURCE_PASSWORD=robogo_pass
     ports:
       - "8081:8081"
     depends_on:
