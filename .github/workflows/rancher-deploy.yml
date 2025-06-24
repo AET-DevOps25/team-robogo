@@ -22,7 +22,9 @@ jobs:
           version: 'v3.11.0'
 
       - name: Write Kubeconfig file
-        run: echo "${{ secrets.RANCHER_KUBECONFIG }}" > .kubeconfig
+        run: | 
+          echo "${{ secrets.RANCHER_KUBECONFIG }}" > .kubeconfig
+          chmod 600 .kubeconfig
 
       - name: Helm Deployment ausführen
         env:
