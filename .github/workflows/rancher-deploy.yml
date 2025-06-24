@@ -30,4 +30,6 @@ jobs:
         env:
           KUBECONFIG: ${{ github.workspace }}/.kubeconfig
         run: |
+          cd ./infra/helm/screen
+          helm dependency build
           helm upgrade --install devops25-team-robogo ./infra/helm/screen --namespace team-robogo --create-namespace --skip-crds

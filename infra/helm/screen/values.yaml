@@ -58,16 +58,16 @@ server:
       value: prod
 
 # Monitoring components
-kube-prometheus-stack:
-  enabled: true
-  kubeEtcd:
-    enabled: false
-  prometheus:
-    prometheusSpec:
-      podMonitorSelectorNilUsesHelmValues: false
-      serviceMonitorSelectorNilUsesHelmValues: false
-      ruleSelectorNilUsesHelmValues: false
-      probeSelectorNilUsesHelmValues: false
+#kube-prometheus-stack:
+#  enabled: true
+#  kubeEtcd:
+#    enabled: false
+#  prometheus:
+#    prometheusSpec:
+#      podMonitorSelectorNilUsesHelmValues: false
+#      serviceMonitorSelectorNilUsesHelmValues: false
+#      ruleSelectorNilUsesHelmValues: false
+#      probeSelectorNilUsesHelmValues: false
 
 loki:
   enabled: true
