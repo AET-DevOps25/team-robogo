@@ -1,0 +1,23 @@
+name: AWS Deployment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.11.0'
+
+      - name: Helm Deployment ausführen
+        env:
+          KUBECONFIG: ${{ github.secrets.RANCHER_KUBECONFIG }}
+        run: |
+          helm upgrade --install devops25-team-robogo ./infra/helm/screen --namespace team-robogo --create-namespace
