@@ -41,7 +41,7 @@ client:
     - name: SPRING_PROFILES_ACTIVE
       value: prod
     - name: GATEWAY_HOST
-      value: team-robogo-gateway
+      value: gateway-service
 
 server:
   service:
