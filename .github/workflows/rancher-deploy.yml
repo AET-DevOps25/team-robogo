@@ -26,8 +26,8 @@ jobs:
           echo "${{ secrets.RANCHER_KUBECONFIG }}" > .kubeconfig
           chmod 600 .kubeconfig
 
-      - name: Helm Deployment ausführen
+      - name: Helm Deployment
         env:
           KUBECONFIG: ${{ github.workspace }}/.kubeconfig
         run: |
-          helm upgrade --install devops25-team-robogo ./infra/helm/screen --namespace team-robogo --create-namespace
+          helm upgrade --install devops25-team-robogo ./infra/helm/screen --namespace team-robogo --create-namespace --skip-crds
