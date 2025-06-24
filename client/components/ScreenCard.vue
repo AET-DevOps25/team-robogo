@@ -1,6 +1,10 @@
 <!-- File: src/components/ScreenCard.vue -->
 <template>
-    <div class="w-[300px] rounded overflow-hidden shadow-lg bg-white">
+    <div class="relative w-[300px] rounded overflow-hidden shadow-lg bg-white">
+
+        <button class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xl font-bold z-10"
+            @click="$emit('requestDelete', screen)">×</button>
+
         <img v-if="screen.currentContent !== 'BLACK_SCREEN'" class="w-[90%] h-40 object-cover mx-auto rounded" img
             :src="screen.thumbnailUrl || placeholder" alt="screen preview" />
         <div v-else class="w-[90%] h-40 object-cover mx-auto rounded bg-black ">
@@ -14,6 +18,8 @@
             <p class="text-gray-700 text-base">
                 Current Group: {{ screen.currentContent || 'none' }}
             </p>
+            <p class="text-gray-500 text-sm">URL: {{ screen.urlPath }}</p>
+
         </div>
         <div class="px-6 pt-4 pb-2">
             <USelectMenu v-model="screen.groupId" :items="groupOptions" class="w-full"
@@ -30,12 +36,14 @@ const props = defineProps<{
         status: string,
         groupId: string,
         currentContent: string,
-        thumbnailUrl: string
+        thumbnailUrl: string,
+        urlPath: string
+
     },
     slideGroups: { id: string, content: any[] }[]
 }>()
 
 const emit = defineEmits(['updateGroup'])
 const placeholder = 'https://via.placeholder.com/300x200?text=Preview';
-const groupOptions = ['None', ...props.slideGroups.map(g => g.id)]
+const groupOptions = [...props.slideGroups.map(g => g.id)]
 </script>
