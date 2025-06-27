@@ -6,7 +6,7 @@ export GATEWAY_HOST="${GATEWAY_HOST:-localhost}"
 
 echo "GATEWAY_HOST: $GATEWAY_HOST"
 
-envsubst '${GATEWAY_SERVICE_HOST}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+envsubst '${GATEWAY_HOST}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
 node .output/server/index.mjs &
 
