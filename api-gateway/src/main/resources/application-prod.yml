@@ -8,19 +8,19 @@ spring:
     gateway:
       routes:
         - id: auth_route
-          uri: http://${SERVER_HOST:server}:8081
+          uri: http://${SERVER_HOST:localhost}:8081
           predicates:
             - Path=/api/auth/**
           filters:
             - StripPrefix=1
         - id: server_route
-          uri: http://${SERVER_HOST:server}:8081
+          uri: http://${SERVER_HOST:localhost}:8081
           predicates:
             - Path=/api/server/**
           filters:
             - StripPrefix=1
         - id: genai_route
-          uri: http://${GENAI_HOST:genai}:5000
+          uri: http://${GENAI_HOST:localhost}:5000
           predicates:
             - Path=/api/genai/**
           filters:
