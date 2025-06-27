@@ -17,3 +17,6 @@ spec:
           image: {{ .Values.client.image }}
           ports:
             - containerPort: {{ .Values.client.port }}
+          env:
+            - name: GATEWAY_HOST
+              value: {{ .Values.client.apiGatewayHost }}
