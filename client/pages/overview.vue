@@ -64,9 +64,12 @@
                     <h2 class="text-lg font-semibold">Slide Groups</h2>
 
                     <button class="text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                        @click="uploadSlide">
+                        @click="triggerFileInput">
                         Upload Slide
                     </button>
+                    <!-- 在 Upload Slide 按钮后加一个文件输入框 -->
+                    <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
+
 
                 </div>
                 <div>
@@ -332,6 +335,42 @@ const confirmDeleteScreen = () => {
     screens.value = screens.value.filter(s => s.id !== screenToDelete.value.id)
     showDeleteConfirm.value = false
     screenToDelete.value = null
+}
+
+
+//add slide in slide deck
+const fileInput = ref<HTMLInputElement | null>(null)
+
+const triggerFileInput = () => {
+    fileInput.value?.click()
+}
+
+const handleFileUpload = (event: Event) => {
+    const files = (event.target as HTMLInputElement).files
+    if (!files || files.length === 0) return
+
+    const file = files[0]
+    //replace with API later
+    const reader = new FileReader()
+
+    reader.onload = () => {
+        const imageUrl = reader.result as string
+        const newId = Date.now()
+
+        const newSlide = {
+            id: newId,
+            name: file.name,
+            url: imageUrl,
+        }
+
+        contentList.value.push(newSlide)
+
+        if (currentGroup.value && currentGroup.value.id !== 'None') {
+            currentGroup.value.content.push(newSlide)
+        }
+    }
+
+    reader.readAsDataURL(file)
 }
 
 </script>
