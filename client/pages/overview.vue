@@ -8,7 +8,8 @@
 
                 <div class="flex flex-wrap gap-6 justify-start">
                     <ScreenCard v-for="screen in screens" :key="screen.id" :screen="screen" :slideGroups="slideGroups"
-                        @updateGroup="onUpdateScreenGroup" />
+                        @updateGroup="onUpdateScreenGroup"
+                        @requestDelete="(screen) => { showDeleteConfirm = true; screenToDelete = screen }" />
                     <div class="w-[300px] h-[260px] flex items-center justify-center rounded-xl bg-gray-100 text-5xl text-gray-400 hover:bg-gray-200 cursor-pointer"
                         @click="showAddScreenDialog = true">
                         +
@@ -39,6 +40,21 @@
                     @click="showAddScreenDialog = false">✕</button>
             </div>
         </div>
+        <!-- Confirm Delete Dialog  -->
+        <div v-if="showDeleteConfirm"
+            class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded-xl shadow-lg w-[400px] relative">
+                <h3 class="text-lg font-semibold mb-4">Confirm Delete</h3>
+                <p>Are you sure you want to delete <strong>{{ screenToDelete?.name }}</strong>?</p>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button class="px-4 py-2 bg-gray-300 rounded" @click="showDeleteConfirm = false">Cancel</button>
+                    <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                        @click="confirmDeleteScreen">Delete</button>
+                </div>
+                <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                    @click="showDeleteConfirm = false">✕</button>
+            </div>
+        </div>
 
         <section class="grid grid-cols-[2fr_1fr] gap-6 bg-gray-50 p-6 rounded-xl shadow">
             <!-- Left: SlidesWH -->
@@ -48,9 +64,12 @@
                     <h2 class="text-lg font-semibold">Slide Groups</h2>
 
                     <button class="text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                        @click="uploadSlide">
+                        @click="triggerFileInput">
                         Upload Slide
                     </button>
+                    <!-- 在 Upload Slide 按钮后加一个文件输入框 -->
+                    <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
+
 
                 </div>
                 <div>
@@ -60,9 +79,11 @@
                 </div>
                 <div class="h-[400px] w-full overflow-y-auto border-gray-200  rounded p-2 flex flex-wrap gap-6 justify-start
                     scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
-                    <SlideGroupCard v-if="currentGroup" :key="currentGroup.id" v-model:content="currentGroup.content"
+                    <SlideGroupCard v-if="currentGroup && currentGroup.id !== 'None'" :key="currentGroup.id"
+                        v-model:content="currentGroup.content" v-model:speed="currentGroup.speed"
                         :allSlides="contentList" :selectedContent="selectedContent" @select="selectContent"
                         @add="(item) => currentGroup.content.push(item)" />
+
                 </div>
             </div>
 
@@ -73,6 +94,7 @@
 
                 <!-- Scores Update -->
                 <div class="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4">
+
                     <input v-model="scoreTarget" placeholder="Team ID" class="border p-2 rounded w-full sm:w-auto" />
                     <input v-model="scoreValue" placeholder="Score" class="border p-2 rounded w-full sm:w-auto" />
                     <button class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700" @click="submitScore">
@@ -136,6 +158,8 @@
 import { ref } from 'vue'
 import { computed } from 'vue'
 import { onMounted } from 'vue'
+import { v4 as uuidv4 } from 'uuid'
+
 
 import ScreenCard from '../components/ScreenCard.vue';
 import SlideCard from '../components/SlideCard.vue';
@@ -170,42 +194,12 @@ const uploadSlide = () => {
     // TODO: Open file input or modal
 };
 
-const screens = ref([
-    {
-        id: 1,
-        name: 'Screen 1',
-        status: 'online',
-        groupId: 'Backlog',
-        currentContent: 'Image A',
-        thumbnailUrl: './5.png'
-    },
-    {
-        id: 2,
-        name: 'Screen 2',
-        status: 'offline',
-        groupId: 'Backlog',
-        currentContent: 'Image B',
-        thumbnailUrl: './5.png'
-    }
-    ,
-    {
-        id: 3,
-        name: 'Screen 3',
-        status: 'offline',
-        groupId: 'Backlog',
-        currentContent: 'Image C',
-        thumbnailUrl: './5.png'
-    }
-    ,
-    {
-        id: 4,
-        name: 'Screen 4',
-        status: 'offline',
-        groupId: 'Backlog',
-        currentContent: 'Image 4',
-        thumbnailUrl: './5.png'
-    }
-]);
+
+const id1 = uuidv4()
+const id2 = uuidv4()
+const id3 = uuidv4()
+const id4 = uuidv4()
+const screens = ref([]);
 
 const contentList = ref([
     {
@@ -236,16 +230,14 @@ const contentList = ref([
 ]);
 const slideGroups = ref([
     {
-        id: 'Backlog',
-        content: contentList.value.filter(item => item.id <= 3)
-    },
-    {
-        id: 'Todo',
-        content: contentList.value.filter(item => item.id > 3)
+        id: 'None',
+        content: [],
+        speed: 5
     }
 ])
 
-const selectedGroupId = ref(slideGroups.value[0]?.id || '')
+
+const selectedGroupId = ref(slideGroups.value[0]?.id || 'None')
 const currentGroup = computed(() =>
     slideGroups.value.find(g => g.id === selectedGroupId.value)
 )
@@ -258,33 +250,48 @@ const onUpdateScreenGroup = (updatedScreen) => {
 
 onMounted(() => {
     setInterval(() => {
+        const now = Date.now()
+        slideGroups.value.forEach(group => {
+            if (!group.content || group.content.length === 0) return
+
+            if (!group._lastSwitchTime) {
+                group._lastSwitchTime = now
+                group._currentSlideIndex = 0
+                return
+            }
+
+            const speedMs = (group.speed || 5) * 1000
+            if (now - group._lastSwitchTime >= speedMs) {
+                group._lastSwitchTime = now
+                group._currentSlideIndex = (group._currentSlideIndex + 1) % group.content.length
+            }
+        })
+
         screens.value.forEach(screen => {
-            if (screen.groupId === 'None') {
+            const group = slideGroups.value.find(g => g.id === screen.groupId)
+            if (!group || !group.content || group.content.length === 0) {
                 screen.currentContent = 'BLACK_SCREEN'
                 return
             }
 
-            const group = slideGroups.value.find(g => g.id === screen.groupId)
-            if (group && group.content.length > 0) {
-                const currentIndex = group.content.findIndex(s => s.name === screen.currentContent)
-                const nextSlide = group.content[(currentIndex + 1) % group.content.length]
-                screen.currentContent = nextSlide.name
-            }
+            screen.currentContent = group.content[group._currentSlideIndex]?.name || 'BLACK_SCREEN'
         })
-    }, 5000)
+    }, 1000)
 })
+
 const showAddScreenDialog = ref(false)
 const newScreenName = ref('')
 const newScreenUrl = ref('')
 const addNewScreen = () => {
-    const newId = Math.max(...screens.value.map(s => s.id)) + 1
+    const newId = uuidv4()
     screens.value.push({
         id: newId,
-        name: newScreenName.value || `Screen ${newId}`,
+        name: newScreenName.value || 'Unnamed Screen',
         status: 'offline',
         groupId: 'None',
         currentContent: 'BLACK_SCREEN',
-        thumbnailUrl: newScreenUrl.value || 'https://via.placeholder.com/300x200?text=Preview'
+        thumbnailUrl: newScreenUrl.value || 'https://via.placeholder.com/300x200?text=Preview',
+        urlPath: `/screen/${newId}`,
     })
     showAddScreenDialog.value = false
     newScreenName.value = ''
@@ -327,10 +334,61 @@ const addGroup = () => {
 
     slideGroups.value.push({
         id: name,
-        content: []
+        content: [],
+        speed: 5,
+        _currentSlideIndex: 0,
+        _lastSwitchTime: Date.now()
     })
     selectedGroupId.value = name
     newGroupName.value = ''
     showAddGroupDialog.value = false
 }
+
+//delete screen
+const showDeleteConfirm = ref(false)
+const screenToDelete = ref(null)
+
+const confirmDeleteScreen = () => {
+    if (!screenToDelete.value) return
+    screens.value = screens.value.filter(s => s.id !== screenToDelete.value.id)
+    showDeleteConfirm.value = false
+    screenToDelete.value = null
+}
+
+
+//add slide in slide deck
+const fileInput = ref<HTMLInputElement | null>(null)
+
+const triggerFileInput = () => {
+    fileInput.value?.click()
+}
+
+const handleFileUpload = (event: Event) => {
+    const files = (event.target as HTMLInputElement).files
+    if (!files || files.length === 0) return
+
+    const file = files[0]
+    //replace with API later
+    const reader = new FileReader()
+
+    reader.onload = () => {
+        const imageUrl = reader.result as string
+        const newId = Date.now()
+
+        const newSlide = {
+            id: newId,
+            name: file.name,
+            url: imageUrl,
+        }
+
+        contentList.value.push(newSlide)
+
+        if (currentGroup.value && currentGroup.value.id !== 'None') {
+            currentGroup.value.content.push(newSlide)
+        }
+    }
+
+    reader.readAsDataURL(file)
+}
+
 </script>
