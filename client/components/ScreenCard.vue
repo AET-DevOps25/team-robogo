@@ -53,5 +53,5 @@ const props = defineProps<{
 
 const emit = defineEmits(['updateGroup'])
 const placeholder = 'https://via.placeholder.com/300x200?text=Preview';
-const groupOptions = [...props.slideGroups.map(g => g.id)]
+const groupOptions = computed(() => props.slideGroups.map(g => g.id))
 </script>
