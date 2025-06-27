@@ -47,7 +47,7 @@ services:
       context: ./client
       dockerfile: Dockerfile
     environment:
-      - GATEWAY_HOST=gateway
+      - GATEWAY_SERVICE_HOST=gateway
     ports:
       - "80:80"
     labels:

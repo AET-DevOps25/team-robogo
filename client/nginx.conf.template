@@ -1,5 +1,5 @@
 upstream gateway_upstream {
-    server ${GATEWAY_HOST}:8080;
+    server ${GATEWAY_SERVICE_HOST}:8080;
 }
 
 upstream nuxt_upstream {

@@ -2,11 +2,11 @@
 # This script starts the Nuxt server in the background and then starts Nginx in the foreground.
 
 # Set the default GATEWAY_HOST to localhost if not set
-export GATEWAY_HOST="${GATEWAY_HOST:-localhost}"
+export GATEWAY_SERVICE_HOST="${GATEWAY_SERVICE_HOST:-localhost}"
 
-echo "GATEWAY_HOST: $GATEWAY_HOST"
+echo "GATEWAY_SERVICE_HOST: $GATEWAY_SERVICE_HOST"
 
-envsubst '${GATEWAY_HOST}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+envsubst '${GATEWAY_SERVICE_HOST}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
 node .output/server/index.mjs &
 
