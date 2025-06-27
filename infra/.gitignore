@@ -5,3 +5,8 @@ terra/.terraform.lock.hcl
 terra/terraform.tfstate
 terra/terraform.tfstate.backup
 terra/terraform.tfvars
+
+# Helm
+helm/screen/charts/
+helm/screen/Chart.lock
+helm/screen/secrets.yaml

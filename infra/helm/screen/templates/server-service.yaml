@@ -1,19 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.server.service.name }}
-  namespace: {{ .Release.Namespace }}
-  labels:
-    app.kubernetes.io/name: server
-    app.kubernetes.io/instance: {{ .Release.Name }}
+  name: server-service
 spec:
-  type: NodePort
   ports:
-    - port: {{ .Values.server.service.port }}
-      targetPort: http
-      nodePort: {{ .Values.server.service.nodePort }}
-      protocol: TCP
-      name: http
+    - port: {{ .Values.server.port }}
+      targetPort: {{ .Values.server.port }}
   selector:
-    app.kubernetes.io/name: server
-    app.kubernetes.io/instance: {{ .Release.Name }} 
+    app: server
+  type: ClusterIP

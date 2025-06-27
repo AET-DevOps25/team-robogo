@@ -31,6 +31,8 @@ services:
       dockerfile: api-gateway/Dockerfile
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_HOST=server
+      - GENAI_HOST=genai
     ports:
       - "8080:8080"
     depends_on:

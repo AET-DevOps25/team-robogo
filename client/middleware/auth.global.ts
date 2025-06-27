@@ -4,7 +4,7 @@ export default defineNuxtRouteMiddleware((to) => {
   const { status } = useAuth()
   if (
     to.meta.auth &&
-    !['/', '/login', '/signup'].includes(to.path) &&
+    !['/', '/login'].includes(to.path) &&
     status.value !== 'authenticated'
   ) {
     return navigateTo('/login')

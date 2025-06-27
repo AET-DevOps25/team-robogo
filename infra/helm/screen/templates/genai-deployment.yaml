@@ -1,33 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Chart.Name }}-genai
-  namespace: {{ .Release.Namespace }}
-  labels:
-    app.kubernetes.io/name: genai
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  name: genai
 spec:
-  replicas: {{ .Values.genai.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: genai
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app: genai
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: genai
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        app: genai
     spec:
       containers:
         - name: genai
-          image: "{{ .Values.genai.image.repository }}:{{ .Values.genai.image.tag }}"
-          imagePullPolicy: {{ .Values.genai.image.pullPolicy }}
+          image: {{ .Values.genai.image }}
           ports:
-            - name: http
-              containerPort: 5000
-              protocol: TCP
+            - containerPort: {{ .Values.genai.port }}
           env:
-            {{- if .Values.genai.env }}
-            {{- toYaml .Values.genai.env | nindent 12 }}
-            {{- end }} 
+            - name: CHAIR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: genai-secret
+                  key: CHAIR_API_KEY
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: genai-secret
+                  key: OPENAI_API_KEY

@@ -2,7 +2,6 @@ package de.fll.screen.service;
 
 import de.fll.core.dto.LoginRequestDTO;
 import de.fll.core.dto.LoginResponseDTO;
-import de.fll.core.dto.SignupRequestDTO;
 import de.fll.core.dto.UserDTO;
 import de.fll.screen.model.User;
 import de.fll.screen.repository.UserRepository;
@@ -37,58 +36,14 @@ public class UserService {
         }
     }
 
-    @Transactional
-    public LoginResponseDTO signup(SignupRequestDTO request) {
-        // check if username already exists
-        if (userRepository.existsByUsername(request.getUsername())) {
-            return LoginResponseDTO.builder()
-                .success(false)
-                .error("Username already exists")
-                .build();
-        }
-
-        // check if email already exists
-        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
-            return LoginResponseDTO.builder()
-                .success(false)
-                .error("Email already exists")
-                .build();
-        }
-
-        // create new user
-        User user = new User(request.getUsername(), passwordEncoder.encode(request.getPassword()), request.getEmail());
-        
-        // generate verification token
-        String verificationToken = UUID.randomUUID().toString();
-        user.setVerificationToken(verificationToken);
-        user.setVerificationTokenExpiry(LocalDateTime.now().plusHours(24)); // Token expires in 24 hours
-        user.setEmailVerified(false);
-        
-        user = userRepository.save(user);
-
-        // send verification email
-        try {
-            emailService.sendVerificationEmail(user.getEmail(), verificationToken);
-        } catch (Exception e) {
-            return LoginResponseDTO.builder()
-                .success(false)
-                .error("Failed to send verification email")
-                .build();
-        }
-
-        // generate JWT token
-        String token = jwtService.generateToken(user.getUsername());
-
-        return LoginResponseDTO.builder()
-            .success(true)
-            .token(token)
-            .user(UserDTO.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .build())
-            .build();
-    }
+    // @Transactional
+    // public LoginResponseDTO signup(SignupRequestDTO request) {
+    //     // 注册功能已禁用
+    //     return LoginResponseDTO.builder()
+    //         .success(false)
+    //         .error("Signup is disabled")
+    //         .build();
+    // }
 
     @Transactional
     public boolean verifyEmail(String token) {

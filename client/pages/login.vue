@@ -60,10 +60,7 @@
           </UButton>
           <div class="text-center mt-6">
             <p class="text-gray-600 dark:text-gray-400">
-              {{ $t('noAccount') }}
-              <NuxtLink to="/signup" class="text-primary hover:text-primary-dark font-medium">
-                {{ $t('signup') }}
-              </NuxtLink>
+              <!-- 注册入口已移除 -->
             </p>
           </div>
         </UForm>

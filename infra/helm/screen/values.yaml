@@ -1,99 +1,30 @@
-namespace:
-  name: team-robogo
-  create: false
-
-configMap:
-  name: screen-config
-  apiUrl: "http://gateway-service:8080"
+namespace: team-robogo
 
 db:
   name: robogo_db
   user: robogo
-  password: robogo_pass
   host: db-service
+  password: robogo_pass
   port: 5432
 
-database:
-  image:
-    repository: postgres
-    tag: "15"
-  service:
-    name: db-service
-    port: 5432
-  secretName: db-credentials
-
 gateway:
-  service:
-    name: gateway-service
-    port: 8080
-  image:
-    repository: ghcr.io/aet-devops25/team-robogo/api-gateway
-    pullPolicy: Always
-    tag: "main"
-  replicaCount: 1
-  env:
-    - name: SPRING_PROFILES_ACTIVE
-      value: prod
-
-client:
-  service:
-    name: client-service
-    port: 80
-    nodePort: 30000
-  image:
-    repository: ghcr.io/aet-devops25/team-robogo/client
-    pullPolicy: Always
-    tag: "main"
-  env:
-    - name: SPRING_PROFILES_ACTIVE
-      value: prod
-    - name: GATEWAY_HOST
-      value: gateway-service
+  image: ghcr.io/aet-devops25/team-robogo/api-gateway:main
+  port: 8080
+  serverHost: server-service
+  genaiHost: genai-service
 
 server:
-  service:
-    name: server-service
-    port: 8081
-    nodePort: 30001
-  replicaCount: 1
-  image:
-    repository: ghcr.io/aet-devops25/team-robogo/server
-    pullPolicy: Always
-    tag: "main"
-  env:
-    - name: SPRING_PROFILES_ACTIVE
-      value: prod
+  image: ghcr.io/aet-devops25/team-robogo/server:main
+  port: 8081
 
-# Monitoring components
-# kube-prometheus-stack:
-#   enabled: true
-  # kubeEtcd:
-  #   enabled: false
-  # nodeExporter:
-  #   enabled: false
-  # prometheus:
-  #   prometheusSpec:
-  #     podMonitorSelectorNilUsesHelmValues: false
-  #     serviceMonitorSelectorNilUsesHelmValues: false
-  #     ruleSelectorNilUsesHelmValues: false
-  #     probeSelectorNilUsesHelmValues: false
-
-loki:
-  enabled: true
-  # Promtail is the agent that ships logs to Loki.
-  promtail:
-    enabled: true
-  grafana:
-    enabled: false # We use the Grafana from kube-prometheus-stack
+client:
+  image: ghcr.io/aet-devops25/team-robogo/client:main
+  apiGatewayHost: gateway-service
+  port: 80
+  nodePort: 30000
 
 genai:
-  replicaCount: 1
-  image:
-    repository: ghcr.io/aet-devops25/team-robogo/genai
-    pullPolicy: Always
-    tag: "main"
-  service:
-    name: genai-service
-  env:
-    - name: SPRING_PROFILES_ACTIVE
-      value: prod
+  image: ghcr.io/aet-devops25/team-robogo/genai:main
+  port: 8000
+  chairApiKey: "sk-xxx"
+  openaiApiKey: "sk-yyy"

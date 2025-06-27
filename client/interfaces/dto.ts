@@ -3,12 +3,6 @@ export interface LoginRequestDTO {
   password: string
 }
 
-export interface SignupRequestDTO {
-  username: string
-  email: string
-  password: string
-}
-
 export interface UserDTO {
   id: number
   username: string

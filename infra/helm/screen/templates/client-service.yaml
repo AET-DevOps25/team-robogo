@@ -1,19 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.client.service.name }}
-  namespace: {{ .Release.Namespace }}
-  labels:
-    app.kubernetes.io/name: client
-    app.kubernetes.io/instance: {{ .Release.Name }}
+  name: client-service
 spec:
   type: NodePort
   ports:
-    - port: {{ .Values.client.service.port }}
-      targetPort: http
-      nodePort: {{ .Values.client.service.nodePort }}
-      protocol: TCP
-      name: http
+    - port: {{ .Values.client.port }}
+      targetPort: {{ .Values.client.port }}
+      nodePort: {{ .Values.client.nodePort }}
   selector:
-    app.kubernetes.io/name: client
-    app.kubernetes.io/instance: {{ .Release.Name }} 
+    app: client

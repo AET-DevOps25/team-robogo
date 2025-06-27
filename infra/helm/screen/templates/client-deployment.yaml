@@ -1,40 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Chart.Name }}-client
-  namespace: {{ .Release.Namespace }}
-  labels:
-    app.kubernetes.io/name: client
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  name: client
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: client
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app: client
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: client
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        app: client
     spec:
       containers:
         - name: client
-          image: "{{ .Values.client.image.repository }}:{{ .Values.client.image.tag }}"
-          imagePullPolicy: {{ .Values.client.image.pullPolicy }}
+          image: {{ .Values.client.image }}
           ports:
-            - name: http
-              containerPort: {{ .Values.client.service.port }}
-              protocol: TCP
+            - containerPort: {{ .Values.client.port }}
           env:
-            - name: API_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Values.configMap.name }}
-                  key: api_url
-            - name: SPRING_PROFILES_ACTIVE
-              value: prod
-            {{- if .Values.client.env }}
-            {{- toYaml .Values.client.env | nindent 12 }}
-            {{- end }}
+            - name: GATEWAY_HOST
+              value: {{ .Values.client.apiGatewayHost }}
