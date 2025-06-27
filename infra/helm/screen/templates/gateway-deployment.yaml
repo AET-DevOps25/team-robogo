@@ -20,7 +20,3 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: prod
-            - name: SERVER_HOST
-              value: {{ .Values.gateway.serverHost }}
-            - name: GENAI_HOST
-              value: {{ .Values.gateway.genaiHost }}

@@ -10,8 +10,6 @@ db:
 gateway:
   image: ghcr.io/aet-devops25/team-robogo/api-gateway:main
   port: 8080
-  serverHost: server-service
-  genaiHost: genai-service
 
 server:
   image: ghcr.io/aet-devops25/team-robogo/server:main
