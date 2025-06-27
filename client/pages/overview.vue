@@ -80,8 +80,8 @@
                 <div class="h-[400px] w-full overflow-y-auto border-gray-200  rounded p-2 flex flex-wrap gap-6 justify-start
                     scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
                     <SlideGroupCard v-if="currentGroup && currentGroup.id !== 'None'" :key="currentGroup.id"
-                        v-model:content="currentGroup.content" :allSlides="contentList"
-                        :selectedContent="selectedContent" @select="selectContent"
+                        v-model:content="currentGroup.content" v-model:speed="currentGroup.speed"
+                        :allSlides="contentList" :selectedContent="selectedContent" @select="selectContent"
                         @add="(item) => currentGroup.content.push(item)" />
 
                 </div>
@@ -231,7 +231,8 @@ const contentList = ref([
 const slideGroups = ref([
     {
         id: 'None',
-        content: []
+        content: [],
+        speed: 5
     }
 ])
 
@@ -249,21 +250,35 @@ const onUpdateScreenGroup = (updatedScreen) => {
 
 onMounted(() => {
     setInterval(() => {
+        const now = Date.now()
+        slideGroups.value.forEach(group => {
+            if (!group.content || group.content.length === 0) return
+
+            if (!group._lastSwitchTime) {
+                group._lastSwitchTime = now
+                group._currentSlideIndex = 0
+                return
+            }
+
+            const speedMs = (group.speed || 5) * 1000
+            if (now - group._lastSwitchTime >= speedMs) {
+                group._lastSwitchTime = now
+                group._currentSlideIndex = (group._currentSlideIndex + 1) % group.content.length
+            }
+        })
+
         screens.value.forEach(screen => {
+            const group = slideGroups.value.find(g => g.id === screen.groupId)
             if (!group || !group.content || group.content.length === 0) {
                 screen.currentContent = 'BLACK_SCREEN'
                 return
             }
 
-            const selectedGroupId = ref(slideGroups.value[0]?.id || 'Default')
-            if (group && group.content.length > 0) {
-                const currentIndex = group.content.findIndex(s => s.name === screen.currentContent)
-                const nextSlide = group.content[(currentIndex + 1) % group.content.length]
-                screen.currentContent = nextSlide.name
-            }
+            screen.currentContent = group.content[group._currentSlideIndex]?.name || 'BLACK_SCREEN'
         })
-    }, 5000)
+    }, 1000)
 })
+
 const showAddScreenDialog = ref(false)
 const newScreenName = ref('')
 const newScreenUrl = ref('')
@@ -319,7 +334,10 @@ const addGroup = () => {
 
     slideGroups.value.push({
         id: name,
-        content: []
+        content: [],
+        speed: 5,
+        _currentSlideIndex: 0,
+        _lastSwitchTime: Date.now()
     })
     selectedGroupId.value = name
     newGroupName.value = ''

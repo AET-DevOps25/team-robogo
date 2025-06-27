@@ -59,7 +59,6 @@ import { ref } from 'vue'
 import draggable from 'vuedraggable'
 import SlideCard from './SlideCard.vue'
 import SpeedControl from './SpeedControl.vue'
-const speed = ref(5)
 const showDialog = ref(false)
 interface SlideItem {
     id: number | string
@@ -67,6 +66,7 @@ interface SlideItem {
     url: string
 }
 const content = defineModel<SlideItem[]>('content', { required: true })
+const speed = defineModel<number>('speed', { required: true })
 const props = defineProps<{
     title: string,
     selectedContent?: SlideItem,

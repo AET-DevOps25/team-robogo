@@ -5,8 +5,8 @@
         <button class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xl font-bold z-10"
             @click="$emit('requestDelete', screen)">×</button>
 
-        <img v-if="screen.currentContent !== 'BLACK_SCREEN'" class="w-[90%] h-40 object-cover mx-auto rounded" img
-            :src="screen.thumbnailUrl || placeholder" alt="screen preview" />
+        <img v-if="currentSlide" class="w-[90%] h-40 object-cover mx-auto rounded" :src="currentSlide.url"
+            :alt="currentSlide.name" />
         <div v-else class="w-[90%] h-40 object-cover mx-auto rounded bg-black ">
             No Content
         </div>
@@ -29,6 +29,14 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
+const currentSlide = computed(() => {
+    const group = props.slideGroups.find(g => g.id === props.screen.groupId)
+    if (!group || !group.content) return null
+    return group.content.find(s => s.name === props.screen.currentContent) || null
+})
+
 const props = defineProps<{
     screen: {
         id: number,
