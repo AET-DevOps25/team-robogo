@@ -9,17 +9,17 @@ db:
 
 gateway:
   image: ghcr.io/aet-devops25/team-robogo/api-gateway:main
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   port: 8080
 
 server:
   image: ghcr.io/aet-devops25/team-robogo/server:main
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   port: 8081
 
 client:
   image: ghcr.io/aet-devops25/team-robogo/client:main
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   imageTag: main
   apiGatewayHost: gateway-service
   port: 80

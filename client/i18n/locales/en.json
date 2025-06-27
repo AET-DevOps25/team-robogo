@@ -33,6 +33,7 @@
   "projectGoalTitle": "Project Objective",
   "projectGoalDesc": "This system aims to provide efficient, intelligent information publishing and screen management tools for robotics event organizers and participants, supporting content customization, group display, offline fallback, AI assistance, and more.",
   "tryNow": "Try Now",
+  "dashboardTitle": "Welcome to RoboGo",
   "dashboardSubtitle": "Manage screens, content, and view real-time event data.",
   "screenOverview": "Screen Overview",
   "screenOverviewDesc": "View and manage all connected display clients.",

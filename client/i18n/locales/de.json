@@ -33,6 +33,7 @@
   "projectGoalTitle": "Projektziel",
   "projectGoalDesc": "Dieses System bietet effiziente, intelligente Tools für die Informationsveröffentlichung und Bildschirmverwaltung bei Robotik-Events – mit Inhaltsanpassung, Gruppendarstellung, Offline-Fallback, KI-Unterstützung und mehr.",
   "tryNow": "Jetzt ausprobieren",
+  "dashboardTitle": "Willkommen bei RoboGo",
   "dashboardSubtitle": "Verwalten Sie Bildschirme, Inhalte und sehen Sie Echtzeit-Eventdaten.",
   "screenOverview": "Bildschirmübersicht",
   "screenOverviewDesc": "Alle verbundenen Display-Clients anzeigen und verwalten.",
