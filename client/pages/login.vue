@@ -58,11 +58,6 @@
           >
             {{ $t('login') }}
           </UButton>
-          <div class="text-center mt-6">
-            <p class="text-gray-600 dark:text-gray-400">
-              <!-- 注册入口已移除 -->
-            </p>
-          </div>
         </UForm>
       </UCard>
     </div>
