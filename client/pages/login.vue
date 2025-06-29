@@ -114,14 +114,13 @@ const onLogin = async () => {
       }
     )
 
-    if (response?.error) {
-      error.value = response.error || 'Login failed, please try again.'
-      return
+    if (response?.ok === false || response?.error) {
+      throw new Error('Login failed, please try again.')
     }
 
     await navigateTo('/dashboard')
   } catch (err: any) {
-    error.value = err.data?.message || err.message || 'An unexpected error occurred.'
+    error.value = err.message || 'An unexpected error occurred.'
   }
 }
 </script>

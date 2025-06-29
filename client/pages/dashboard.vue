@@ -20,8 +20,18 @@
         <p class="text-gray-500 dark:text-gray-400 mb-4">
           {{ $t('screenOverviewDesc') }}
         </p>
-        <div class="h-24 flex items-center justify-center text-gray-400">
-          {{ $t('placeholder') }}
+        <div class="mt-auto">
+          <NuxtLink to="/overview">
+            <UButton
+              block
+              color="primary"
+              variant="solid"
+              size="lg"
+              icon="i-heroicons-squares-2x2-solid"
+            >
+              {{ $t('viewOverview') }}
+            </UButton>
+          </NuxtLink>
         </div>
       </UCard>
       <UCard class="flex flex-col py-6">

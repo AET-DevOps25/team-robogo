@@ -40,12 +40,13 @@
   "leaderboard": "Rangliste",
   "leaderboardDesc": "Live-Punktestände und Ranglisten vom Event.",
   "contentManagement": "Inhaltsverwaltung",
-  "contentManagementDesc": "Steuern und planen Sie, was auf jedem Bildschirm angezeigt wird.",
+  "contentManagementDesc": "Folien und Präsentationen für Ihre Bildschirme verwalten.",
   "aiRecommendation": "KI-Empfehlung",
-  "aiRecommendationDesc": "KI-Vorschläge für fehlende oder empfohlene Inhalte.",
+  "aiRecommendationDesc": "Erhalten Sie KI-gestützte Empfehlungen zur Verbesserung Ihrer Inhalte.",
   "imageUpload": "Bild-Upload",
-  "imageUploadDesc": "Laden Sie eigene Bilder hoch, um sie auf Bildschirmen anzuzeigen.",
+  "imageUploadDesc": "Bilder für Ihre Präsentationen einfach hochladen und verwalten.",
   "placeholder": "Demnächst verfügbar...",
   "logoutSuccess": "Erfolgreich abgemeldet",
-  "logoutFailed": "Abmeldung fehlgeschlagen"
+  "logoutFailed": "Abmeldung fehlgeschlagen",
+  "viewOverview": "Übersicht anzeigen"
 }

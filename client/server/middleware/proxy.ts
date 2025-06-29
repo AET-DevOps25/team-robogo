@@ -6,8 +6,9 @@ export default defineEventHandler(async (event) => {
 
   const url = event.node.req.url
 
-  if (url && url.startsWith('/api/')) {
-    await proxyRequest(event, `${proxyUrl.origin}${url}`, {
+  if (url && url.startsWith('/api/proxy')) {
+    const urlWithoutProxy = url.replace('/api/proxy', '/api')
+    await proxyRequest(event, `${proxyUrl.origin}${urlWithoutProxy}`, {
       headers: {
         host: proxyUrl.host
       }

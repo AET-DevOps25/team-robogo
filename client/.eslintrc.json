@@ -24,14 +24,6 @@
       "ignoreTemplateLiterals": true,
       "ignoreRegExpLiterals": true
     }],
-    "vue/max-attributes-per-line": ["error", {
-      "singleline": {
-        "max": 3
-      },
-      "multiline": {
-        "max": 1
-      }
-    }],
     "vue/html-self-closing": ["error", {
       "html": {
         "void": "always",
