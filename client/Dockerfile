@@ -14,8 +14,8 @@ RUN yarn build
 FROM node:20-slim
 WORKDIR /app
 
-# Copy the built Nuxt app from the builder stage
-COPY --from=builder /app/.output .
+# Copy the entire app directory from the builder stage to ensure .output is included
+COPY --from=builder /app .
 
 # Set the internal port for the Nuxt server
 ENV PORT=3000
