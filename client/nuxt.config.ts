@@ -49,18 +49,6 @@ export default defineNuxtConfig({
     lazy: true,
     strategy: 'no_prefix'
   },
-  vite:
-    process.env.NODE_ENV === 'development'
-      ? {
-          server: {
-            proxy: {
-              '/api/auth': { target: 'http://localhost:8080', changeOrigin: true },
-              '/api/server': { target: 'http://localhost:8080', changeOrigin: true },
-              '/api/genai': { target: 'http://localhost:8080', changeOrigin: true }
-            }
-          }
-        }
-      : {},
   css: ['~/assets/css/main.css'],
   app: {
     head: {

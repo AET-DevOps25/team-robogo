@@ -11,23 +11,18 @@ ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
 RUN yarn build
 
 # ---- Runtime Stage ----
-# Use an Nginx base image and install Node.js
-FROM nginx:1.25-alpine
-RUN apk add --no-cache nodejs
+FROM node:20-slim
 WORKDIR /app
 
 # Copy the built Nuxt app from the builder stage
-COPY --from=builder /app/.output /app/.output
-
-
-# Copy the Nginx configuration and the entrypoint script
-COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+COPY --from=builder /app/.output .
 
 # Set the internal port for the Nuxt server
 ENV PORT=3000
-EXPOSE 80
+ENV HOST=0.0.0.0
 
-# Run the entrypoint script
-CMD ["/app/entrypoint.sh"]
+# Expose the port
+EXPOSE 3000
+
+# Run the server
+CMD ["node", ".output/server/index.mjs"]
