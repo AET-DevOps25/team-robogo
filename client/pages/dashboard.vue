@@ -13,17 +13,19 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-6xl mb-12 px-4">
-      <UCard class="flex flex-col py-6">
-        <h2 class="text-2xl font-bold mb-2">
-          {{ $t('screenOverview') }}
-        </h2>
-        <p class="text-gray-500 dark:text-gray-400 mb-4">
-          {{ $t('screenOverviewDesc') }}
-        </p>
-        <div class="h-24 flex items-center justify-center text-gray-400">
-          {{ $t('placeholder') }}
-        </div>
-      </UCard>
+      <NuxtLink to="/overview" class="block hover:shadow-lg transition-shadow">
+        <UCard class="flex flex-col py-6 cursor-pointer">
+          <h2 class="text-2xl font-bold mb-2">
+            {{ $t('screenOverview') }}
+          </h2>
+          <p class="text-gray-500 dark:text-gray-400 mb-4">
+            {{ $t('screenOverviewDesc') }}
+          </p>
+          <div class="h-24 flex items-center justify-center text-gray-400">
+            {{ $t('placeholder') }}
+          </div>
+        </UCard>
+      </NuxtLink>
       <UCard class="flex flex-col py-6">
         <h2 class="text-2xl font-bold mb-2">
           {{ $t('leaderboard') }}
