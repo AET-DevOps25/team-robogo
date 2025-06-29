@@ -1,10 +1,10 @@
 <template>
-  <div class="p-6 space-y-6">
+  <div class="p-6 space-y-6 dark:bg-gray-950 dark:text-gray-100">
     <!--Screens Monitor -->
     <section>
-      <h2 class="text-2xl font-bold mb-4">Screens Monitor</h2>
+      <h2 class="text-2xl font-bold mb-4 dark:text-gray-100">Screens Monitor</h2>
       <div
-        class="max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 rounded p-2"
+        class="max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 rounded p-2 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800 dark:bg-gray-900"
       >
         <div class="flex flex-wrap gap-6 justify-start">
           <ScreenCard
@@ -21,7 +21,7 @@
             "
           />
           <div
-            class="w-[300px] h-[260px] flex items-center justify-center rounded-xl bg-gray-100 text-5xl text-gray-400 hover:bg-gray-200 cursor-pointer"
+            class="w-[300px] h-[260px] flex items-center justify-center rounded-xl bg-gray-100 text-5xl text-gray-400 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700 cursor-pointer"
             @click="showAddScreenDialog = true"
           >
             +
@@ -32,37 +32,37 @@
     <!-- Add Screen Dialog -->
     <div
       v-if="showAddScreenDialog"
-      class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center"
+      class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center dark:bg-opacity-70"
     >
-      <div class="bg-white rounded-lg p-6 shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-bold mb-4">Add New Screen</h3>
+      <div class="bg-white rounded-lg p-6 shadow-lg w-[400px] relative dark:bg-gray-900 dark:text-gray-100">
+        <h3 class="text-lg font-bold mb-4 dark:text-gray-100">Add New Screen</h3>
         <input
           v-model="newScreenName"
           placeholder="Screen Name"
-          class="mb-2 w-full border p-2 rounded"
+          class="mb-2 w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
         />
         <input
           v-model="newScreenUrl"
           placeholder="Thumbnail URL (optional)"
-          class="mb-4 w-full border p-2 rounded"
+          class="mb-4 w-full border p-2 rounded dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
         />
 
         <div class="flex justify-end gap-2">
           <button
+            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
             @click="showAddScreenDialog = false"
-            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-gray-800"
           >
             Cancel
           </button>
           <button
+            class="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 text-white dark:bg-blue-700 dark:hover:bg-blue-800"
             @click="addNewScreen"
-            class="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 text-white"
           >
             Add
           </button>
         </div>
         <button
-          class="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+          class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
           @click="showAddScreenDialog = false"
         >
           ✕
@@ -72,27 +72,27 @@
     <!-- Confirm Delete Dialog  -->
     <div
       v-if="showDeleteConfirm"
-      class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center"
+      class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center dark:bg-opacity-70"
     >
-      <div class="bg-white p-6 rounded-xl shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-semibold mb-4">Confirm Delete</h3>
+      <div class="bg-white p-6 rounded-xl shadow-lg w-[400px] relative dark:bg-gray-900 dark:text-gray-100">
+        <h3 class="text-lg font-semibold mb-4 dark:text-gray-100">Confirm Delete</h3>
         <p>
           Are you sure you want to delete <strong>{{ screenToDelete?.name }}</strong
           >?
         </p>
         <div class="flex justify-end gap-2 mt-4">
-          <button class="px-4 py-2 bg-gray-300 rounded" @click="showDeleteConfirm = false">
+          <button class="px-4 py-2 bg-gray-300 rounded dark:bg-gray-700 dark:text-gray-200" @click="showDeleteConfirm = false">
             Cancel
           </button>
           <button
-            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
             @click="confirmDeleteScreen"
           >
             Delete
           </button>
         </div>
         <button
-          class="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+          class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
           @click="showDeleteConfirm = false"
         >
           ✕
@@ -100,15 +100,15 @@
       </div>
     </div>
 
-    <section class="grid grid-cols-[2fr_1fr] gap-6 bg-gray-50 p-6 rounded-xl shadow">
+    <section class="grid grid-cols-[2fr_1fr] gap-6 bg-gray-50 p-6 rounded-xl shadow dark:bg-gray-900">
       <!-- Left: SlidesWH -->
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold">Slide Groups</h2>
+          <h2 class="text-lg font-semibold dark:text-gray-100">Slide Groups</h2>
 
           <button
-            class="text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            class="text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-800"
             @click="triggerFileInput"
           >
             Upload Slide
@@ -126,14 +126,14 @@
           <USelectMenu
             v-model="selectedGroupId"
             :items="slideGroups.map((g) => g.id)"
-            class="w-48"
+            class="w-48 dark:bg-gray-800 dark:text-gray-100"
           />
           <UButton color="neutral" variant="outline" @click="showAddGroupDialog = true"
             >Add Group</UButton
           >
         </div>
         <div
-          class="h-[400px] w-full overflow-y-auto border-gray-200 rounded p-2 flex flex-wrap gap-6 justify-start scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+          class="h-[400px] w-full overflow-y-auto border-gray-200 rounded p-2 flex flex-wrap gap-6 justify-start scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800"
         >
           <SlideGroupCard
             v-if="currentGroup && currentGroup.id !== 'None'"
@@ -151,29 +151,29 @@
       <!-- Right: Groups -->
       <div class="flex flex-col gap-4">
         <!-- Scores Update -->
-        <div class="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4">
+        <div class="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4 dark:bg-gray-900 dark:text-gray-100">
           <input
             v-model="scoreTarget"
             placeholder="Team ID"
-            class="border p-2 rounded w-full sm:w-auto"
+            class="border p-2 rounded w-full sm:w-auto dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
           />
           <input
             v-model="scoreValue"
             placeholder="Score"
-            class="border p-2 rounded w-full sm:w-auto"
+            class="border p-2 rounded w-full sm:w-auto dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
           />
           <button
-            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
             @click="submitScore"
           >
             Update Scores
           </button>
         </div>
         <!-- Chat Box -->
-        <div class="bg-white p-4 rounded-xl shadow-md flex flex-col gap-3 h-[300px]">
-          <h3 class="text-lg font-semibold">Chat with AI</h3>
+        <div class="bg-white p-4 rounded-xl shadow-md flex flex-col gap-3 h-[300px] dark:bg-gray-900 dark:text-gray-100">
+          <h3 class="text-lg font-semibold dark:text-gray-100">Chat with AI</h3>
 
-          <div class="flex-1 overflow-y-auto border rounded p-2 text-sm text-gray-700 bg-gray-50">
+          <div class="flex-1 overflow-y-auto border rounded p-2 text-sm text-gray-700 bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700">
             <div v-for="(msg, index) in chatHistory" :key="index" class="mb-2">
               <strong>{{ msg.role }}:</strong> {{ msg.text }}
             </div>
@@ -184,10 +184,10 @@
               v-model="userMessage"
               @keyup.enter="sendMessage"
               placeholder="Type a message..."
-              class="flex-1 border p-2 rounded"
+              class="flex-1 border p-2 rounded dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
             />
             <button
-              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
               @click="sendMessage"
             >
               Send
@@ -199,26 +199,26 @@
     <!-- Add Group Dialog -->
     <div
       v-if="showAddGroupDialog"
-      class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center"
+      class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center dark:bg-opacity-70"
     >
-      <div class="bg-white p-6 rounded-xl shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-semibold mb-4">Add New Group</h3>
+      <div class="bg-white p-6 rounded-xl shadow-lg w-[400px] relative dark:bg-gray-900 dark:text-gray-100">
+        <h3 class="text-lg font-semibold mb-4 dark:text-gray-100">Add New Group</h3>
 
         <input
           v-model="newGroupName"
           placeholder="Group Name"
-          class="w-full border border-gray-300 p-2 rounded mb-4"
+          class="w-full border border-gray-300 p-2 rounded mb-4 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
         />
 
         <div class="flex justify-end gap-2">
           <button
-            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
             @click="showAddGroupDialog = false"
           >
             Cancel
           </button>
           <button
-            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
             @click="addGroup"
           >
             Add
@@ -226,7 +226,7 @@
         </div>
 
         <button
-          class="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+          class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
           @click="showAddGroupDialog = false"
         >
           ✕
@@ -234,14 +234,14 @@
       </div>
     </div>
 
-    <section class="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4">
+    <section class="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4 dark:bg-gray-900 dark:text-gray-100">
       <button
-        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
         @click="callTestApi"
       >
         Test
       </button>
-      <p class="mt-2 text-gray-700">{{ testResponse }}</p>
+      <p class="mt-2 text-gray-700 dark:text-gray-200">{{ testResponse }}</p>
     </section>
   </div>
 </template>

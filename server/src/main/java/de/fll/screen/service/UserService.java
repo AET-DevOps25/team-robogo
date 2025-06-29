@@ -10,12 +10,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    @Value("${admin.username:admin}")
+    private String adminUsername;
+    @Value("${admin.password:admin}")
+    private String adminPassword;
+    @Value("${admin.email:admin@fll.de}")
+    private String adminEmail;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, 
                       JwtService jwtService) {
@@ -27,7 +34,7 @@ public class UserService {
     @PostConstruct
     public void init() {
         if (userRepository.count() == 0) {
-            User admin = new User("admin", passwordEncoder.encode("admin"), "admin@fll.de");
+            User admin = new User(adminUsername, passwordEncoder.encode(adminPassword), adminEmail);
             admin.setEmailVerified(true);
             userRepository.save(admin);
         }
