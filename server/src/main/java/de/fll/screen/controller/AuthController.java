@@ -12,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/auth")
@@ -37,7 +35,7 @@ public class AuthController {
     // }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request, HttpServletResponse servletResponse) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
         logger.debug("Received login request for user: {}", request.getUsername());
         
         if (request.getUsername() == null || request.getPassword() == null || 
@@ -50,17 +48,6 @@ public class AuthController {
         }
 
         LoginResponseDTO response = userService.login(request);
-        Cookie cookie = new Cookie("token", response.getToken());
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(3600);
-        servletResponse.addCookie(cookie);
-        if (response.getSuccess()) {
-            logger.info("Login successful for user: {}", request.getUsername());
-        } else {
-            logger.warn("Login failed for user: {}", request.getUsername());
-        }
-
         return ResponseEntity.ok(response);
     }
 

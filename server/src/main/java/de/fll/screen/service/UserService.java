@@ -10,21 +10,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final EmailService emailService;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, 
-                      JwtService jwtService, EmailService emailService) {
+                      JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
-        this.emailService = emailService;
     }
 
     @PostConstruct
@@ -35,15 +32,6 @@ public class UserService {
             userRepository.save(admin);
         }
     }
-
-    // @Transactional
-    // public LoginResponseDTO signup(SignupRequestDTO request) {
-    //     // 注册功能已禁用
-    //     return LoginResponseDTO.builder()
-    //         .success(false)
-    //         .error("Signup is disabled")
-    //         .build();
-    // }
 
     @Transactional
     public boolean verifyEmail(String token) {
