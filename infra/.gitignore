@@ -1,12 +1,14 @@
 
 # Terraform
-terra/.terraform/
-terra/.terraform.lock.hcl
-terra/terraform.tfstate
-terra/terraform.tfstate.backup
-terra/terraform.tfvars
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/terraform.tfvars
 
 # Helm
 helm/screen/charts/
 helm/screen/Chart.lock
 helm/screen/secrets.yaml
+
+pk.pem
