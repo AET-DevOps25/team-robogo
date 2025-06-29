@@ -14,15 +14,15 @@ export default defineNuxtConfig({
       type: 'local',
       endpoints: {
         signIn: {
-          path: '/api/auth/login',
+          path: '/api/proxy/auth/login',
           method: 'post'
         },
         signOut: {
-          path: '/api/auth/logout',
+          path: '/api/proxy/auth/logout',
           method: 'post'
         },
         getSession: {
-          path: '/api/auth/session',
+          path: '/api/proxy/auth/session',
           method: 'get'
         }
       },
