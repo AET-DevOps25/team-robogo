@@ -26,12 +26,6 @@ jobs:
           echo "${{ secrets.RANCHER_KUBECONFIG }}" > .kubeconfig
           chmod 600 .kubeconfig
 
-      - name: Uninstall old Helm release if exists
-        env:
-          KUBECONFIG: ${{ github.workspace }}/.kubeconfig
-        run: |
-          helm uninstall screen --namespace team-robogo || true
-
       - name: Helm Deployment
         env:
           KUBECONFIG: ${{ github.workspace }}/.kubeconfig
