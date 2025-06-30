@@ -1,5 +1,8 @@
 namespace: team-robogo
 
+project:
+  name: screen
+
 db:
   name: robogo_db
   user: robogo
@@ -23,6 +26,7 @@ client:
   imageTag: main
   apiGatewayHost: gateway-service
   port: 80
+  targetPort: 3000
   nodePort: 30000
 
 genai:
@@ -30,3 +34,9 @@ genai:
   port: 8000
   chairApiKey: "sk-xxx"
   openaiApiKey: "sk-yyy"
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations: {}
+  tls: false

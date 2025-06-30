@@ -6,7 +6,7 @@ spec:
   type: NodePort
   ports:
     - port: {{ .Values.client.port }}
-      targetPort: {{ .Values.client.port }}
+      targetPort: {{ .Values.client.targetPort }}
       nodePort: {{ .Values.client.nodePort }}
   selector:
     app: client
