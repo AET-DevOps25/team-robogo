@@ -1,5 +1,3 @@
-namespace: team-robogo
-
 project:
   name: screen
 
@@ -40,3 +38,23 @@ ingress:
   ingressClassName: nginx
   annotations: {}
   tls: false
+
+promtail:
+  image:
+    repository: grafana/promtail
+    tag: 2.9.2
+  resources: {}
+  lokiUrl: http://loki:3100/loki/api/v1/push
+
+loki:
+  image:
+    repository: grafana/loki
+    tag: 2.9.2
+  replicas: 1
+  resources: {}
+  service:
+    port: 3100
+  persistence:
+    enabled: false
+    size: 5Gi
+    storageClassName: ""
