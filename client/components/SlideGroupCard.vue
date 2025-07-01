@@ -1,3 +1,4 @@
+<!-- File: src/components/SlideGroupCard.vue -->
 <template>
     <div class="w-full rounded-xl shadow-lg p-4 bg-white space-y-3">
         <div class="flex gap-2 justify-between items-center">
@@ -10,11 +11,11 @@
         </div>
 
         <div class="flex flex-wrap gap-4">
-            <draggable v-model="localContent" group="slides" item-key="id" class="flex flex-wrap gap-4"
-                @end="$emit('update:content', localContent)">
+            <draggable v-model="localSlideIds" group="slides" item-key="id" class="flex flex-wrap gap-4"
+                @end="$emit('update:slide-ids', localSlideIds)">
                 <template #item="{ element }">
-                    <SlideCard :item="element" :selected="selectedContent?.id === element.id"
-                        @click="$emit('select', element)" />
+                    <SlideCard v-if="id2Slide[element]" :item="id2Slide[element]"
+                        :selected="selectedContent?.id === element" @click="$emit('select', id2Slide[element])" />
                 </template>
             </draggable>
 
@@ -33,8 +34,8 @@
 
                 <!-- Slide Selection -->
                 <div class="flex flex-wrap gap-4 mb-6">
-                    <SlideCard v-for="item in props.allSlides" :key="item.id + '-select'" :item="item"
-                        :selected="item.id === selectedToAdd?.id" @click="selectedToAdd = item" />
+                    <SlideCard v-for="s in allSlides" :key="s.id" :item="s" :selected="s.id === selectedToAdd"
+                        @click="selectedToAdd = s.id" />
                 </div>
 
                 <!-- Actions -->
@@ -55,51 +56,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 import draggable from 'vuedraggable'
 import SlideCard from './SlideCard.vue'
 import SpeedControl from './SpeedControl.vue'
-const showDialog = ref(false)
-interface SlideItem {
-    id: number | string
+
+interface Slide {
+    id: number
     name: string
     url: string
 }
-const content = defineModel<SlideItem[]>('content', { required: true })
+const slideIds = defineModel<number[]>('slide-ids', { required: true })
 const speed = defineModel<number>('speed', { required: true })
 const props = defineProps<{
     title: string,
-    selectedContent?: SlideItem,
-    allSlides: SlideItem[]
+    allSlides: Slide[]
+    selectedContent?: Slide
 }>()
 
 defineEmits<{
-    (e: 'select', item: SlideItem): void
+    (e: 'select', item: Slide): void
     // (e: 'update:content', items: SlideItem[]): void
-    (e: 'add', item: SlideItem): void
+    (e: 'update:slide-ids', ids: number[]): void
 }>()
-const localContent = ref<SlideItem[]>([...content.value])
-watch(() => content.value, val => {
-    localContent.value = [...val]
+
+const showDialog = ref(false)
+const selectedToAdd = ref<number | null>(null)
+
+/* 拖拽时使用的临时数组 */
+const localSlideIds = ref<number[]>([...slideIds.value])
+watch(slideIds, ids => { localSlideIds.value = [...ids] })
+
+const id2Slide = computed<Record<number, Slide>>(() => {
+    const map: Record<number, Slide> = {}
+    props.allSlides.forEach(s => { map[s.id] = s })
+    return map
 })
-const handleAdd = (item: SlideItem) => {
-    if (!content.value.some(i => i.id === item.id)) {
-        content.value = [...content.value, item]
-    }
-    showDialog.value = false
-}
-const selectedToAdd = ref<SlideItem | null>(null)
+
+
+
 
 const confirmAdd = () => {
-    if (selectedToAdd.value) {
-        content.value = [...content.value, selectedToAdd.value]
-        localContent.value = [...content.value]
+    if (selectedToAdd.value && !slideIds.value.includes(selectedToAdd.value)) {
+        slideIds.value = [...slideIds.value, selectedToAdd.value]
+        localSlideIds.value = [...slideIds.value]
     }
-    showDialog.value = false
-    selectedToAdd.value = null
+    resetDialog()
 }
 
-const cancelAdd = () => {
+function cancelAdd() { resetDialog() }
+function resetDialog() {
     showDialog.value = false
     selectedToAdd.value = null
 }

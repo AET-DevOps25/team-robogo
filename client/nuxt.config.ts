@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
-  modules: ['@sidebase/nuxt-auth', '@nuxt/ui', '@nuxtjs/i18n', '@pinia/nuxt'],
+  modules: ['@sidebase/nuxt-auth', '@nuxt/ui', '@nuxtjs/i18n', '@pinia/nuxt', 'pinia-plugin-persistedstate/nuxt'],
   runtimeConfig: {
     public: {
       apiBase: process.env.VITE_API_BASE_URL || 'http://localhost:8080'

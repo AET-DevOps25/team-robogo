@@ -1,3 +1,4 @@
+<!-- File: src/pages/overview.vue -->
 <template>
     <div class="p-6 space-y-6">
         <!--Screens Monitor -->
@@ -8,7 +9,7 @@
 
                 <div class="flex flex-wrap gap-6 justify-start">
                     <ScreenCard v-for="screen in screens" :key="screen.id" :screen="screen" :slideGroups="slideGroups"
-                        @updateGroup="onUpdateScreenGroup"
+                        :all-slides="contentList" @updateGroup="onUpdateScreenGroup"
                         @requestDelete="(screen) => { showDeleteConfirm = true; screenToDelete = screen }" />
                     <div class="w-[300px] h-[260px] flex items-center justify-center rounded-xl bg-gray-100 text-5xl text-gray-400 hover:bg-gray-200 cursor-pointer"
                         @click="showAddScreenDialog = true">
@@ -57,7 +58,7 @@
         </div>
 
         <section class="grid grid-cols-[2fr_1fr] gap-6 bg-gray-50 p-6 rounded-xl shadow">
-            <!-- Left: SlidesWH -->
+            <!-- Left: Slide Group -->
 
             <div>
                 <div class="flex items-center justify-between mb-2">
@@ -80,10 +81,9 @@
                 <div class="h-[400px] w-full overflow-y-auto border-gray-200  rounded p-2 flex flex-wrap gap-6 justify-start
                     scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
                     <SlideGroupCard v-if="currentGroup && currentGroup.id !== 'None'" :key="currentGroup.id"
-                        v-model:content="currentGroup.content" v-model:speed="currentGroup.speed"
-                        :allSlides="contentList" :selectedContent="selectedContent" @select="selectContent"
-                        @add="(item) => currentGroup.content.push(item)" />
-
+                        :title="currentGroup.id" v-model:slide-ids="currentGroup.slideIds"
+                        v-model:speed="currentGroup.speed" :allSlides="contentList" :selected-content="selectedContent"
+                        :slides="currentGroupSlides" @select="selectContent" />
                 </div>
             </div>
 
@@ -159,14 +159,36 @@ import { ref } from 'vue'
 import { computed } from 'vue'
 import { onMounted } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
-
-
+import { useScreenStore } from '@/stores/useScreenStore'
+import { watchOnce } from '@vueuse/core'
 import ScreenCard from '../components/ScreenCard.vue';
-import SlideCard from '../components/SlideCard.vue';
 import SlideGroupCard from '../components/SlideGroupCard.vue'
+const scoreTarget = ref('')
+const scoreValue = ref('')
 
 const testResponse = ref('') // display Returned Text from API
-const items = ref(['Backlog', 'Todo', 'In Progress', 'Done'])
+
+const store = useScreenStore()
+
+watchOnce(
+    () => store.slideGroups.length > 0 || store.screens.length > 0,
+    () => {
+        // 数据已从 localStorage 加载
+        if (!store.slideTimerStarted) {
+            store.startSlideTimer()
+            store.slideTimerStarted = true
+        }
+    }
+)
+
+// 延迟初始化空状态
+watchOnce(
+    () => store.slideGroups.length === 0 && store.screens.length === 0,
+    () => {
+        store.initStore()
+    }
+)
+
 const value = ref('')
 interface SlideItem {
     id: number
@@ -189,110 +211,35 @@ const callTestApi = async () => {
         testResponse.value = 'Error calling API'
     }
 };
-const uploadSlide = () => {
-    console.log('Upload Slide button clicked');
-    // TODO: Open file input or modal
-};
 
 
-const id1 = uuidv4()
-const id2 = uuidv4()
-const id3 = uuidv4()
-const id4 = uuidv4()
-const screens = ref([]);
+const screens = computed(() => store.screens)
 
-const contentList = ref([
-    {
-        id: 1,
-        name: 'Slide A',
-        url: './5.png'
-    },
-    {
-        id: 2,
-        name: 'Slide B',
-        url: './Folie3-BIHZ0bEZ.PNG'
-    },
-    {
-        id: 3,
-        name: 'Slide C',
-        url: './Folie4-CbnN4Bxf.PNG'
-    },
-    {
-        id: 4,
-        name: 'Slide D',
-        url: './Folie5-CcbTgpDC.PNG'
-    },
-    {
-        id: 5,
-        name: 'Slide E',
-        url: './Folie6-B8wXdOXm.PNG'
-    }
-]);
-const slideGroups = ref([
-    {
-        id: 'None',
-        content: [],
-        speed: 5
-    }
-])
+const contentList = computed(() => store.contentList)
+
+const slideGroups = computed(() => store.slideGroups)
 
 
-const selectedGroupId = ref(slideGroups.value[0]?.id || 'None')
+const selectedGroupId = ref(store.slideGroups[0]?.id || 'None')
+
 const currentGroup = computed(() =>
     slideGroups.value.find(g => g.id === selectedGroupId.value)
 )
+const currentGroupSlides = computed(() =>
+    currentGroup.value
+        ? store.contentList.filter(s => currentGroup.value!.slideIds.includes(s.id))
+        : []
+)
 const onUpdateScreenGroup = (updatedScreen) => {
-    const index = screens.value.findIndex(s => s.id === updatedScreen.id)
-    if (index !== -1) {
-        screens.value[index].groupId = updatedScreen.groupId // could be 'None'
-    }
+    store.updateScreenGroup(updatedScreen.id, updatedScreen.groupId)
 }
 
-onMounted(() => {
-    setInterval(() => {
-        const now = Date.now()
-        slideGroups.value.forEach(group => {
-            if (!group.content || group.content.length === 0) return
-
-            if (!group._lastSwitchTime) {
-                group._lastSwitchTime = now
-                group._currentSlideIndex = 0
-                return
-            }
-
-            const speedMs = (group.speed || 5) * 1000
-            if (now - group._lastSwitchTime >= speedMs) {
-                group._lastSwitchTime = now
-                group._currentSlideIndex = (group._currentSlideIndex + 1) % group.content.length
-            }
-        })
-
-        screens.value.forEach(screen => {
-            const group = slideGroups.value.find(g => g.id === screen.groupId)
-            if (!group || !group.content || group.content.length === 0) {
-                screen.currentContent = 'BLACK_SCREEN'
-                return
-            }
-
-            screen.currentContent = group.content[group._currentSlideIndex]?.name || 'BLACK_SCREEN'
-        })
-    }, 1000)
-})
 
 const showAddScreenDialog = ref(false)
 const newScreenName = ref('')
 const newScreenUrl = ref('')
 const addNewScreen = () => {
-    const newId = uuidv4()
-    screens.value.push({
-        id: newId,
-        name: newScreenName.value || 'Unnamed Screen',
-        status: 'offline',
-        groupId: 'None',
-        currentContent: 'BLACK_SCREEN',
-        thumbnailUrl: newScreenUrl.value || 'https://via.placeholder.com/300x200?text=Preview',
-        urlPath: `/screen/${newId}`,
-    })
+    store.addScreen(newScreenName.value, newScreenUrl.value)
     showAddScreenDialog.value = false
     newScreenName.value = ''
     newScreenUrl.value = ''
@@ -327,19 +274,8 @@ const newGroupName = ref('')
 
 // 添加新分组
 const addGroup = () => {
-    const name = newGroupName.value.trim()
-    if (!name) return
-    // 避免重复
-    if (slideGroups.value.find(g => g.id === name)) return
-
-    slideGroups.value.push({
-        id: name,
-        content: [],
-        speed: 5,
-        _currentSlideIndex: 0,
-        _lastSwitchTime: Date.now()
-    })
-    selectedGroupId.value = name
+    store.addGroup(newGroupName.value)
+    selectedGroupId.value = newGroupName.value
     newGroupName.value = ''
     showAddGroupDialog.value = false
 }
@@ -350,7 +286,7 @@ const screenToDelete = ref(null)
 
 const confirmDeleteScreen = () => {
     if (!screenToDelete.value) return
-    screens.value = screens.value.filter(s => s.id !== screenToDelete.value.id)
+    store.screens = store.screens.filter(s => s.id !== screenToDelete.value.id)
     showDeleteConfirm.value = false
     screenToDelete.value = null
 }
@@ -381,10 +317,11 @@ const handleFileUpload = (event: Event) => {
             url: imageUrl,
         }
 
-        contentList.value.push(newSlide)
+        store.contentList.push(newSlide)
 
-        if (currentGroup.value && currentGroup.value.id !== 'None') {
-            currentGroup.value.content.push(newSlide)
+        const targetGroup = store.slideGroups.find(g => g.id === selectedGroupId.value)
+        if (targetGroup && targetGroup.id !== 'None') {
+            targetGroup.slideIds.push(newSlide.id)
         }
     }
 
