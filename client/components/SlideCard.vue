@@ -1,4 +1,4 @@
-<!-- File: src/components/ContentCard.vue -->
+<!-- File: src/components/SlideCard.vue -->
 <template>
     <div class="w-[300px] rounded overflow-hidden shadow-lg bg-white" :class="{
         'ring-4 ring-blue-500': selected,

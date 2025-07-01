@@ -16,7 +16,7 @@
                 class="inline-block bg-red-400 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">{{
                     screen.status }}</span>
             <p class="text-gray-700 text-base">
-                Current Group: {{ screen.currentContent || 'none' }}
+                Current Group: {{ currentSlide?.name ?? 'none' }}
             </p>
             <p class="text-gray-500 text-sm">URL: {{ screen.urlPath }}</p>
 
@@ -31,27 +31,34 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const currentSlide = computed(() => {
-    const group = props.slideGroups.find(g => g.id === props.screen.groupId)
-    if (!group || !group.content) return null
-    return group.content.find(s => s.name === props.screen.currentContent) || null
-})
-
 const props = defineProps<{
     screen: {
         id: number,
         name: string,
         status: string,
         groupId: string,
-        currentContent: string,
+        currentContent: string,  //SlideId
         thumbnailUrl: string,
         urlPath: string
 
     },
-    slideGroups: { id: string, content: any[] }[]
+    slideGroups: { id: string; slideIds: number[] }[]
+    allSlides: { id: number; name: string; url: string }[]
 }>()
 
 const emit = defineEmits(['updateGroup'])
-const placeholder = 'https://via.placeholder.com/300x200?text=Preview';
+/** 把当前屏幕所属 group 找出来 */
+const group = computed(() =>
+    props.slideGroups.find(g => g.id === props.screen.groupId) ?? null
+)
+// 组名（没有则显示 'none'）
+const groupName = computed(() => group.value?.id ?? 'none')
+
+// 当前幻灯片对象
+const currentSlide = computed(() => {
+    if (!group.value || !group.value.slideIds.length) return null
+    const slideId = Number(props.screen.currentContent)
+    return props.allSlides.find(s => s.id === slideId) ?? null
+})
 const groupOptions = computed(() => props.slideGroups.map(g => g.id))
 </script>
