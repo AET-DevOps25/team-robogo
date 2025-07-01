@@ -6,29 +6,52 @@ spring:
     name: api-gateway
   cloud:
     gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origin-patterns: "http://localhost:[*],http://127.0.0.1:[*]"
+            allowed-methods: "*"
+            allowed-headers: "*"
+            allow-credentials: true
       routes:
-        - id: auth_session_route
-          uri: http://server:8081
+        - id: auth_route
+          uri: http://${SERVER_SERVICE_SERVICE_HOST}:${SERVER_SERVICE_SERVICE_PORT}
           predicates:
-            - Path=/api/auth/session
+            - Path=/api/auth/**
           filters:
             - StripPrefix=1
         - id: server_route
-          uri: http://server:8081
+          uri: http://${SERVER_SERVICE_SERVICE_HOST:localhost}:${SERVER_SERVICE_SERVICE_PORT:8081}
           predicates:
             - Path=/api/server/**
           filters:
             - StripPrefix=1
         - id: genai_route
-          uri: http://genai:5000
+          uri: http://${GENAI_SERVICE_SERVICE_HOST:localhost}:${GENAI_SERVICE_SERVICE_PORT:5000}
           predicates:
             - Path=/api/genai/**
           filters:
             - StripPrefix=1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus,health"
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
 
   web:
     resources:
       static-locations: []
 logging:
   level:
-    root: INFO 
+    root: INFO
+    org.springframework.cloud.gateway: INFO
+    org.springframework.http.server.reactive: INFO
+    org.springframework.web.reactive: INFO
+    org.springframework.security: INFO
+    reactor.netty: INFO 

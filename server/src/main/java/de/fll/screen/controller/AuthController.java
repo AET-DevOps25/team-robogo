@@ -3,7 +3,6 @@ package de.fll.screen.controller;
 import de.fll.core.dto.LoginRequestDTO;
 import de.fll.core.dto.LoginResponseDTO;
 import de.fll.core.dto.SessionResponseDTO;
-import de.fll.core.dto.SignupRequestDTO;
 import de.fll.core.dto.UserDTO;
 import de.fll.screen.model.User;
 import de.fll.screen.service.UserService;
@@ -26,28 +25,14 @@ public class AuthController {
         this.jwtService = jwtService;
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<LoginResponseDTO> signup(@RequestBody SignupRequestDTO request) {
-        logger.debug("Received signup request for user: {}", request.getUsername());
-        
-        if (request.getUsername() == null || request.getPassword() == null || 
-            request.getUsername().isEmpty() || request.getPassword().isEmpty()) {
-            logger.warn("Signup failed: username or password is empty");
-            return ResponseEntity.badRequest().body(LoginResponseDTO.builder()
-                .success(false)
-                .error("Username or password is empty")
-                .build());
-        }
-
-        LoginResponseDTO response = userService.signup(request);
-        if (response.getSuccess()) {
-            logger.info("Signup successful for user: {}", request.getUsername());
-        } else {
-            logger.warn("Signup failed for user: {}, reason: {}", request.getUsername(), response.getError());
-        }
-
-        return ResponseEntity.ok(response);
-    }
+    // @PostMapping("/signup")
+    // public ResponseEntity<LoginResponseDTO> signup(@RequestBody SignupRequestDTO request) {
+    //     // 注册功能已禁用
+    //     return ResponseEntity.status(403).body(LoginResponseDTO.builder()
+    //         .success(false)
+    //         .error("Signup is disabled")
+    //         .build());
+    // }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
@@ -63,12 +48,6 @@ public class AuthController {
         }
 
         LoginResponseDTO response = userService.login(request);
-        if (response.getSuccess()) {
-            logger.info("Login successful for user: {}", request.getUsername());
-        } else {
-            logger.warn("Login failed for user: {}", request.getUsername());
-        }
-
         return ResponseEntity.ok(response);
     }
 
@@ -110,19 +89,6 @@ public class AuthController {
             .build());
     }
 
-    @GetMapping("/verify-email")
-    public ResponseEntity<String> verifyEmail(@RequestParam String token) {
-        logger.debug("Received email verification request with token: {}", token);
-        
-        boolean verified = userService.verifyEmail(token);
-        if (verified) {
-            logger.info("Email verification successful for token: {}", token);
-            return ResponseEntity.ok("Email verified successfully. You can now log in.");
-        } else {
-            logger.warn("Email verification failed for token: {}", token);
-            return ResponseEntity.badRequest().body("Invalid or expired verification token.");
-        }
-    }
 
     private String extractToken(String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

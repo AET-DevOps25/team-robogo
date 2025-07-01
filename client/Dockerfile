@@ -1,22 +1,28 @@
 # ---- Build Stage ----
-FROM node:20 AS builder
-
-LABEL maintainer="Team Robogo"
-LABEL version="1.0"
-LABEL description="Team Robogo Frontend Application"
-LABEL org.opencontainers.image.source="https://github.com/AET-DevOps25/team-robogo"
-
+# Build the Nuxt application
+FROM node:20-slim AS builder
 WORKDIR /app
-COPY . .
+COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
+COPY . .
+# The API base is set to a relative path for production proxying
+ARG NUXT_PUBLIC_API_BASE=/
+ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
 RUN yarn build
 
 # ---- Runtime Stage ----
-FROM nginx:alpine
+FROM node:20-slim
+WORKDIR /app
 
-COPY --from=builder /app/.output/public /usr/share/nginx/html
+# Copy the entire app directory from the builder stage to ensure .output is included
+COPY --from=builder /app .
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Set the internal port for the Nuxt server
+ENV PORT=3000
+ENV HOST=0.0.0.0
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+# Expose the port
+EXPOSE 3000
+
+# Run the server
+CMD ["node", ".output/server/index.mjs"]

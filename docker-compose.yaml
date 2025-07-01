@@ -16,34 +16,118 @@ services:
       dockerfile: server/Dockerfile
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/robogo_db
+      - SPRING_DATASOURCE_USERNAME=robogo
+      - SPRING_DATASOURCE_PASSWORD=robogo_pass
     ports:
       - "8081:8081"
     depends_on:
       - db
+    labels:
+      - "logging.jobname=server"
+
   gateway:
     build:
       dockerfile: api-gateway/Dockerfile
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_SERVICE_SERVICE_HOST=server
+      - SERVER_SERVICE_SERVICE_PORT=8081
+      - GENAI_SERVICE_SERVICE_HOST=genai
+      - GENAI_SERVICE_SERVICE_PORT=5000
     ports:
       - "8080:8080"
     depends_on:
       - server
+    labels:
+      - "logging.jobname=gateway"
+
   client:
     build:
       context: ./client
       dockerfile: Dockerfile
     environment:
-      - NODE_ENV=production
-      - VITE_API_BASE_URL=http://api-gateway:8080
+      - GATEWAY_HOST=gateway
     ports:
-      - "80:80"
+      - "80:3000"
+    labels:
+      - "logging.jobname=client"
+
   genai:
     build:
       context: ./genai
       dockerfile: Dockerfile
+    env_file:
+      - ./genai/.env
     ports:
       - "5000:5000"
+    labels:
+      - "logging.jobname=genai"
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    depends_on:
+      - postgres-exporter
+
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter
+    restart: always
+    environment:
+      - DATA_SOURCE_NAME=postgresql://robogo:robogo_pass@db:5432/robogo_db?sslmode=disable
+    ports:
+      - "9187:9187"
+    depends_on:
+      - db
+
+  loki:
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki-config.yaml:/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./monitoring/promtail-config.yaml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+
+  grafana:
+    image: grafana/grafana:10.1.5
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning/:/etc/grafana/provisioning/
+    environment:
+      - GF_LOG_LEVEL=debug
+      - GF_SECURITY_ADMIN_USER=admin # TODO: change to a random string in production
+      - GF_SECURITY_ADMIN_PASSWORD=admin # TODO: change to a random string in production
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+      - db
+      - postgres-exporter
+      - loki
+      - promtail
+      - genai
+      - server
+      - gateway
+      - client
 
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:

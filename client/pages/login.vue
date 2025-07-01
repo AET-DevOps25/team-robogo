@@ -58,14 +58,6 @@
           >
             {{ $t('login') }}
           </UButton>
-          <div class="text-center mt-6">
-            <p class="text-gray-600 dark:text-gray-400">
-              {{ $t('noAccount') }}
-              <NuxtLink to="/signup" class="text-primary hover:text-primary-dark font-medium">
-                {{ $t('signup') }}
-              </NuxtLink>
-            </p>
-          </div>
         </UForm>
       </UCard>
     </div>
@@ -75,7 +67,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAuth } from '#imports'
-import type { LoginRequestDTO, LoginResponseDTO } from '~/interfaces/dto'
+import type { LoginRequestDTO } from '~/interfaces/dto'
 
 definePageMeta({
   auth: false
@@ -95,6 +87,7 @@ onMounted(async () => {
 })
 
 const onLogin = async () => {
+  error.value = ''
   if (!form.value.username) {
     error.value = 'Please enter your username'
     return
@@ -106,42 +99,23 @@ const onLogin = async () => {
   }
 
   try {
-    const loginResponse = await $fetch<LoginResponseDTO>('/api/auth/login', {
-      method: 'POST',
-      body: {
-        username: form.value.username,
-        password: form.value.password
-      }
-    })
-
-    if (!loginResponse.success) {
-      error.value = loginResponse.error || 'Login failed, please try again'
-      return
-    }
-
-    const authResponse = await signIn(
+    const response = await signIn(
       {
         username: form.value.username,
         password: form.value.password
       },
       {
-        redirect: false,
-        token: loginResponse.token
+        redirect: false
       }
     )
 
-    if (authResponse?.error) {
-      error.value = authResponse.error
-      return
+    if (response?.ok === false || response?.error) {
+      throw new Error('Login failed, please try again.')
     }
 
     await navigateTo('/dashboard')
-  } catch (err) {
-    if (err instanceof Error) {
-      error.value = err.message || 'Login failed, please try again'
-    } else {
-      error.value = 'Login failed, please try again'
-    }
+  } catch (err: any) {
+    error.value = err.message || 'An unexpected error occurred.'
   }
 }
 </script>

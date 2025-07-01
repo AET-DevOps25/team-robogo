@@ -1,0 +1,35 @@
+name: Rancher Deployment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Kubernetes
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.26.0'
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.11.0'
+
+      - name: Write Kubeconfig file
+        run: | 
+          echo "${{ secrets.RANCHER_KUBECONFIG }}" > .kubeconfig
+          chmod 600 .kubeconfig
+
+      - name: Helm Deployment
+        env:
+          KUBECONFIG: ${{ github.workspace }}/.kubeconfig
+        run: |
+          cd ./infra/helm/screen
+          helm dependency build
+          helm upgrade --install devops25-k8s-demo . --namespace team-robogo --create-namespace --skip-crds

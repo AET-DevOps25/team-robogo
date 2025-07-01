@@ -1,28 +1,42 @@
-namespace:
-  name: team-robogo
-  create: false
+namespace: team-robogo
 
-configMap:
-  name: screen-config
+project:
+  name: screen
 
-database:
-  service:
-    name: db-service
-    port: 5432
+db:
+  name: robogo_db
+  user: robogo
+  host: db-service
+  password: robogo_pass
+  port: 5432
 
 gateway:
-  service:
-    name: gateway-service
-    port: 8080
-
-client:
-  service:
-    name: client-service
-    port: 80
-    nodePort: 30000
+  image: ghcr.io/aet-devops25/team-robogo/api-gateway:main
+  imagePullPolicy: IfNotPresent
+  port: 8080
 
 server:
-  service:
-    name: server-service
-    port: 8081
-    nodePort: 30001
+  image: ghcr.io/aet-devops25/team-robogo/server:main
+  imagePullPolicy: IfNotPresent
+  port: 8081
+
+client:
+  image: ghcr.io/aet-devops25/team-robogo/client:main
+  imagePullPolicy: IfNotPresent
+  imageTag: main
+  apiGatewayHost: gateway-service
+  port: 80
+  targetPort: 3000
+  nodePort: 30000
+
+genai:
+  image: ghcr.io/aet-devops25/team-robogo/genai:main
+  port: 8000
+  chairApiKey: "sk-xxx"
+  openaiApiKey: "sk-yyy"
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations: {}
+  tls: false

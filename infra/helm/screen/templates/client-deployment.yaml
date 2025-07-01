@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: client
-  namespace: team-robogo
 spec:
   replicas: 1
   selector:
@@ -15,7 +14,9 @@ spec:
     spec:
       containers:
         - name: client
-          image: ghcr.io/aet-devops25/team-robogo/client:main
-          imagePullPolicy: Always
+          image: {{ .Values.client.image }}
           ports:
-            - containerPort: 80
+            - containerPort: {{ .Values.client.targetPort }}
+          env:
+            - name: GATEWAY_HOST
+              value: {{ .Values.client.apiGatewayHost }}

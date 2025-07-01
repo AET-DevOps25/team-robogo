@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gateway
-  namespace: team-robogo
 spec:
   replicas: 1
   selector:
@@ -15,7 +14,9 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: ghcr.io/aet-devops25/team-robogo/api-gateway:main
-          imagePullPolicy: Always
+          image: {{ .Values.gateway.image }}
           ports:
-            - containerPort: 8080
+            - containerPort: {{ .Values.gateway.port }}
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod

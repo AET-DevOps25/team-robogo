@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: server
-  namespace: team-robogo
 spec:
   replicas: 1
   selector:
@@ -15,17 +14,21 @@ spec:
     spec:
       containers:
         - name: server
-          image: ghcr.io/aet-devops25/team-robogo/server:main # Deploy the version pushed to main branch, not wip PR branches
-          imagePullPolicy: Always
+          image: {{ .Values.server.image }}
           ports:
-            - containerPort: 8081
+            - containerPort: {{ .Values.server.port }}
           env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://db-service:5432/robogo_db"
+              value: jdbc:postgresql://{{ .Values.db.host }}:{{ .Values.db.port }}/{{ .Values.db.name }}
             - name: SPRING_DATASOURCE_USERNAME
-              value: "robogo"
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: POSTGRES_USER
             - name: SPRING_DATASOURCE_PASSWORD
-              value: "robogo_pass"
-            - name: SERVER_PORT
-              value: "8081"
-
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: POSTGRES_PASSWORD

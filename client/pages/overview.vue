@@ -245,12 +245,11 @@ const addNewScreen = () => {
     newScreenUrl.value = ''
 }
 
-
 /*
 for GenAI
 */
 const userMessage = ref('')
-const chatHistory = ref<{ role: string, text: string }[]>([])
+const chatHistory = ref<{ role: string; text: string }[]>([])
 
 const sendMessage = async () => {
     if (!userMessage.value.trim()) return
@@ -291,7 +290,6 @@ const confirmDeleteScreen = () => {
     screenToDelete.value = null
 }
 
-
 //add slide in slide deck
 const fileInput = ref<HTMLInputElement | null>(null)
 
@@ -317,6 +315,7 @@ const handleFileUpload = (event: Event) => {
             url: imageUrl,
         }
 
+        contentList.value.push(newSlide)
         store.contentList.push(newSlide)
 
         const targetGroup = store.slideGroups.find(g => g.id === selectedGroupId.value)
@@ -327,5 +326,4 @@ const handleFileUpload = (event: Event) => {
 
     reader.readAsDataURL(file)
 }
-
 </script>

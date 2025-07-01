@@ -2,13 +2,11 @@ apiVersion: v1
 kind: Service
 metadata:
   name: client-service
-  namespace: team-robogo
 spec:
+  type: NodePort
+  ports:
+    - port: {{ .Values.client.port }}
+      targetPort: {{ .Values.client.targetPort }}
+      nodePort: {{ .Values.client.nodePort }}
   selector:
     app: client
-  ports:
-    - port: 80
-      targetPort: 80
-      nodePort: 30000
-      protocol: TCP
-  type: NodePort

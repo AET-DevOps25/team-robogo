@@ -1,7 +1,6 @@
 package de.fll.screen.service;
 
 import de.fll.core.dto.LoginRequestDTO;
-import de.fll.core.dto.SignupRequestDTO;
 import de.fll.screen.model.User;
 import de.fll.screen.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,73 +71,6 @@ class UserServiceTest {
 
         // Assert
         verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    void signup_ShouldReturnError_WhenUsernameExists() {
-        // Arrange
-        SignupRequestDTO request = new SignupRequestDTO();
-        request.setUsername("existingUser");
-        request.setPassword("password");
-        request.setEmail("test@example.com");
-
-        when(userRepository.existsByUsername("existingUser")).thenReturn(true);
-
-        // Act
-        var response = userService.signup(request);
-
-        // Assert
-        assertThat(response.getSuccess()).isFalse();
-        assertThat(response.getError()).isEqualTo("Username already exists");
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    void signup_ShouldReturnError_WhenEmailExists() {
-        // Arrange
-        SignupRequestDTO request = new SignupRequestDTO();
-        request.setUsername("newUser");
-        request.setPassword("password");
-        request.setEmail("existing@example.com");
-
-        when(userRepository.existsByUsername("newUser")).thenReturn(false);
-        when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
-
-        // Act
-        var response = userService.signup(request);
-
-        // Assert
-        assertThat(response.getSuccess()).isFalse();
-        assertThat(response.getError()).isEqualTo("Email already exists");
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    void signup_ShouldCreateNewUser_WhenValidRequest() {
-        // Arrange
-        SignupRequestDTO request = new SignupRequestDTO();
-        request.setUsername("newUser");
-        request.setPassword("password");
-        request.setEmail("new@example.com");
-
-        when(userRepository.existsByUsername("newUser")).thenReturn(false);
-        when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
-        when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
-        when(jwtService.generateToken("newUser")).thenReturn("jwt-token");
-        when(userRepository.save(any())).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setId(1L);
-            return user;
-        });
-
-        // Act
-        var response = userService.signup(request);
-
-        // Assert
-        assertThat(response.getSuccess()).isTrue();
-        assertThat(response.getToken()).isEqualTo("jwt-token");
-        assertThat(response.getUser().getUsername()).isEqualTo("newUser");
-        assertThat(response.getUser().getEmail()).isEqualTo("new@example.com");
     }
 
     @Test

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genai
+  template:
+    metadata:
+      labels:
+        app: genai
+    spec:
+      containers:
+        - name: genai
+          image: {{ .Values.genai.image }}
+          ports:
+            - containerPort: {{ .Values.genai.port }}
+          env:
+            - name: CHAIR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: genai-secret
+                  key: CHAIR_API_KEY
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: genai-secret
+                  key: OPENAI_API_KEY
