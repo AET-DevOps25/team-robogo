@@ -32,3 +32,9 @@ spec:
                 secretKeyRef:
                   name: db-credentials
                   key: POSTGRES_PASSWORD
+            - name: ADMIN_USERNAME
+              value: {{ .Values.server.adminUsername }}
+            - name: ADMIN_PASSWORD
+              value: {{ .Values.server.adminPassword }}
+            - name: ADMIN_EMAIL
+              value: {{ .Values.server.adminEmail }}

@@ -17,6 +17,9 @@ server:
   image: ghcr.io/aet-devops25/team-robogo/server:main
   imagePullPolicy: IfNotPresent
   port: 8081
+  adminUsername: admin
+  adminPassword: admin
+  adminEmail: admin@example.com
 
 client:
   image: ghcr.io/aet-devops25/team-robogo/client:main
@@ -35,9 +38,10 @@ genai:
 
 ingress:
   enabled: true
-  ingressClassName: nginx
+  ingressClassName: nginx # TODO: remove in cloud
   annotations: {}
   tls: false
+
 
 promtail:
   image:
@@ -70,3 +74,28 @@ prometheus:
     enabled: false
     size: 5Gi
     storageClassName: ""
+
+grafana:
+  image:
+    repository: grafana/grafana
+    tag: 10.1.5
+  service:
+    port: 3000
+  resources: {}
+  adminUser: admin
+  adminPassword: admin
+  persistence:
+    enabled: false
+    size: 5Gi
+    storageClassName: ""
+  datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      url: http://prometheus.team-robogo.svc:9090
+      isDefault: true
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki.team-robogo.svc:3100
+      isDefault: false

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/component: dashboards
+data:
+  genai-observability-dashboard.json: |-
+    {{ .Files.Get "files/monitoring/grafana/dashboards/genai-observability-dashboard.json" | nindent 4 }}
+  postgres-dashboard.json: |-
+    {{ .Files.Get "files/monitoring/grafana/dashboards/postgres-dashboard.json" | nindent 4 }}
+  spring-boot-dashboard.json: |-
+    {{ .Files.Get "files/monitoring/grafana/dashboards/spring-boot-dashboard.json" | nindent 4 }}
