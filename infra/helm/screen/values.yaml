@@ -58,3 +58,15 @@ loki:
     enabled: false
     size: 5Gi
     storageClassName: ""
+
+prometheus:
+  image:
+    repository: prom/prometheus
+    tag: v2.45.0
+  service:
+    port: 9090
+  resources: {}
+  persistence:
+    enabled: false
+    size: 5Gi
+    storageClassName: ""
