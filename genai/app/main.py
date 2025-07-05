@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from prometheus_fastapi_instrumentator import Instrumentator, Info
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.routes import general, suggestion
 
@@ -11,11 +11,6 @@ app = FastAPI(
 
 instrumentator = (
     Instrumentator()
-    .add(lambda: Info(
-        "fastapi_app_info",
-        "FastAPI application info",
-        {"app_name": "genai"}
-    ))
     .instrument(app, metric_namespace='genai', metric_subsystem='genai')
     .expose(app)
 )

@@ -41,7 +41,7 @@
       "datasource": "${DS_PROMETHEUS}",
       "targets": [
         {
-          "expr": "sum(fastapi_requests_total{app_name=\"$app_name\"})",
+          "expr": "sum(genai_genai_http_requests_total{app_name=\"$app_name\"})",
           "refId": "A"
         }
       ],
@@ -53,7 +53,7 @@
       "datasource": "${DS_PROMETHEUS}",
       "targets": [
         {
-          "expr": "sum(fastapi_exceptions_total{app_name=\"$app_name\"})",
+          "expr": "sum(genai_genai_http_exceptions_total{app_name=\"$app_name\"})",
           "refId": "A"
         }
       ],
@@ -65,7 +65,7 @@
       "datasource": "${DS_PROMETHEUS}",
       "targets": [
         {
-          "expr": "sum(fastapi_requests_in_progress{app_name=\"$app_name\"})",
+          "expr": "sum(genai_genai_http_requests_in_progress{app_name=\"$app_name\"})",
           "refId": "A"
         }
       ],
@@ -77,7 +77,7 @@
       "datasource": "${DS_PROMETHEUS}",
       "targets": [
         {
-          "expr": "sum(rate(fastapi_requests_total{app_name=\"$app_name\"}[1m]))",
+          "expr": "sum(rate(genai_genai_http_requests_total{app_name=\"$app_name\"}[1m]))",
           "refId": "A"
         }
       ],
@@ -89,7 +89,7 @@
       "datasource": "${DS_PROMETHEUS}",
       "targets": [
         {
-          "expr": "fastapi_requests_duration_seconds_sum{app_name=\"$app_name\"} / fastapi_requests_duration_seconds_count{app_name=\"$app_name\"}",
+          "expr": "genai_genai_http_request_duration_seconds_sum{app_name=\"$app_name\"} / genai_genai_http_request_duration_seconds_count{app_name=\"$app_name\"}",
           "refId": "A"
         }
       ],
@@ -101,7 +101,7 @@
       "datasource": "${DS_PROMETHEUS}",
       "targets": [
         {
-          "expr": "histogram_quantile(0.99, sum(rate(fastapi_requests_duration_seconds_bucket{app_name=\"$app_name\"}[1m])) by (le, path))",
+          "expr": "histogram_quantile(0.99, sum(rate(genai_genai_http_request_duration_seconds_bucket{app_name=\"$app_name\"}[1m])) by (le, handler))",
           "refId": "A"
         }
       ],
@@ -113,7 +113,7 @@
       "datasource": "${DS_PROMETHEUS}",
       "targets": [
         {
-          "expr": "sum(rate(fastapi_requests_total{app_name=\"$app_name\"}[1m])) by (path)",
+          "expr": "sum(rate(genai_genai_http_requests_total{app_name=\"$app_name\"}[1m])) by (handler)",
           "refId": "A"
         }
       ],
@@ -125,7 +125,7 @@
       "datasource": "${DS_PROMETHEUS}",
       "targets": [
         {
-          "expr": "sum(rate(fastapi_exceptions_total{app_name=\"$app_name\"}[1m])) by (path)",
+          "expr": "sum(rate(genai_genai_http_exceptions_total{app_name=\"$app_name\"}[1m])) by (handler)",
           "refId": "A"
         }
       ],
