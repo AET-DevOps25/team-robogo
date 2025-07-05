@@ -38,10 +38,12 @@ genai:
 
 ingress:
   enabled: true
-  ingressClassName: nginx # TODO: remove in cloud
-  annotations: {}
-  tls: false
-
+  className: "nginx"
+  host: screen.local
+  secretName: "team-robogo-tls"
+  tls: true
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 
 promtail:
   image:
@@ -102,3 +104,5 @@ grafana:
 
 postgresExporter:
   port: 9187
+
+namespace: team-robogo

@@ -10,8 +10,8 @@ metadata:
     {{- toYaml $annotations | nindent 4 }}
   {{- end }}
 spec:
-  {{- if .Values.ingress.ingressClassName }}
-  ingressClassName: {{ .Values.ingress.ingressClassName | quote }}
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className | quote }}
   {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
@@ -23,13 +23,6 @@ spec:
     - host: "{{ .Values.ingress.host }}"
       http:
         paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: client-service
-                port:
-                  number: {{ .Values.client.port }}
           - path: /api(/|$)(.*)
             pathType: Prefix
             backend:
@@ -37,4 +30,11 @@ spec:
                 name: gateway-service
                 port:
                   number: {{ .Values.gateway.port }}
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: client-service
+                port:
+                  number: {{ .Values.client.port }}
 {{- end }}
