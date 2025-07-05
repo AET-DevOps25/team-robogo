@@ -2601,7 +2601,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "$DS_PROMETHEUS"
+              "uid": "${DS_PROMETHEUS}"
             },
             "expr": "irate(pg_stat_bgwriter_buffers_backend_total{instance=\"$instance\"}[5m])",
             "format": "time_series",
@@ -2612,7 +2612,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "$DS_PROMETHEUS"
+              "uid": "${DS_PROMETHEUS}"
             },
             "expr": "irate(pg_stat_bgwriter_buffers_alloc_total{instance=\"$instance\"}[5m])",
             "format": "time_series",
@@ -2623,7 +2623,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "$DS_PROMETHEUS"
+              "uid": "${DS_PROMETHEUS}"
             },
             "expr": "irate(pg_stat_bgwriter_buffers_backend_fsync_total{instance=\"$instance\"}[5m])",
             "format": "time_series",
@@ -2634,7 +2634,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "$DS_PROMETHEUS"
+              "uid": "${DS_PROMETHEUS}"
             },
             "expr": "irate(pg_stat_bgwriter_buffers_checkpoint_total{instance=\"$instance\"}[5m])",
             "format": "time_series",
@@ -2645,7 +2645,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "$DS_PROMETHEUS"
+              "uid": "${DS_PROMETHEUS}"
             },
             "expr": "irate(pg_stat_bgwriter_buffers_clean_total{instance=\"$instance\"}[5m])",
             "format": "time_series",
@@ -2691,7 +2691,7 @@
         "dashes": false,
         "datasource": {
           "type": "prometheus",
-          "uid": "$DS_PROMETHEUS"
+          "uid": "${DS_PROMETHEUS}"
         },
         "decimals": 0,
         "fill": 1,
@@ -2735,7 +2735,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "$DS_PROMETHEUS"
+              "uid": "${DS_PROMETHEUS}"
             },
             "expr": "irate(pg_stat_database_conflicts{instance=\"$instance\", datname=~\"$datname\"}[5m])",
             "format": "time_series",
@@ -2746,7 +2746,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "$DS_PROMETHEUS"
+              "uid": "${DS_PROMETHEUS}"
             },
             "expr": "irate(pg_stat_database_deadlocks{instance=\"$instance\", datname=~\"$datname\"}[5m])",
             "format": "time_series",
@@ -2793,7 +2793,7 @@
         "dashes": false,
         "datasource": {
           "type": "prometheus",
-          "uid": "$DS_PROMETHEUS"
+          "uid": "${DS_PROMETHEUS}"
         },
         "description": "Total amount of data written to temporary files by queries in this database. All temporary files are counted, regardless of why the temporary file was created, and regardless of the log_temp_files setting.",
         "fill": 1,
@@ -2837,7 +2837,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "$DS_PROMETHEUS"
+              "uid": "${DS_PROMETHEUS}"
             },
             "expr": "irate(pg_stat_database_temp_bytes{instance=\"$instance\", datname=~\"$datname\"}[5m])",
             "format": "time_series",
@@ -2884,7 +2884,7 @@
         "dashes": false,
         "datasource": {
           "type": "prometheus",
-          "uid": "$DS_PROMETHEUS"
+          "uid": "${DS_PROMETHEUS}"
         },
         "fill": 1,
         "fillGradient": 0,
@@ -2926,7 +2926,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "$DS_PROMETHEUS"
+              "uid": "${DS_PROMETHEUS}"
             },
             "expr": "irate(pg_stat_bgwriter_checkpoint_write_time_total{instance=\"$instance\"}[5m])",
             "format": "time_series",
@@ -2937,7 +2937,7 @@
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "$DS_PROMETHEUS"
+              "uid": "${DS_PROMETHEUS}"
             },
             "expr": "irate(pg_stat_bgwriter_checkpoint_sync_time_total{instance=\"$instance\"}[5m])",
             "format": "time_series",

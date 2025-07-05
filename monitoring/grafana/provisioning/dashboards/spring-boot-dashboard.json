@@ -40,7 +40,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "Information about the Spring Boot Application",
       "format": "none",
       "gauge": {
@@ -124,7 +124,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "The system CPU usage",
       "fill": 1,
       "fillGradient": 0,
@@ -225,7 +225,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "The uptime of the application",
       "format": "s",
       "gauge": {
@@ -300,7 +300,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "The start time of the application",
       "format": "time:YYYY-MM-DD HH:mm:ss",
       "gauge": {
@@ -371,7 +371,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "The number of open file descriptors",
       "fill": 1,
       "fillGradient": 0,
@@ -478,7 +478,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "The memory used in bytes",
       "fill": 2,
       "fillGradient": 0,
@@ -567,7 +567,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "The number of threads",
       "fill": 1,
       "fillGradient": 0,
@@ -661,7 +661,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "The number of classes loaded",
       "fill": 1,
       "fillGradient": 0,
@@ -755,7 +755,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "The time spent in garbage collection",
       "fill": 2,
       "fillGradient": 0,
@@ -857,7 +857,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "The number of http requests",
       "fill": 1,
       "fillGradient": 0,
@@ -959,7 +959,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1046,7 +1046,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1133,7 +1133,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1220,7 +1220,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1307,7 +1307,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1407,7 +1407,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": "${DS_PROMETHEUS}",
       "description": "The number of log events",
       "fill": 1,
       "fillGradient": 0,
@@ -1524,7 +1524,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "$datasource",
+        "datasource": "${DS_PROMETHEUS}",
         "definition": "label_values(up{job=~\"^.*spring-boot.*$\"}, application)",
         "hide": 0,
         "includeAll": false,
@@ -1544,7 +1544,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "$datasource",
+        "datasource": "${DS_PROMETHEUS}",
         "definition": "label_values(up{application=\"$application\"}, instance)",
         "hide": 0,
         "includeAll": false,
@@ -1564,7 +1564,7 @@
       {
         "allValue": ".*",
         "current": {},
-        "datasource": "$datasource",
+        "datasource": "${DS_PROMETHEUS}",
         "definition": "label_values(hikaricp_connections_max{application=\"$application\"}, pool)",
         "hide": 0,
         "includeAll": true,
@@ -1606,5 +1606,3 @@
   "uid": "1i-95G4Zk",
   "version": 7
 }
-
-</rewritten_file>
