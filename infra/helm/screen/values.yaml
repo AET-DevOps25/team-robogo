@@ -41,7 +41,7 @@ ingress:
   className: "nginx"
   host: screen.local
   secretName: "team-robogo-tls"
-  tls: true
+  tls: false
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 
