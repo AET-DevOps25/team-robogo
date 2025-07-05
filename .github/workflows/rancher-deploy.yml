@@ -32,4 +32,4 @@ jobs:
         run: |
           cd ./infra/helm/screen
           helm dependency build
-          helm upgrade --install devops25-k8s-demo . --namespace team-robogo --create-namespace --skip-crds
+          helm upgrade --install devops25-k8s-demo . --namespace team-robogo  --skip-crds
