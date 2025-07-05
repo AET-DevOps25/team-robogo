@@ -32,7 +32,7 @@ client:
 
 genai:
   image: ghcr.io/aet-devops25/team-robogo/genai:main
-  port: 8000
+  port: 5000
   chairApiKey: "sk-xxx"
   openaiApiKey: "sk-yyy"
 
@@ -99,3 +99,6 @@ grafana:
       access: proxy
       url: http://loki.team-robogo.svc:3100
       isDefault: false
+
+postgresExporter:
+  port: 9187

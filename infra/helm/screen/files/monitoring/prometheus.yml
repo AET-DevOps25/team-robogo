@@ -26,4 +26,4 @@ scrape_configs:
   - job_name: 'genai'
     metrics_path: '/metrics'
     static_configs:
-      - targets: ['genai-service.team-robogo.svc:8000'] 
+      - targets: ['genai-service.team-robogo.svc:5000'] 
