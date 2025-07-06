@@ -23,7 +23,7 @@ server:
 
 client:
   image: ghcr.io/aet-devops25/team-robogo/client:main
-  imagePullPolicy: IfNotPresent
+  imagePullPolicy: Always
   imageTag: main
   apiGatewayHost: gateway-service
   port: 80
@@ -32,6 +32,7 @@ client:
 
 genai:
   image: ghcr.io/aet-devops25/team-robogo/genai:main
+  imagePullPolicy: IfNotPresent
   port: 5000
   chairApiKey: "sk-xxx"
   openaiApiKey: "sk-yyy"
@@ -39,7 +40,7 @@ genai:
 ingress:
   enabled: true
   className: "nginx"
-  host: screen.local
+  host: team-robogo.student.k8s.local
   secretName: "team-robogo-tls"
   tls: false
   annotations:
