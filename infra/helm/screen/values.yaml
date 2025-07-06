@@ -23,7 +23,7 @@ server:
 
 client:
   image: ghcr.io/aet-devops25/team-robogo/client:main
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   imageTag: main
   apiGatewayHost: gateway-service
   port: 80
@@ -40,11 +40,12 @@ genai:
 ingress:
   enabled: true
   className: "nginx"
-  host: team-robogo.student.k8s.local
+  host: team-robogo.student.k8s.aet.cit.tum.de
   secretName: "team-robogo-tls"
   tls: true
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 
 promtail:
   image:
@@ -102,6 +103,10 @@ grafana:
       access: proxy
       url: http://loki.team-robogo.svc:3100
       isDefault: false
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s/grafana/"
+      serve_from_sub_path: true
 
 postgresExporter:
   port: 9187

@@ -23,6 +23,13 @@ spec:
     - host: "{{ .Values.ingress.host }}"
       http:
         paths:
+          - path: /grafana
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: {{ .Values.grafana.port }}
           - path: /
             pathType: Prefix
             backend:
@@ -30,4 +37,5 @@ spec:
                 name: client-service
                 port:
                   number: {{ .Values.client.port }}
+
 {{- end }}
