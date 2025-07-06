@@ -83,9 +83,9 @@
 </template>
 
 <script setup lang="ts">
-import AppHeader from '~/components/AppHeader.vue'
+  import AppHeader from '~/components/AppHeader.vue'
 
-definePageMeta({
-  auth: true
-})
+  definePageMeta({
+    auth: true
+  })
 </script>

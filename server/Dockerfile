@@ -1,5 +1,5 @@
 # ---- Build Stage ----
-FROM gradle:8.7.0-jdk17 AS build
+FROM gradle:8.14.2-jdk17 AS build
 
 LABEL maintainer="Team Robogo"
 LABEL version="1.0"
@@ -10,7 +10,10 @@ WORKDIR /app
 
 COPY . .
 
-RUN gradle clean build -x test --no-daemon
+# Set up proper network configuration for Gradle
+RUN ./gradlew clean build -x test --no-daemon -Dhttps.protocols=TLSv1.1,TLSv1.2 --stacktrace --info \
+    -Dhttps.proxyHost=http.docker.internal -Dhttps.proxyPort=3128 \
+    -Dhttp.proxyHost=http.docker.internal -Dhttp.proxyPort=3128
 
 # ---- Runtime Stage ----
 FROM gcr.io/distroless/java17-debian12

@@ -15,6 +15,14 @@ java {
 
 repositories {
 	mavenCentral()
+	maven {
+		name = "Spring Milestones"
+		url = "https://repo.spring.io/milestone"
+	}
+	maven {
+		name = "Spring Snapshots"
+		url = "https://repo.spring.io/snapshot"
+	}
 }
 
 dependencies {

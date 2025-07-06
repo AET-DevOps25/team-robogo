@@ -64,9 +64,10 @@
 </template>
 
 <script setup lang="ts">
-import { Icon } from '#components'
+  import { Icon } from '#components'
+  import { definePageMeta } from '#imports'
 
-definePageMeta({
-  auth: false
-})
+  definePageMeta({
+    auth: false
+  })
 </script>

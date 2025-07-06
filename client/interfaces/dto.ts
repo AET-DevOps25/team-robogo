@@ -33,3 +33,18 @@ export interface TeamDTO {
   rank: number
   scores: ScoreDTO[]
 }
+
+// AI服务相关接口
+export interface SuggestionRequestDTO {
+  text: string
+  service?: 'openwebui' | 'openai'
+}
+
+export interface SuggestionResponseDTO {
+  suggestion: string
+}
+
+export interface HealthCheckResponseDTO {
+  status: string
+  service: string
+}

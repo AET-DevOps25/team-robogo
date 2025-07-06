@@ -65,57 +65,57 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useAuth } from '#imports'
-import type { LoginRequestDTO } from '~/interfaces/dto'
+  import { ref, onMounted } from 'vue'
+  import { useAuth, definePageMeta, navigateTo } from '#imports'
+  import type { LoginRequestDTO } from '~/interfaces/dto'
 
-definePageMeta({
-  auth: false
-})
+  definePageMeta({
+    auth: false
+  })
 
-const form = ref<LoginRequestDTO>({
-  username: '',
-  password: ''
-})
-const error = ref('')
-const { signIn, status } = useAuth()
+  const form = ref<LoginRequestDTO>({
+    username: '',
+    password: ''
+  })
+  const error = ref('')
+  const { signIn, status } = useAuth()
 
-onMounted(async () => {
-  if (status.value === 'authenticated') {
-    await navigateTo('/dashboard')
-  }
-})
+  onMounted(async () => {
+    if (status.value === 'authenticated') {
+      await navigateTo('/dashboard')
+    }
+  })
 
-const onLogin = async () => {
-  error.value = ''
-  if (!form.value.username) {
-    error.value = 'Please enter your username'
-    return
-  }
-
-  if (!form.value.password) {
-    error.value = 'Please enter your password'
-    return
-  }
-
-  try {
-    const response = await signIn(
-      {
-        username: form.value.username,
-        password: form.value.password
-      },
-      {
-        redirect: false
-      }
-    )
-
-    if (response?.ok === false || response?.error) {
-      throw new Error('Login failed, please try again.')
+  const onLogin = async () => {
+    error.value = ''
+    if (!form.value.username) {
+      error.value = 'Please enter your username'
+      return
     }
 
-    await navigateTo('/dashboard')
-  } catch (err: any) {
-    error.value = err.message || 'An unexpected error occurred.'
+    if (!form.value.password) {
+      error.value = 'Please enter your password'
+      return
+    }
+
+    try {
+      const response = await signIn(
+        {
+          username: form.value.username,
+          password: form.value.password
+        },
+        {
+          redirect: false
+        }
+      )
+
+      if (response?.ok === false || response?.error) {
+        throw new Error('Login failed, please try again.')
+      }
+
+      await navigateTo('/dashboard')
+    } catch (err: any) {
+      error.value = err.message || 'An unexpected error occurred.'
+    }
   }
-}
 </script>

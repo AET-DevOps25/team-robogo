@@ -5,5 +5,5 @@
 </template>
 
 <script setup lang="ts">
-import { UApp } from '#components'
+  import { UApp } from '#components'
 </script>

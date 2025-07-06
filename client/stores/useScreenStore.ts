@@ -1,49 +1,56 @@
 // stores/useScreenStore.ts
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 
+export const useScreenStore = defineStore(
+  'screen',
+  () => {
+    // State
+    const screens = ref<
+      {
+        id: string
+        name: string
+        status: string
+        groupId: string
+        currentContent: string
+        thumbnailUrl: string
+        urlPath: string
+      }[]
+    >([])
 
-export const useScreenStore = defineStore('screen', {
-  
-  state: () => ({
-    screens: [] as {
-      id: string,
-      name: string,
-      status: string,
-      groupId: string,
-      currentContent: string,
-      thumbnailUrl: string,
-      urlPath: string,
-    }[],
-    slideGroups: [] as {
-      id: string,
-      slideIds: number[],
-      speed: number,
-      _currentSlideIndex?: number,
-      _lastSwitchTime?: number
-    }[],
-    contentList: [] as { id: number, name: string, url: string }[],
-    slideTimerStarted: false,
-    _timer: null as ReturnType<typeof setInterval> | null
-  }),
+    const slideGroups = ref<
+      {
+        id: string
+        slideIds: number[]
+        speed: number
+        _currentSlideIndex?: number
+        _lastSwitchTime?: number
+      }[]
+    >([])
 
-  actions: {
-    initStore() {
-  if (!this.slideGroups.find(g => g.id === 'None')) {
-    this.slideGroups.push({
-      id: 'None',
-      slideIds: [], 
-      speed: 5,
-      _currentSlideIndex: 0,
-      _lastSwitchTime: Date.now(),
-    })
-  }
-},
-    startSlideTimer() {
-      if (this._timer) return
-      this._timer = setInterval(() => {
+    const contentList = ref<{ id: number; name: string; url: string }[]>([])
+    const slideTimerStarted = ref(false)
+    const _timer = ref<ReturnType<typeof setInterval> | null>(null)
+
+    // Actions
+    const initStore = () => {
+      if (!slideGroups.value.find(g => g.id === 'None')) {
+        slideGroups.value.push({
+          id: 'None',
+          slideIds: [],
+          speed: 5,
+          _currentSlideIndex: 0,
+          _lastSwitchTime: Date.now()
+        })
+      }
+    }
+
+    const startSlideTimer = () => {
+      if (_timer.value) return
+      _timer.value = setInterval(() => {
         const now = Date.now()
-        for (const group of this.slideGroups) {
+        for (const group of slideGroups.value) {
           if (!group.slideIds.length) continue
           if (!group._lastSwitchTime) {
             group._lastSwitchTime = now
@@ -53,12 +60,13 @@ export const useScreenStore = defineStore('screen', {
           const speedMs = (group.speed || 5) * 1000
           if (now - group._lastSwitchTime >= speedMs) {
             group._lastSwitchTime = now
-            group._currentSlideIndex = ((group._currentSlideIndex ?? -1) + 1) % group.slideIds.length
+            group._currentSlideIndex =
+              ((group._currentSlideIndex ?? -1) + 1) % group.slideIds.length
           }
         }
 
-        for (const screen of this.screens) {
-          const group = this.slideGroups.find(g => g.id === screen.groupId)
+        for (const screen of screens.value) {
+          const group = slideGroups.value.find(g => g.id === screen.groupId)
           if (!group || !group.slideIds.length) {
             screen.currentContent = 'BLACK_SCREEN'
             continue
@@ -67,46 +75,54 @@ export const useScreenStore = defineStore('screen', {
           screen.currentContent = id.toString()
         }
       }, 1000)
-      this.slideTimerStarted = true
-    },
+      slideTimerStarted.value = true
+    }
 
-   
-
-
-    addScreen(name: string, url: string) {
+    const addScreen = (name: string, url: string) => {
       const id = uuidv4()
-      this.screens.push({
+      screens.value.push({
         id,
         name,
         status: 'offline',
         groupId: 'None',
         currentContent: 'BLACK_SCREEN',
         thumbnailUrl: url || 'https://via.placeholder.com/300x200?text=Preview',
-        urlPath: `/screen/${id}`,
+        urlPath: `/screen/${id}`
       })
-    },
+    }
 
-    addGroup(name: string) {
-      if (!name || this.slideGroups.find(g => g.id === name)) return
-      this.slideGroups.push({
+    const addGroup = (name: string) => {
+      if (!name || slideGroups.value.find(g => g.id === name)) return
+      slideGroups.value.push({
         id: name,
         slideIds: [],
         speed: 5,
         _currentSlideIndex: 0,
-        _lastSwitchTime: Date.now(),
+        _lastSwitchTime: Date.now()
       })
-    },
+    }
 
-    updateScreenGroup(screenId: string, groupId: string) {
-      const screen = this.screens.find(s => s.id === screenId)
+    const updateScreenGroup = (screenId: string, groupId: string) => {
+      const screen = screens.value.find(s => s.id === screenId)
       if (screen) screen.groupId = groupId
-    },
+    }
 
+    return {
+      // State
+      screens,
+      slideGroups,
+      contentList,
+      slideTimerStarted,
+
+      // Actions
+      initStore,
+      startSlideTimer,
+      addScreen,
+      addGroup,
+      updateScreenGroup
+    }
   },
-   persist: {
-    key: 'screen',                              // localStorage 键名
-    paths: ['screens', 'slideGroups'
-      // , 'contentList'
-    ]
+  {
+    persist: true
   }
-})
+)

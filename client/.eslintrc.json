@@ -13,17 +13,11 @@
   "extends": [
     "@nuxtjs/eslint-config-typescript",
     "plugin:vue/vue3-recommended",
+    "eslint-config-prettier",
     "plugin:prettier/recommended"
   ],
   "plugins": ["@typescript-eslint", "vue"],
   "rules": {
-    "max-len": ["error", {
-      "code": 100,
-      "ignoreUrls": true,
-      "ignoreStrings": true,
-      "ignoreTemplateLiterals": true,
-      "ignoreRegExpLiterals": true
-    }],
     "vue/html-self-closing": ["error", {
       "html": {
         "void": "always",
@@ -32,10 +26,8 @@
       }
     }],
     "vue/multi-word-component-names": "off",
-    "vue/first-attribute-linebreak": ["error", {
-      "singleline": "beside",
-      "multiline": "below"
-    }],
+    "vue/first-attribute-linebreak": "off",
+    "vue/max-attributes-per-line": "off",
     "vue/attributes-order": ["error", {
       "order": [
         "DEFINITION",
@@ -56,6 +48,12 @@
     "@typescript-eslint/no-unused-vars": ["error", {
       "argsIgnorePattern": "^_",
       "varsIgnorePattern": "^_"
+    }],
+    "prettier/prettier": ["error", {
+      "printWidth": 100,
+      "singleQuote": true,
+      "semi": false,
+      "trailingComma": "none"
     }]
   }
 } 

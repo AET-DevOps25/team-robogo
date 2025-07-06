@@ -7,10 +7,9 @@ module.exports = {
     './app.vue',
     './nuxt.config.{js,ts}'
   ],
+  darkMode: 'class',
   theme: {
     extend: {}
   },
-  plugins: [
-    require('tailwind-scrollbar'),
-  ],
+  plugins: [require('tailwind-scrollbar')]
 }
