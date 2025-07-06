@@ -175,33 +175,89 @@
             Update Scores
           </button>
         </div>
-        <!-- Chat Box -->
+        <!-- AI Chat Box -->
         <div
-          class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md flex flex-col gap-3 h-[300px]"
+          class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md flex flex-col gap-3 h-[350px]"
         >
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Chat with AI</h3>
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Chat with AI</h3>
+            <div class="flex items-center gap-2">
+              <div
+                :class="['w-2 h-2 rounded-full', aiServiceStatus ? 'bg-green-500' : 'bg-red-500']"
+              />
+              <select
+                v-model="selectedAiService"
+                class="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded"
+              >
+                <option value="openwebui">OpenWebUI</option>
+                <option value="openai">OpenAI</option>
+              </select>
+            </div>
+          </div>
 
           <div
             class="flex-1 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded p-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800"
           >
-            <div v-for="(msg, index) in chatHistory" :key="index" class="mb-2">
-              <strong>{{ msg.role }}:</strong>
-              {{ msg.text }}
+            <div v-for="(msg, index) in chatHistory" :key="index" class="mb-3">
+              <div
+                :class="[
+                  'p-2 rounded',
+                  msg.role === 'You'
+                    ? 'bg-blue-100 dark:bg-blue-900/30 ml-8'
+                    : 'bg-gray-100 dark:bg-gray-700 mr-8'
+                ]"
+              >
+                <div class="flex items-center gap-2 mb-1">
+                  <strong
+                    :class="
+                      msg.role === 'You'
+                        ? 'text-blue-700 dark:text-blue-300'
+                        : 'text-gray-700 dark:text-gray-300'
+                    "
+                  >
+                    {{ msg.role === 'You' ? '👤' : '🤖' }} {{ msg.role }}
+                  </strong>
+                </div>
+                <div class="whitespace-pre-wrap">{{ msg.text }}</div>
+              </div>
+            </div>
+
+            <!-- Loading indicator -->
+            <div v-if="isAiLoading" class="mb-3">
+              <div class="bg-gray-100 dark:bg-gray-700 mr-8 p-2 rounded">
+                <div class="flex items-center gap-2">
+                  <div
+                    class="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full"
+                  />
+                  <span class="text-gray-600 dark:text-gray-400">AI正在思考...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Error message -->
+            <div v-if="aiError" class="mb-3">
+              <div class="bg-red-100 dark:bg-red-900/30 p-2 rounded">
+                <div class="flex items-center gap-2">
+                  <span class="text-red-600 dark:text-red-400">❌ {{ aiError }}</span>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="flex gap-2 pt-2">
             <input
               v-model="userMessage"
-              placeholder="Type a message..."
-              class="flex-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-2 rounded"
+              :disabled="isAiLoading"
+              placeholder="请输入您的问题..."
+              class="flex-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-2 rounded disabled:opacity-50"
               @keyup.enter="sendMessage"
             />
             <button
-              class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600"
+              :disabled="isAiLoading || !userMessage.trim()"
+              class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
               @click="sendMessage"
             >
-              Send
+              {{ isAiLoading ? '发送中...' : '发送' }}
             </button>
           </div>
         </div>
@@ -260,12 +316,14 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed } from 'vue'
+  import { ref, computed, onMounted } from 'vue'
   import { watchOnce } from '@vueuse/core'
   import ScreenCard from '../components/ScreenCard.vue'
   import SlideGroupCard from '../components/SlideGroupCard.vue'
   import { useScreenStore } from '@/stores/useScreenStore'
+  import { AIService } from '@/services/aiService'
   import type { Screen, SlideItem, ChatMessage } from '@/interfaces/types'
+  import type { SuggestionRequestDTO } from '@/interfaces/dto'
 
   const scoreTarget = ref('')
   const scoreValue = ref('')
@@ -358,26 +416,61 @@
   }
 
   /*
-for GenAI
-*/
+  AI Chat Integration
+  */
   const userMessage = ref('')
   const chatHistory = ref<ChatMessage[]>([])
+  const isAiLoading = ref(false)
+  const aiError = ref('')
+  const selectedAiService = ref<'openwebui' | 'openai'>('openwebui')
+  const aiServiceStatus = ref(false)
 
-  const sendMessage = () => {
+  // Check AI service health on component mount
+  onMounted(async () => {
+    try {
+      const health = await AIService.checkHealth()
+      aiServiceStatus.value = health.status === 'healthy'
+    } catch (error) {
+      aiServiceStatus.value = false
+      console.error('AI service health check failed:', error)
+    }
+  })
+
+  const sendMessage = async () => {
     if (!userMessage.value.trim()) return
 
-    // Append user message
-    chatHistory.value.push({ role: 'You', text: userMessage.value })
-
-    // Placeholder GenAI response (replace with real API call later)
-    const responseText = `🤖 (Placeholder response to): "${userMessage.value}"`
-
-    // Simulate response
-    setTimeout(() => {
-      chatHistory.value.push({ role: 'AI', text: responseText })
-    }, 500)
-
+    const messageText = userMessage.value.trim()
     userMessage.value = ''
+
+    // Add user message to chat history
+    chatHistory.value.push({
+      role: 'You',
+      text: messageText
+    })
+
+    // Show loading state
+    isAiLoading.value = true
+    aiError.value = ''
+
+    try {
+      const request: SuggestionRequestDTO = {
+        text: messageText,
+        service: selectedAiService.value
+      }
+
+      const response = await AIService.getSuggestion(request)
+
+      // Add AI response to chat history
+      chatHistory.value.push({
+        role: 'AI',
+        text: response.suggestion
+      })
+    } catch (error: any) {
+      aiError.value = error.message || 'AI服务响应失败'
+      console.error('AI service error:', error)
+    } finally {
+      isAiLoading.value = false
+    }
   }
 
   const showAddGroupDialog = ref(false)

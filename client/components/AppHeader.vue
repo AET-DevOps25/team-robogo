@@ -33,7 +33,6 @@
   const toast = useToast()
   const { t } = useI18n()
 
-
   const handleLogout = async () => {
     try {
       const result = await signOut({

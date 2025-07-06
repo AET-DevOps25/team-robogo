@@ -35,7 +35,7 @@ export const useScreenStore = defineStore(
 
     // Actions
     const initStore = () => {
-      if (!slideGroups.value.find((g) => g.id === 'None')) {
+      if (!slideGroups.value.find(g => g.id === 'None')) {
         slideGroups.value.push({
           id: 'None',
           slideIds: [],
@@ -66,7 +66,7 @@ export const useScreenStore = defineStore(
         }
 
         for (const screen of screens.value) {
-          const group = slideGroups.value.find((g) => g.id === screen.groupId)
+          const group = slideGroups.value.find(g => g.id === screen.groupId)
           if (!group || !group.slideIds.length) {
             screen.currentContent = 'BLACK_SCREEN'
             continue
@@ -92,7 +92,7 @@ export const useScreenStore = defineStore(
     }
 
     const addGroup = (name: string) => {
-      if (!name || slideGroups.value.find((g) => g.id === name)) return
+      if (!name || slideGroups.value.find(g => g.id === name)) return
       slideGroups.value.push({
         id: name,
         slideIds: [],
@@ -103,7 +103,7 @@ export const useScreenStore = defineStore(
     }
 
     const updateScreenGroup = (screenId: string, groupId: string) => {
-      const screen = screens.value.find((s) => s.id === screenId)
+      const screen = screens.value.find(s => s.id === screenId)
       if (screen) screen.groupId = groupId
     }
 
