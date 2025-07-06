@@ -1,10 +1,10 @@
 <!-- File: src/components/SlideGroupCard.vue -->
 <template>
-  <div class="w-full rounded-xl shadow-lg p-4 bg-white space-y-3">
+  <div class="w-full rounded-xl shadow-lg p-4 bg-white dark:bg-gray-800 space-y-3">
     <div class="flex gap-2 justify-between items-center">
-      <h3 class="text-lg font-semibold">{{ title }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
       <div class="flex items-center gap-2 mt-2">
-        <span class="text-lg font-semibold">Speed</span>
+        <span class="text-lg font-semibold text-gray-900 dark:text-white">Speed</span>
         <SpeedControl v-model="speed" />
       </div>
     </div>
@@ -30,7 +30,7 @@
       <!-- Add button -->
 
       <div
-        class="w-[300px] h-[200px] rounded overflow-hidden shadow-lg bg-gray-100 flex items-center justify-center text-5xl text-gray-400 hover:bg-gray-200 transition"
+        class="w-[300px] h-[200px] rounded overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-5xl text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
         @click="showDialog = true"
       >
         +
@@ -40,12 +40,12 @@
     <!-- Dialog -->
     <div
       v-if="showDialog"
-      class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 flex items-center justify-center z-50"
     >
       <div
-        class="bg-white p-6 rounded-lg w-[600px] max-h-[80vh] overflow-y-auto shadow-lg relative"
+        class="bg-white dark:bg-gray-800 p-6 rounded-lg w-[600px] max-h-[80vh] overflow-y-auto shadow-lg relative"
       >
-        <h4 class="text-lg font-bold mb-4">Select Slides</h4>
+        <h4 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Select Slides</h4>
 
         <!-- Slide Selection -->
         <div class="flex flex-wrap gap-4 mb-6">
@@ -61,13 +61,13 @@
         <!-- Actions -->
         <div class="flex justify-end gap-4">
           <button
-            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-400 dark:hover:bg-gray-500"
             @click="cancelAdd"
           >
             取消
           </button>
           <button
-            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-gray-400 dark:disabled:bg-gray-600"
             :disabled="!selectedToAdd"
             @click="confirmAdd"
           >
@@ -75,7 +75,10 @@
           </button>
         </div>
 
-        <button class="absolute top-2 right-2 text-gray-500 hover:text-gray-800" @click="cancelAdd">
+        <button
+          class="absolute top-2 right-2 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+          @click="cancelAdd"
+        >
           ✕
         </button>
       </div>

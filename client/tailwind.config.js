@@ -7,6 +7,7 @@ module.exports = {
     './app.vue',
     './nuxt.config.{js,ts}'
   ],
+  darkMode: 'class',
   theme: {
     extend: {}
   },

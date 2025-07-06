@@ -1,8 +1,8 @@
 <!-- File: src/components/ScreenCard.vue -->
 <template>
-  <div class="relative w-[300px] rounded overflow-hidden shadow-lg bg-white">
+  <div class="relative w-[300px] rounded overflow-hidden shadow-lg bg-white dark:bg-gray-800">
     <button
-      class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xl font-bold z-10"
+      class="absolute top-2 right-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-600 text-xl font-bold z-10"
       @click="$emit('requestDelete', screen)"
     >
       ×
@@ -14,23 +14,30 @@
       :src="currentSlide.url"
       :alt="currentSlide.name"
     />
-    <div v-else class="w-[90%] h-40 object-cover mx-auto rounded bg-black">No Content</div>
+    <div
+      v-else
+      class="w-[90%] h-40 object-cover mx-auto rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center"
+    >
+      <span class="text-gray-500 dark:text-gray-400">No Content</span>
+    </div>
     <div class="px-6 py-4">
-      <div class="font-bold text-xl mb-2">{{ screen.name }}</div>
+      <div class="font-bold text-xl mb-2 text-gray-900 dark:text-white">{{ screen.name }}</div>
       <span
-        class="inline-block bg-red-400 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2"
+        class="inline-block bg-red-400 dark:bg-red-600 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 dark:text-gray-200 mr-2 mb-2"
       >
         {{ screen.status }}
       </span>
-      <p class="text-gray-700 text-base">Current Group: {{ currentSlide?.name ?? 'none' }}</p>
-      <p class="text-gray-500 text-sm">URL: {{ screen.urlPath }}</p>
+      <p class="text-gray-700 dark:text-gray-300 text-base">
+        Current Group: {{ currentSlide?.name ?? 'none' }}
+      </p>
+      <p class="text-gray-500 dark:text-gray-400 text-sm">URL: {{ screen.urlPath }}</p>
     </div>
     <div class="px-6 pt-4 pb-2">
       <USelectMenu
-        v-model="screen.groupId"
+        :model-value="screen.groupId"
         :items="groupOptions"
         class="w-full"
-        @update:model-value="emit('updateGroup', screen)"
+        @update:model-value="value => emit('updateGroup', { ...screen, groupId: value })"
       />
     </div>
   </div>
@@ -41,7 +48,7 @@
 
   const props = defineProps<{
     screen: {
-      id: number
+      id: string
       name: string
       status: string
       groupId: string
@@ -53,11 +60,9 @@
     allSlides: { id: number; name: string; url: string }[]
   }>()
 
-  const emit = defineEmits(['updateGroup'])
+  const emit = defineEmits(['updateGroup', 'requestDelete'])
   /** 把当前屏幕所属 group 找出来 */
   const group = computed(() => props.slideGroups.find(g => g.id === props.screen.groupId) ?? null)
-  // 组名（没有则显示 'none'）
-  const groupName = computed(() => group.value?.id ?? 'none')
 
   // 当前幻灯片对象
   const currentSlide = computed(() => {

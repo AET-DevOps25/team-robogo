@@ -1,6 +1,9 @@
 <template>
-  <header class="w-full flex justify-end items-center gap-4 p-4">
+  <header
+    class="w-full flex justify-end items-center gap-4 p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700"
+  >
     <LanguageSwitcher />
+
     <UButton
       v-if="showLogout"
       color="error"
@@ -17,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-  import { useToast, useI18n, useAuth } from '#imports'
+  import { useToast, useI18n, useAuth, navigateTo } from '#imports'
 
   defineProps({
     showLogout: {
@@ -29,6 +32,7 @@
   const { signOut } = useAuth()
   const toast = useToast()
   const { t } = useI18n()
+
 
   const handleLogout = async () => {
     try {

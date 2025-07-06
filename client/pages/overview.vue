@@ -1,10 +1,10 @@
 <template>
-  <div class="p-6 space-y-6">
+  <div class="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
     <!--Screens Monitor -->
     <section>
-      <h2 class="text-2xl font-bold mb-4">Screens Monitor</h2>
+      <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Screens Monitor</h2>
       <div
-        class="max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 rounded p-2"
+        class="max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800 rounded p-2"
       >
         <div class="flex flex-wrap gap-6 justify-start">
           <ScreenCard
@@ -22,7 +22,7 @@
             "
           />
           <div
-            class="w-[300px] h-[260px] flex items-center justify-center rounded-xl bg-gray-100 text-5xl text-gray-400 hover:bg-gray-200 cursor-pointer"
+            class="w-[300px] h-[260px] flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700 text-5xl text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer"
             @click="showAddScreenDialog = true"
           >
             +
@@ -33,37 +33,37 @@
     <!-- Add Screen Dialog -->
     <div
       v-if="showAddScreenDialog"
-      class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center"
+      class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
     >
-      <div class="bg-white rounded-lg p-6 shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-bold mb-4">Add New Screen</h3>
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg w-[400px] relative">
+        <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Add New Screen</h3>
         <input
           v-model="newScreenName"
           placeholder="Screen Name"
-          class="mb-2 w-full border p-2 rounded"
+          class="mb-2 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded"
         />
         <input
           v-model="newScreenUrl"
           placeholder="Thumbnail URL (optional)"
-          class="mb-4 w-full border p-2 rounded"
+          class="mb-4 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded"
         />
 
         <div class="flex justify-end gap-2">
           <button
-            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-gray-800"
+            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200"
             @click="showAddScreenDialog = false"
           >
             Cancel
           </button>
           <button
-            class="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 text-white"
+            class="px-4 py-2 bg-blue-600 dark:bg-blue-500 rounded hover:bg-blue-700 dark:hover:bg-blue-600 text-white"
             @click="addNewScreen"
           >
             Add
           </button>
         </div>
         <button
-          class="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+          class="absolute top-2 right-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
           @click="showAddScreenDialog = false"
         >
           ✕
@@ -73,28 +73,31 @@
     <!-- Confirm Delete Dialog  -->
     <div
       v-if="showDeleteConfirm"
-      class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center"
+      class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
     >
-      <div class="bg-white p-6 rounded-xl shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-semibold mb-4">Confirm Delete</h3>
-        <p>
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Confirm Delete</h3>
+        <p class="text-gray-700 dark:text-gray-300">
           Are you sure you want to delete
           <strong>{{ screenToDelete?.name }}</strong>
           ?
         </p>
         <div class="flex justify-end gap-2 mt-4">
-          <button class="px-4 py-2 bg-gray-300 rounded" @click="showDeleteConfirm = false">
+          <button
+            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded text-gray-800 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-500"
+            @click="showDeleteConfirm = false"
+          >
             Cancel
           </button>
           <button
-            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            class="px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded hover:bg-red-700 dark:hover:bg-red-600"
             @click="confirmDeleteScreen"
           >
             Delete
           </button>
         </div>
         <button
-          class="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+          class="absolute top-2 right-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
           @click="showDeleteConfirm = false"
         >
           ✕
@@ -102,15 +105,17 @@
       </div>
     </div>
 
-    <section class="grid grid-cols-[2fr_1fr] gap-6 bg-gray-50 p-6 rounded-xl shadow">
+    <section
+      class="grid grid-cols-[2fr_1fr] gap-6 bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow"
+    >
       <!-- Left: Slide Group -->
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold">Slide Groups</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Slide Groups</h2>
 
           <button
-            class="text-sm px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            class="text-sm px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
             @click="triggerFileInput"
           >
             Upload Slide
@@ -131,7 +136,7 @@
           </UButton>
         </div>
         <div
-          class="h-[400px] w-full overflow-y-auto border-gray-200 rounded p-2 flex flex-wrap gap-6 justify-start scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+          class="h-[400px] w-full overflow-y-auto border-gray-200 dark:border-gray-600 rounded p-2 flex flex-wrap gap-6 justify-start scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800"
         >
           <SlideGroupCard
             v-if="currentGroup && currentGroup.id !== 'None'"
@@ -150,29 +155,35 @@
       <!-- Right: Groups -->
       <div class="flex flex-col gap-4">
         <!-- Scores Update -->
-        <div class="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4">
+        <div
+          class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4"
+        >
           <input
             v-model="scoreTarget"
             placeholder="Team ID"
-            class="border p-2 rounded w-full sm:w-auto"
+            class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-2 rounded w-full sm:w-auto"
           />
           <input
             v-model="scoreValue"
             placeholder="Score"
-            class="border p-2 rounded w-full sm:w-auto"
+            class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-2 rounded w-full sm:w-auto"
           />
           <button
-            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            class="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded hover:bg-green-700 dark:hover:bg-green-600"
             @click="submitScore"
           >
             Update Scores
           </button>
         </div>
         <!-- Chat Box -->
-        <div class="bg-white p-4 rounded-xl shadow-md flex flex-col gap-3 h-[300px]">
-          <h3 class="text-lg font-semibold">Chat with AI</h3>
+        <div
+          class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md flex flex-col gap-3 h-[300px]"
+        >
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Chat with AI</h3>
 
-          <div class="flex-1 overflow-y-auto border rounded p-2 text-sm text-gray-700 bg-gray-50">
+          <div
+            class="flex-1 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded p-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800"
+          >
             <div v-for="(msg, index) in chatHistory" :key="index" class="mb-2">
               <strong>{{ msg.role }}:</strong>
               {{ msg.text }}
@@ -183,11 +194,11 @@
             <input
               v-model="userMessage"
               placeholder="Type a message..."
-              class="flex-1 border p-2 rounded"
+              class="flex-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-2 rounded"
               @keyup.enter="sendMessage"
             />
             <button
-              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600"
               @click="sendMessage"
             >
               Send
@@ -199,26 +210,26 @@
     <!-- Add Group Dialog -->
     <div
       v-if="showAddGroupDialog"
-      class="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center"
+      class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
     >
-      <div class="bg-white p-6 rounded-xl shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-semibold mb-4">Add New Group</h3>
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Add New Group</h3>
 
         <input
           v-model="newGroupName"
           placeholder="Group Name"
-          class="w-full border border-gray-300 p-2 rounded mb-4"
+          class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded mb-4"
         />
 
         <div class="flex justify-end gap-2">
           <button
-            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200"
             @click="showAddGroupDialog = false"
           >
             Cancel
           </button>
           <button
-            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600"
             @click="addGroup"
           >
             Add
@@ -226,7 +237,7 @@
         </div>
 
         <button
-          class="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+          class="absolute top-2 right-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
           @click="showAddGroupDialog = false"
         >
           ✕
@@ -234,14 +245,16 @@
       </div>
     </div>
 
-    <section class="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4">
+    <section
+      class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4"
+    >
       <button
-        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        class="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded hover:bg-green-700 dark:hover:bg-green-600"
         @click="callTestApi"
       >
         Test
       </button>
-      <p class="mt-2 text-gray-700">{{ testResponse }}</p>
+      <p class="mt-2 text-gray-700 dark:text-gray-300">{{ testResponse }}</p>
     </section>
   </div>
 </template>
