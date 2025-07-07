@@ -3,13 +3,12 @@ import type {
   SuggestionResponseDTO,
   HealthCheckResponseDTO
 } from '@/interfaces/dto'
-import type { ApiResponse } from '@/interfaces/types'
 
 export class AIService {
   private static readonly BASE_URL = '/api/proxy/genai'
 
   /**
-   * 检查AI服务健康状态
+   * Check the health of the AI service
    */
   static async checkHealth(): Promise<HealthCheckResponseDTO> {
     try {
@@ -25,7 +24,7 @@ export class AIService {
   }
 
   /**
-   * 获取AI内容建议
+   * Get AI content suggestion
    */
   static async getSuggestion(request: SuggestionRequestDTO): Promise<SuggestionResponseDTO> {
     try {
@@ -43,13 +42,13 @@ export class AIService {
 
       return await response.json()
     } catch (error) {
-      console.error('获取AI建议失败:', error)
+      console.error('Failed to get suggestion:', error)
       throw error
     }
   }
 
   /**
-   * 获取AI服务信息
+   * Get AI service info
    */
   static async getServiceInfo(): Promise<any> {
     try {
@@ -59,7 +58,7 @@ export class AIService {
       }
       return await response.json()
     } catch (error) {
-      console.error('获取AI服务信息失败:', error)
+      console.error('Failed to get service info:', error)
       throw error
     }
   }

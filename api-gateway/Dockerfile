@@ -8,6 +8,17 @@ LABEL org.opencontainers.image.source="https://github.com/AET-DevOps25/team-robo
 
 WORKDIR /app
 
+# First copy gradle wrapper files
+COPY gradle/ ./gradle/
+COPY gradlew ./
+COPY gradlew.bat ./
+COPY gradle.properties ./
+COPY settings.gradle ./
+
+# Make gradlew executable
+RUN chmod +x gradlew
+
+# Copy project files
 COPY . .
 
 # Set up proper network configuration for Gradle
