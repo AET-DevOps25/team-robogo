@@ -15,7 +15,7 @@ class TestLLMFactory:
 
     def test_get_llm_openai(self):
         """Test getting OpenAI LLM instance"""
-        with patch.dict('os.environ', {'OPENAI_API_KEY': 'test_key'}):
+        with patch('app.services.llm_service.OPENAI_API_KEY', 'test_key'):
             llm = LLMFactory.get_llm("openai")
             from langchain_openai import ChatOpenAI
             assert isinstance(llm, ChatOpenAI)
