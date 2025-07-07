@@ -1,12 +1,32 @@
+# 排除版本控制和IDE文件
 .git
 .gitignore
 .github
 .idea
 .vscode
 .kube
+
+# 排除构建产物，但保留gradle wrapper
 .gradle
 build
+!gradle/
+!gradle/wrapper/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# 排除Node.js相关
 node_modules
+yarn.lock
+package-lock.json
+
+# 排除前端构建产物
+client/dist
+client/.nuxt
+client/node_modules
+client/coverage
+client/tests
+
+# 排除临时文件
 *.log
 *.tmp
 *.swp
@@ -15,28 +35,20 @@ node_modules
 .DS_Store
 Thumbs.db
 
-client/dist
-client/.nuxt
-client/node_modules
-client/coverage
-client/tests
-
+# 排除文档和配置
 documentation
 README.md
 LICENSE
-
 monitoring
-
 infra
+
+# 排除部署配置，但保留应用配置
+docker-compose.yaml
+docker-compose.override.yaml
 *.yaml
 *.yml
-!gradle.properties
 !application.properties
 !application.yml
 !application-*.yml
 !application-*.properties
-
-yarn.lock
-package-lock.json
-docker-compose.yaml
-docker-compose.override.yaml 
+!gradle.properties 

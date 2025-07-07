@@ -1,94 +1,94 @@
-# 前端Mock测试指南
+# Frontend Mock Testing Guide
 
-这个项目使用了**MSW (Mock Service Worker)** + **Vitest**的组合来进行前端API服务的Mock测试。
+This project uses **MSW (Mock Service Worker)** + **Vitest** combination for frontend API service mock testing.
 
-## 测试技术栈
+## Testing Technology Stack
 
-- **Vitest**: 快速的测试运行器
-- **MSW**: Mock Service Worker，用于拦截HTTP请求
-- **@vue/test-utils**: Vue组件测试工具
-- **Happy DOM**: 轻量级DOM环境
+- **Vitest**: Fast test runner
+- **MSW**: Mock Service Worker for intercepting HTTP requests
+- **@vue/test-utils**: Vue component testing utilities
+- **Happy DOM**: Lightweight DOM environment
 
-## 快速开始
+## Quick Start
 
-### 1. 安装依赖
+### 1. Install Dependencies
 
 ```bash
 cd client
 yarn install
 ```
 
-### 2. 运行测试
+### 2. Run Tests
 
 ```bash
-# 运行所有测试
+# Run all tests
 yarn test
 
-# 运行测试并生成覆盖率报告
+# Run tests and generate coverage report
 yarn test:coverage
 
-# 运行测试UI界面
+# Run test UI interface
 yarn test:ui
 ```
 
-## 测试结构
+## Test Structure
 
 ```
 tests/
-├── setup.ts              # 测试设置文件
+├── setup.ts              # Test setup file
 ├── mocks/
-│   └── handlers.ts        # MSW请求处理器
+│   └── handlers.ts        # MSW request handlers
 ├── services/
-│   └── aiService.test.ts  # AI服务测试
+│   └── aiService.test.ts  # AI service tests
 └── components/
-    └── AIServiceComponent.test.ts  # 组件测试
+    └── AIServiceComponent.test.ts  # Component tests
 ```
 
-## Mock API说明
+## Mock API Overview
 
-### AI服务Mock接口
+### AI Service Mock Endpoints
 
-我们的Mock处理器提供了以下API端点：
+Our mock handlers provide the following API endpoints:
 
-1. **健康检查**: `GET /api/proxy/genai/health`
-2. **获取建议**: `POST /api/proxy/genai/suggestion`
-3. **服务信息**: `GET /api/proxy/genai/`
-4. **错误测试**: `GET /api/proxy/genai/error`
+1. **Health Check**: `GET /api/proxy/genai/health`
+2. **Get Suggestion**: `POST /api/proxy/genai/suggestion`
+3. **Service Info**: `GET /api/proxy/genai/`
+4. **Error Testing**: `GET /api/proxy/genai/error`
 
-### 测试场景
+### Test Scenarios
 
-Mock处理器支持以下测试场景：
+Mock handlers support the following test scenarios:
 
-- ✅ 正常响应
-- ❌ 错误响应（400状态码）
-- ⏱️ 超时模拟
-- 🔌 网络错误
-- 📊 不同服务类型响应
+- ✅ Normal responses
+- ❌ Error responses (400 status code)
+- ⏱️ Timeout simulation
+- 🔌 Network errors
+- 📊 Different service type responses
 
-## 编写测试
+## Writing Tests
 
-### 1. 服务测试示例
+### 1. Service Test Example
 
 ```typescript
 import { describe, it, expect } from 'vitest'
 import { AIService } from '@/services/aiService'
 
 describe('AIService', () => {
-  it('应该成功获取健康检查信息', async () => {
+  it('should successfully get health check information', async () => {
     const result = await AIService.checkHealth()
     expect(result.status).toBe('healthy')
   })
 })
 ```
 
-### 2. 组件测试示例
+### 2. Component Test Example
 
 ```typescript
 import { mount } from '@vue/test-utils'
 import { AIService } from '@/services/aiService'
 
 const TestComponent = {
-  template: \`<button @click="checkHealth">检查</button>\`,
+  template: \`<button @click="checkHealth">Check</button>\`,
   methods: {
     async checkHealth() {
       await AIService.checkHealth()
@@ -96,112 +96,112 @@ const TestComponent = {
   }
 }
 
-describe('组件测试', () => {
-  it('应该能够调用AI服务', async () => {
+describe('Component Tests', () => {
+  it('should be able to call AI service', async () => {
     const wrapper = mount(TestComponent)
     await wrapper.find('button').trigger('click')
-    // 测试组件行为
+    // Test component behavior
   })
 })
 ```
 
-## 高级测试技巧
+## Advanced Testing Techniques
 
-### 1. 自定义Mock响应
+### 1. Custom Mock Responses
 
 ```typescript
 import { server } from './setup'
 import { http, HttpResponse } from 'msw'
 
-// 在特定测试中覆盖默认响应
+// Override default response in specific tests
 server.use(
   http.get('/api/proxy/genai/health', () => {
     return HttpResponse.json(
-      { error: '服务不可用' },
+      { error: 'Service unavailable' },
       { status: 503 }
     )
   })
 )
 ```
 
-### 2. 异步测试
+### 2. Async Testing
 
 ```typescript
-it('应该处理异步操作', async () => {
+it('should handle async operations', async () => {
   const promise = AIService.getSuggestion({ text: 'test' })
   const result = await promise
   expect(result.suggestion).toBeDefined()
 })
 ```
 
-### 3. 错误处理测试
+### 3. Error Handling Tests
 
 ```typescript
-it('应该处理网络错误', async () => {
-  // 使用特殊的错误触发词
+it('should handle network errors', async () => {
+  // Use special error trigger word
   await expect(
     AIService.getSuggestion({ text: 'error' })
   ).rejects.toThrow('HTTP error! status: 400')
 })
 ```
 
-## 测试覆盖率
+## Test Coverage
 
-运行 `yarn test:coverage` 会生成覆盖率报告：
+Running `yarn test:coverage` will generate coverage reports:
 
-- 📊 **HTML报告**: `coverage/index.html`
-- 📈 **控制台输出**: 实时显示覆盖率统计
-- 🎯 **目标**: 保持80%以上的覆盖率
+- 📊 **HTML Report**: `coverage/index.html`
+- 📈 **Console Output**: Real-time coverage statistics
+- 🎯 **Target**: Maintain 80%+ coverage
 
-## 调试测试
+## Debugging Tests
 
-### 1. 调试单个测试
+### 1. Debug Individual Tests
 
 ```bash
-# 运行特定测试文件
+# Run specific test file
 yarn test aiService.test.ts
 
-# 观察模式
+# Watch mode
 yarn test --watch
 ```
 
-### 2. 调试失败的测试
+### 2. Debug Failed Tests
 
 ```bash
-# 显示详细错误信息
+# Show detailed error information
 yarn test --reporter=verbose
 
-# 在第一个失败时停止
+# Stop at first failure
 yarn test --bail=1
 ```
 
-## 最佳实践
+## Best Practices
 
-1. **📝 清晰的测试描述**: 使用中文描述测试目的
-2. **🎯 单一职责**: 每个测试只验证一个功能
-3. **🔄 独立性**: 测试之间不应相互依赖
-4. **📊 覆盖率**: 重要的业务逻辑应该有100%覆盖率
-5. **🚀 性能**: 避免不必要的DOM操作和异步等待
+1. **📝 Clear Test Descriptions**: Use descriptive test names
+2. **🎯 Single Responsibility**: Each test should verify one functionality
+3. **🔄 Independence**: Tests should not depend on each other
+4. **📊 Coverage**: Important business logic should have 100% coverage
+5. **🚀 Performance**: Avoid unnecessary DOM operations and async waits
 
-## 常见问题
+## Common Questions
 
-### Q: 为什么使用MSW而不是其他Mock库？
+### Q: Why use MSW instead of other mock libraries?
 
-A: MSW的优势：
-- 🌐 真实的HTTP请求拦截
-- 🔧 同一套Mock既可用于测试也可用于开发
-- 🎯 更接近真实的网络环境
-- 📱 支持浏览器和Node.js环境
+A: MSW advantages:
+- 🌐 Real HTTP request interception
+- 🔧 Same mock setup works for both testing and development
+- 🎯 Closer to real network environment
+- 📱 Support for both browser and Node.js environments
 
-### Q: 如何Mock复杂的API响应？
+### Q: How to mock complex API responses?
 
-A: 在 `handlers.ts` 中创建更复杂的响应逻辑：
+A: Create more complex response logic in `handlers.ts`:
 
 ```typescript
 http.post('/api/complex', async ({ request }) => {
   const body = await request.json()
   
-  // 根据请求内容返回不同响应
+  // Return different responses based on request content
   if (body.type === 'special') {
     return HttpResponse.json({ special: true })
   }
@@ -210,13 +210,13 @@ http.post('/api/complex', async ({ request }) => {
 })
 ```
 
-### Q: 如何测试错误场景？
+### Q: How to test error scenarios?
 
-A: 使用特殊的输入值触发错误，或者在测试中临时覆盖Mock响应。
+A: Use special input values to trigger errors, or temporarily override mock responses in tests.
 
-## 相关资源
+## Related Resources
 
-- [Vitest官方文档](https://vitest.dev/)
-- [MSW官方文档](https://mswjs.io/)
-- [Vue测试工具文档](https://vue-test-utils.vuejs.org/)
-- [Nuxt测试文档](https://nuxt.com/docs/getting-started/testing) 
+- [Vitest Documentation](https://vitest.dev/)
+- [MSW Documentation](https://mswjs.io/)
+- [Vue Test Utils Documentation](https://vue-test-utils.vuejs.org/)
+- [Nuxt Testing Documentation](https://nuxt.com/docs/getting-started/testing) 
