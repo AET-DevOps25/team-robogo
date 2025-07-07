@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch
 import requests  # Import requests library
+import os
 from app.services.llm_service import LLMFactory, OpenWebUILLM
 from app.core.config import OPENAI_API_KEY, CHAIR_API_KEY
 
@@ -14,7 +15,7 @@ class TestLLMFactory:
 
     def test_get_llm_openai(self):
         """Test getting OpenAI LLM instance"""
-        with patch('app.services.llm_service.OPENAI_API_KEY', 'test_key'):
+        with patch.dict('os.environ', {'OPENAI_API_KEY': 'test_key'}):
             llm = LLMFactory.get_llm("openai")
             from langchain_openai import ChatOpenAI
             assert isinstance(llm, ChatOpenAI)
