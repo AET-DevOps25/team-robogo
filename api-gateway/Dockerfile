@@ -11,14 +11,9 @@ WORKDIR /app
 # Copy all files first
 COPY . .
 
-# Make gradlew executable
-RUN chmod +x gradlew
-
-# Verify gradle wrapper exists
-RUN ls -la gradle/wrapper/
 
 # Set up proper network configuration for Gradle
-RUN ./gradlew clean build -x test --no-daemon --stacktrace --info
+RUN gradle clean build -x test --no-daemon --stacktrace --info
 
 # ---- Runtime Stage ----
 FROM eclipse-temurin:17-jre
