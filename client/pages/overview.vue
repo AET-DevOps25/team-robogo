@@ -2,7 +2,7 @@
   <div class="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
     <!--Screens Monitor -->
     <section>
-      <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Screens Monitor</h2>
+      <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">{{ t('screensMonitor') }}</h2>
       <div
         class="max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800 rounded p-2"
       >
@@ -36,15 +36,15 @@
       class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
     >
       <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Add New Screen</h3>
+        <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">{{ t('addNewScreen') }}</h3>
         <input
           v-model="newScreenName"
-          placeholder="Screen Name"
+          :placeholder="t('screenName')"
           class="mb-2 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded"
         />
         <input
           v-model="newScreenUrl"
-          placeholder="Thumbnail URL (optional)"
+          :placeholder="t('thumbnailUrl')"
           class="mb-4 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded"
         />
 
@@ -53,13 +53,13 @@
             class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200"
             @click="showAddScreenDialog = false"
           >
-            Cancel
+            {{ t('cancel') }}
           </button>
           <button
             class="px-4 py-2 bg-blue-600 dark:bg-blue-500 rounded hover:bg-blue-700 dark:hover:bg-blue-600 text-white"
             @click="addNewScreen"
           >
-            Add
+            {{ t('add') }}
           </button>
         </div>
         <button
@@ -76,9 +76,9 @@
       class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
     >
       <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Confirm Delete</h3>
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ t('confirmDelete') }}</h3>
         <p class="text-gray-700 dark:text-gray-300">
-          Are you sure you want to delete
+          {{ t('areYouSureDelete') }}
           <strong>{{ screenToDelete?.name }}</strong>
           ?
         </p>
@@ -87,13 +87,13 @@
             class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded text-gray-800 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-500"
             @click="showDeleteConfirm = false"
           >
-            Cancel
+            {{ t('cancel') }}
           </button>
           <button
             class="px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded hover:bg-red-700 dark:hover:bg-red-600"
             @click="confirmDeleteScreen"
           >
-            Delete
+            {{ t('delete') }}
           </button>
         </div>
         <button
@@ -112,15 +112,14 @@
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Slide Groups</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('slideGroups') }}</h2>
 
           <button
             class="text-sm px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
             @click="triggerFileInput"
           >
-            Upload Slide
+            {{ t('uploadSlide') }}
           </button>
-          <!-- 在 Upload Slide 按钮后加一个文件输入框 -->
           <input
             ref="fileInput"
             type="file"
@@ -130,9 +129,13 @@
           />
         </div>
         <div>
-          <USelectMenu v-model="selectedGroupId" :items="slideGroups.map(g => g.id)" class="w-48" />
+          <USelectMenu
+            v-model="selectedGroupId"
+            :items="slideGroups.map((g: SlideGroup) => g.id)"
+            class="w-48"
+          />
           <UButton color="neutral" variant="outline" @click="showAddGroupDialog = true">
-            Add Group
+            {{ t('addGroup') }}
           </UButton>
         </div>
         <div
@@ -160,19 +163,19 @@
         >
           <input
             v-model="scoreTarget"
-            placeholder="Team ID"
+            :placeholder="t('teamId')"
             class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-2 rounded w-full sm:w-auto"
           />
           <input
             v-model="scoreValue"
-            placeholder="Score"
+            :placeholder="t('score')"
             class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-2 rounded w-full sm:w-auto"
           />
           <button
             class="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded hover:bg-green-700 dark:hover:bg-green-600"
             @click="submitScore"
           >
-            Update Scores
+            {{ t('updateScores') }}
           </button>
         </div>
         <!-- AI Chat Box -->
@@ -180,7 +183,7 @@
           class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md flex flex-col gap-3 h-[350px]"
         >
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Chat with AI</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('chatWithAI') }}</h3>
             <div class="flex items-center gap-2">
               <div
                 :class="['w-2 h-2 rounded-full', aiServiceStatus ? 'bg-green-500' : 'bg-red-500']"
@@ -229,7 +232,7 @@
                   <div
                     class="animate-spin w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full"
                   />
-                  <span class="text-gray-600 dark:text-gray-400">AI正在思考...</span>
+                  <span class="text-gray-600 dark:text-gray-400">{{ t('aiThinking') }}</span>
                 </div>
               </div>
             </div>
@@ -248,7 +251,7 @@
             <input
               v-model="userMessage"
               :disabled="isAiLoading"
-              placeholder="请输入您的问题..."
+              :placeholder="t('enterQuestion')"
               class="flex-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-2 rounded disabled:opacity-50"
               @keyup.enter="sendMessage"
             />
@@ -257,7 +260,7 @@
               class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
               @click="sendMessage"
             >
-              {{ isAiLoading ? '发送中...' : '发送' }}
+              {{ isAiLoading ? t('sending') : t('send') }}
             </button>
           </div>
         </div>
@@ -269,11 +272,11 @@
       class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
     >
       <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Add New Group</h3>
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ t('addNewGroup') }}</h3>
 
         <input
           v-model="newGroupName"
-          placeholder="Group Name"
+          :placeholder="t('groupName')"
           class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded mb-4"
         />
 
@@ -282,13 +285,13 @@
             class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200"
             @click="showAddGroupDialog = false"
           >
-            Cancel
+            {{ t('cancel') }}
           </button>
           <button
             class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600"
             @click="addGroup"
           >
-            Add
+            {{ t('add') }}
           </button>
         </div>
 
@@ -308,7 +311,7 @@
         class="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded hover:bg-green-700 dark:hover:bg-green-600"
         @click="callTestApi"
       >
-        Test
+        {{ t('test') }}
       </button>
       <p class="mt-2 text-gray-700 dark:text-gray-300">{{ testResponse }}</p>
     </section>
@@ -318,12 +321,15 @@
 <script setup lang="ts">
   import { ref, computed, onMounted } from 'vue'
   import { watchOnce } from '@vueuse/core'
+  import { useI18n } from 'vue-i18n'
   import ScreenCard from '../components/ScreenCard.vue'
   import SlideGroupCard from '../components/SlideGroupCard.vue'
   import { useScreenStore } from '@/stores/useScreenStore'
   import { AIService } from '@/services/aiService'
-  import type { Screen, SlideItem, ChatMessage } from '@/interfaces/types'
+  import type { Screen, SlideItem, ChatMessage, SlideGroup } from '@/interfaces/types'
   import type { SuggestionRequestDTO } from '@/interfaces/dto'
+
+  const { t } = useI18n()
 
   const scoreTarget = ref('')
   const scoreValue = ref('')
@@ -466,7 +472,7 @@
         text: response.suggestion
       })
     } catch (error: any) {
-      aiError.value = error.message || 'AI服务响应失败'
+      aiError.value = error.message || t('aiServiceFailed')
       console.error('AI service error:', error)
     } finally {
       isAiLoading.value = false

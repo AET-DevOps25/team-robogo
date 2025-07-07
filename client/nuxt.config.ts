@@ -1,3 +1,5 @@
+import { defineNuxtConfig } from 'nuxt/config'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
@@ -14,6 +16,7 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/'
     }
   },
+  // @ts-ignore
   auth: {
     baseURL: process.env.NUXT_PUBLIC_API_BASE || '/',
     provider: {
