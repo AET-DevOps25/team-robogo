@@ -30,17 +30,25 @@ class UserServiceTest {
     @Mock
     private JwtService jwtService;
 
-    @Mock
-    private EmailService emailService;
 
     private UserService userService;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         userService = new UserService(userRepository,
                 passwordEncoder,
-                jwtService,
-                emailService);
+                jwtService);
+        
+        // Set the @Value fields using reflection since they're not injected in unit tests
+        setField(userService, "adminUsername", "admin");
+        setField(userService, "adminPassword", "admin");
+        setField(userService, "adminEmail", "admin@fll.de");
+    }
+    
+    private void setField(Object target, String fieldName, Object value) throws Exception {
+        var field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(target, value);
     }
 
     @Test
@@ -110,7 +118,7 @@ class UserServiceTest {
     }
 
     @Test
-    void login_ShouldReturnError_WhenEmailNotVerified() {
+    void login_ShouldReturnToken_WhenCredentialsValid() {
         // Arrange
         LoginRequestDTO request = new LoginRequestDTO();
         request.setUsername("user");
@@ -118,28 +126,6 @@ class UserServiceTest {
 
         User user = new User("user", "encodedPassword", "user@example.com");
         user.setId(1L);
-        user.setEmailVerified(false);
-        when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
-
-        // Act
-        var response = userService.login(request);
-
-        // Assert
-        assertThat(response.getSuccess()).isFalse();
-        assertThat(response.getError()).isEqualTo("Please verify your email address before logging in");
-    }
-
-    @Test
-    void login_ShouldReturnToken_WhenCredentialsValidAndEmailVerified() {
-        // Arrange
-        LoginRequestDTO request = new LoginRequestDTO();
-        request.setUsername("user");
-        request.setPassword("password");
-
-        User user = new User("user", "encodedPassword", "user@example.com");
-        user.setId(1L);
-        user.setEmailVerified(true);
         when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
         when(jwtService.generateToken("user")).thenReturn("jwt-token");

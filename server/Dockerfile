@@ -11,9 +11,7 @@ WORKDIR /app
 COPY . .
 
 # Set up proper network configuration for Gradle
-RUN ./gradlew clean build -x test --no-daemon -Dhttps.protocols=TLSv1.1,TLSv1.2 --stacktrace --info \
-    -Dhttps.proxyHost=http.docker.internal -Dhttps.proxyPort=3128 \
-    -Dhttp.proxyHost=http.docker.internal -Dhttp.proxyPort=3128
+RUN ./gradlew clean build -x test --no-daemon --stacktrace --info
 
 # ---- Runtime Stage ----
 FROM gcr.io/distroless/java17-debian12

@@ -63,14 +63,6 @@ public class UserService {
         return userRepository.findByUsername(request.getUsername())
             .filter(user -> passwordEncoder.matches(request.getPassword(), user.getPassword()))
             .map(user -> {
-                // Check if email is verified
-                if (!user.isEmailVerified()) {
-                    return LoginResponseDTO.builder()
-                        .success(false)
-                        .error("Please verify your email address before logging in")
-                        .build();
-                }
-
                 String token = jwtService.generateToken(user.getUsername());
                 return LoginResponseDTO.builder()
                     .success(true)
