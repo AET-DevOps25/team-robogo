@@ -1,7 +1,7 @@
 <!-- File: src/pages/screen/[id].vue -->
 <script setup lang="ts">
   import { useRoute } from 'vue-router'
-  import { computed, onMounted, toRef, watch } from 'vue'
+  import { computed, onMounted } from 'vue'
   import { useScreenStore } from '@/stores/useScreenStore'
 
   const route = useRoute()

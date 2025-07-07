@@ -1,4 +1,4 @@
-from typing import Any, Optional, Literal
+from typing import Any, Optional, Literal, Union
 from langchain.llms.base import LLM
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain_openai import ChatOpenAI
@@ -8,8 +8,11 @@ from app.core.config import API_URL, CHAIR_API_KEY, MODEL_NAME, OPENAI_API_KEY
 
 class OpenWebUILLM(LLM):
     api_url: str = API_URL
-    api_key: str = CHAIR_API_KEY
     model_name: str = MODEL_NAME
+
+    @property
+    def api_key(self) -> Optional[str]:
+        return CHAIR_API_KEY
 
     @property
     def _llm_type(self) -> str:
@@ -46,11 +49,11 @@ class OpenWebUILLM(LLM):
 
 class LLMFactory:
     @staticmethod
-    def get_llm(service: Literal["openwebui", "openai"]) -> LLM:
+    def get_llm(service: Literal["openwebui", "openai"]) -> Union[LLM, ChatOpenAI]:
         if service == "openai":
             if not OPENAI_API_KEY:
                 raise ValueError("OPENAI_API_KEY environment variable is required for OpenAI")
-            return ChatOpenAI(api_key=OPENAI_API_KEY)
+            return ChatOpenAI()
         elif service == "openwebui":
             return OpenWebUILLM()
         else:

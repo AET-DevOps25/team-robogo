@@ -10,7 +10,7 @@ vi.stubGlobal('$fetch', async (url: string, options: any = {}) => {
   // Prepare fetch options
   const fetchOptions: RequestInit = {
     method: options.method || 'GET',
-    headers: options.headers || {},
+    headers: options.headers || {}
   }
 
   // Handle body - mimic $fetch behavior
@@ -22,7 +22,7 @@ vi.stubGlobal('$fetch', async (url: string, options: any = {}) => {
       if (!fetchOptions.headers) {
         fetchOptions.headers = {}
       }
-      (fetchOptions.headers as Record<string, string>)['Content-Type'] = 
+      ;(fetchOptions.headers as Record<string, string>)['Content-Type'] =
         (fetchOptions.headers as Record<string, string>)['Content-Type'] || 'application/json'
     } else {
       // If body is already a string or other type, use directly
@@ -46,4 +46,4 @@ beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
 
 // Close server after all tests
-afterAll(() => server.close()) 
+afterAll(() => server.close())

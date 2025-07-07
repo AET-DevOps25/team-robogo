@@ -2,7 +2,9 @@
   <div class="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
     <!--Screens Monitor -->
     <section>
-      <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">{{ t('screensMonitor') }}</h2>
+      <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+        {{ t('screensMonitor') }}
+      </h2>
       <div
         class="max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800 rounded p-2"
       >
@@ -36,7 +38,9 @@
       class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
     >
       <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">{{ t('addNewScreen') }}</h3>
+        <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">
+          {{ t('addNewScreen') }}
+        </h3>
         <input
           v-model="newScreenName"
           :placeholder="t('screenName')"
@@ -76,7 +80,9 @@
       class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
     >
       <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ t('confirmDelete') }}</h3>
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+          {{ t('confirmDelete') }}
+        </h3>
         <p class="text-gray-700 dark:text-gray-300">
           {{ t('areYouSureDelete') }}
           <strong>{{ screenToDelete?.name }}</strong>
@@ -112,7 +118,9 @@
 
       <div>
         <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('slideGroups') }}</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ t('slideGroups') }}
+          </h2>
 
           <button
             class="text-sm px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
@@ -183,7 +191,9 @@
           class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md flex flex-col gap-3 h-[350px]"
         >
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('chatWithAI') }}</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ t('chatWithAI') }}
+            </h3>
             <div class="flex items-center gap-2">
               <div
                 :class="['w-2 h-2 rounded-full', aiServiceStatus ? 'bg-green-500' : 'bg-red-500']"
@@ -272,7 +282,9 @@
       class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
     >
       <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{{ t('addNewGroup') }}</h3>
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+          {{ t('addNewGroup') }}
+        </h3>
 
         <input
           v-model="newGroupName"
@@ -344,16 +356,16 @@
 
     try {
       // TODO: Replace with actual API call
-      console.log('Submitting score:', {
-        teamId: scoreTarget.value,
-        score: scoreValue.value
-      })
+      // console.log('Submitting score:', {
+      //   teamId: scoreTarget.value,
+      //   score: scoreValue.value
+      // })
 
       // Clear inputs after submission
       scoreTarget.value = ''
       scoreValue.value = ''
     } catch (error) {
-      console.error('Error submitting score:', error)
+      // console.error('Error submitting score:', error)
     }
   }
 
@@ -388,7 +400,7 @@
       const text = await res.text()
       testResponse.value = text
     } catch (error) {
-      console.error('API error', error)
+      console.error('API error', error) // eslint-disable-line no-console
       testResponse.value = 'Error calling API'
     }
   }
@@ -438,7 +450,6 @@
       aiServiceStatus.value = health.status === 'healthy'
     } catch (error) {
       aiServiceStatus.value = false
-      console.error('AI service health check failed:', error)
     }
   })
 
@@ -473,7 +484,7 @@
       })
     } catch (error: any) {
       aiError.value = error.message || t('aiServiceFailed')
-      console.error('AI service error:', error)
+      console.error('AI service error:', error) // eslint-disable-line no-console
     } finally {
       isAiLoading.value = false
     }

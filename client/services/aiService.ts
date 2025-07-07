@@ -15,7 +15,7 @@ export class AIService {
       const response = await $fetch<HealthCheckResponseDTO>(`${this.BASE_URL}/health`)
       return response
     } catch (error) {
-      console.error('Failed to check health:', error)
+      console.error('Failed to check health:', error) // eslint-disable-line no-console
       throw error
     }
   }
@@ -35,7 +35,7 @@ export class AIService {
 
       return response
     } catch (error) {
-      console.error('Failed to get suggestion:', error)
+      console.error('Failed to get suggestion:', error) // eslint-disable-line no-console
       throw error
     }
   }
@@ -48,7 +48,7 @@ export class AIService {
       const response = await $fetch<any>(`${this.BASE_URL}/`)
       return response
     } catch (error) {
-      console.error('Failed to get service info:', error)
+      console.error('Failed to get service info:', error) // eslint-disable-line no-console
       throw error
     }
   }

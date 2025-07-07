@@ -108,4 +108,4 @@ describe('SlideCard', () => {
     expect(text.classes()).toContain('text-gray-700')
     expect(text.classes()).toContain('text-base')
   })
-}) 
+})
