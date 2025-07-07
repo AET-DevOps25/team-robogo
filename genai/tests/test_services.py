@@ -1,9 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch
 import requests  # Import requests library
-import os
 from app.services.llm_service import LLMFactory, OpenWebUILLM
-from app.core.config import OPENAI_API_KEY, CHAIR_API_KEY
 
 
 class TestLLMFactory:
