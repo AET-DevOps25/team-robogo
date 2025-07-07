@@ -120,7 +120,6 @@
           >
             Upload Slide
           </button>
-          <!-- 在 Upload Slide 按钮后加一个文件输入框 -->
           <input
             ref="fileInput"
             type="file"
@@ -130,7 +129,11 @@
           />
         </div>
         <div>
-          <USelectMenu v-model="selectedGroupId" :items="slideGroups.map(g => g.id)" class="w-48" />
+          <USelectMenu
+            v-model="selectedGroupId"
+            :items="slideGroups.map((g: SlideGroup) => g.id)"
+            class="w-48"
+          />
           <UButton color="neutral" variant="outline" @click="showAddGroupDialog = true">
             Add Group
           </UButton>
@@ -322,7 +325,7 @@
   import SlideGroupCard from '../components/SlideGroupCard.vue'
   import { useScreenStore } from '@/stores/useScreenStore'
   import { AIService } from '@/services/aiService'
-  import type { Screen, SlideItem, ChatMessage } from '@/interfaces/types'
+  import type { Screen, SlideItem, ChatMessage, SlideGroup } from '@/interfaces/types'
   import type { SuggestionRequestDTO } from '@/interfaces/dto'
 
   const scoreTarget = ref('')
