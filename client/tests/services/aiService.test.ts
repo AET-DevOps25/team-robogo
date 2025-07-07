@@ -1,16 +1,12 @@
 import { describe, it, expect, vi } from 'vitest'
 import { AIService } from '@/services/aiService'
-import type {
-  SuggestionRequestDTO,
-  SuggestionResponseDTO,
-  HealthCheckResponseDTO
-} from '@/interfaces/dto'
+import type { SuggestionRequestDTO } from '@/interfaces/dto'
 
 describe('AIService', () => {
   describe('checkHealth', () => {
     it('should successfully get health check information', async () => {
       const result = await AIService.checkHealth()
-      
+
       expect(result).toBeDefined()
       expect(result.status).toBe('healthy')
       expect(result.service).toBe('genai')
@@ -25,7 +21,7 @@ describe('AIService', () => {
       }
 
       const result = await AIService.getSuggestion(request)
-      
+
       expect(result).toBeDefined()
       expect(result.suggestion).toContain('How to improve code quality?')
       expect(result.suggestion).toContain('openwebui')
@@ -37,7 +33,7 @@ describe('AIService', () => {
       }
 
       const result = await AIService.getSuggestion(request)
-      
+
       expect(result).toBeDefined()
       expect(result.suggestion).toContain('Test default service')
       expect(result.suggestion).toContain('openwebui') // default service
@@ -55,7 +51,7 @@ describe('AIService', () => {
   describe('getServiceInfo', () => {
     it('should successfully get service info', async () => {
       const result = await AIService.getServiceInfo()
-      
+
       expect(result).toBeDefined()
       expect(result.name).toBe('GenAI Service')
       expect(result.version).toBe('1.0.0')
@@ -67,15 +63,15 @@ describe('AIService', () => {
   describe('error handling', () => {
     it('should log error messages', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      
+
       const request: SuggestionRequestDTO = {
         text: 'error' // This will trigger the error response
       }
 
       await expect(AIService.getSuggestion(request)).rejects.toThrow()
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get suggestion:', expect.any(Error))
-      
+
       consoleSpy.mockRestore()
     })
   })
-}) 
+})

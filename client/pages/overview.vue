@@ -356,16 +356,16 @@
 
     try {
       // TODO: Replace with actual API call
-      console.log('Submitting score:', {
-        teamId: scoreTarget.value,
-        score: scoreValue.value
-      })
+      // console.log('Submitting score:', {
+      //   teamId: scoreTarget.value,
+      //   score: scoreValue.value
+      // })
 
       // Clear inputs after submission
       scoreTarget.value = ''
       scoreValue.value = ''
     } catch (error) {
-      console.error('Error submitting score:', error)
+      // console.error('Error submitting score:', error)
     }
   }
 
@@ -400,7 +400,7 @@
       const text = await res.text()
       testResponse.value = text
     } catch (error) {
-      console.error('API error', error)
+      console.error('API error', error) // eslint-disable-line no-console
       testResponse.value = 'Error calling API'
     }
   }
@@ -450,7 +450,6 @@
       aiServiceStatus.value = health.status === 'healthy'
     } catch (error) {
       aiServiceStatus.value = false
-      console.error('AI service health check failed:', error)
     }
   })
 
@@ -485,7 +484,7 @@
       })
     } catch (error: any) {
       aiError.value = error.message || t('aiServiceFailed')
-      console.error('AI service error:', error)
+      console.error('AI service error:', error) // eslint-disable-line no-console
     } finally {
       isAiLoading.value = false
     }
