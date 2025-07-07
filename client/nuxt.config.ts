@@ -16,6 +16,7 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '/'
     }
   },
+  // @ts-ignore
   auth: {
     baseURL: process.env.NUXT_PUBLIC_API_BASE || '/',
     provider: {

@@ -11,7 +11,6 @@ WORKDIR /app
 # Copy all files first
 COPY . .
 
-
 # Set up proper network configuration for Gradle
 RUN gradle clean build -x test --no-daemon --stacktrace --info
 

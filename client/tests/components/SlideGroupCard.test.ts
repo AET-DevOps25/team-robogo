@@ -76,4 +76,4 @@ describe('SlideGroupCard', () => {
 
     expect(wrapper.findComponent({ name: 'SpeedControl' }).exists()).toBe(true)
   })
-}) 
+})
