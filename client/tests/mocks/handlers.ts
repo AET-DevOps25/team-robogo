@@ -6,7 +6,7 @@ import type {
 } from '@/interfaces/dto'
 
 export const handlers = [
-  // 健康检查接口
+  // Health check endpoint
   http.get('/api/proxy/genai/health', () => {
     return HttpResponse.json<HealthCheckResponseDTO>({
       status: 'healthy',
@@ -14,29 +14,30 @@ export const handlers = [
     })
   }),
 
-  // 获取建议接口
+  // Get suggestion endpoint
   http.post('/api/proxy/genai/suggestion', async ({ request }) => {
-    const body = await request.json() as SuggestionRequestDTO
-    
-    // 模拟不同的请求场景
-    if (body.text === 'error') {
-      return HttpResponse.json(
-        { error: 'Invalid request' },
-        { status: 400 }
-      )
+    try {
+      const body = (await request.json()) as SuggestionRequestDTO
+
+      // Simulate different request scenarios
+      if (body.text === 'error') {
+        return HttpResponse.json({ error: 'Invalid request' }, { status: 400 })
+      }
+
+      if (body.text === 'timeout') {
+        // Simulate timeout
+        await new Promise(resolve => setTimeout(resolve, 5000))
+      }
+
+      return HttpResponse.json<SuggestionResponseDTO>({
+        suggestion: `This is AI suggestion content for "${body.text}". Service type: ${body.service || 'openwebui'}`
+      })
+    } catch (error) {
+      return HttpResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
-    
-    if (body.text === 'timeout') {
-      // 模拟超时
-      await new Promise(resolve => setTimeout(resolve, 5000))
-    }
-    
-    return HttpResponse.json<SuggestionResponseDTO>({
-      suggestion: `这是针对 "${body.text}" 的AI建议内容。服务类型: ${body.service || 'openwebui'}`
-    })
   }),
 
-  // 获取服务信息接口
+  // Get service info endpoint
   http.get('/api/proxy/genai/', () => {
     return HttpResponse.json({
       name: 'GenAI Service',
@@ -46,11 +47,8 @@ export const handlers = [
     })
   }),
 
-  // 模拟网络错误的处理器
+  // Simulate network error handler
   http.get('/api/proxy/genai/error', () => {
-    return HttpResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return HttpResponse.json({ error: 'Internal server error' }, { status: 500 })
   })
-] 
+]

@@ -2,34 +2,15 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
+import type { Screen, SlideGroup, SlideItem } from '@/interfaces/types'
 
 export const useScreenStore = defineStore(
   'screen',
   () => {
     // State
-    const screens = ref<
-      {
-        id: string
-        name: string
-        status: string
-        groupId: string
-        currentContent: string
-        thumbnailUrl: string
-        urlPath: string
-      }[]
-    >([])
-
-    const slideGroups = ref<
-      {
-        id: string
-        slideIds: number[]
-        speed: number
-        _currentSlideIndex?: number
-        _lastSwitchTime?: number
-      }[]
-    >([])
-
-    const contentList = ref<{ id: number; name: string; url: string }[]>([])
+    const screens = ref<Screen[]>([])
+    const slideGroups = ref<SlideGroup[]>([])
+    const contentList = ref<SlideItem[]>([])
     const slideTimerStarted = ref(false)
     const _timer = ref<ReturnType<typeof setInterval> | null>(null)
 

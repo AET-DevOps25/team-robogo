@@ -1,4 +1,4 @@
-// 统一类型定义文件
+// unified type definition file
 
 export interface Screen {
   id: string
@@ -10,7 +10,7 @@ export interface Screen {
   urlPath: string
 }
 
-export interface Slide {
+export interface SlideItem {
   id: number
   name: string
   url: string
@@ -24,21 +24,31 @@ export interface SlideGroup {
   _lastSwitchTime?: number
 }
 
-export interface SlideItem {
-  id: number
-  name: string
-  url: string
-}
-
-// 聊天相关类型
+// chat related types
 export interface ChatMessage {
   role: string
   text: string
 }
 
-// API 响应类型
+// API response type
 export interface ApiResponse<T = any> {
   success: boolean
   data?: T
   message?: string
+}
+
+// common types
+export type ScreenStatus = 'online' | 'offline' | 'error'
+export type ContentType = 'BLACK_SCREEN' | string
+
+// create related DTO types
+export interface CreateScreenDTO {
+  name: string
+  url?: string
+}
+
+export interface CreateSlideGroupDTO {
+  name: string
+  slideIds?: number[]
+  speed?: number
 }

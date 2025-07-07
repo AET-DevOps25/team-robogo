@@ -4,5 +4,5 @@
     "compilerOptions": {
     "types": ["@types/node"]
   },
-  "include": ["types", "components", "pages", "composables", "plugins", "stores"]
+  "include": ["types", "components", "pages", "composables", "plugins", "stores", "tests", "interfaces", "services"]
 }

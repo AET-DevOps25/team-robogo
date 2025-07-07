@@ -12,13 +12,10 @@ export class AIService {
    */
   static async checkHealth(): Promise<HealthCheckResponseDTO> {
     try {
-      const response = await fetch(`${this.BASE_URL}/health`)
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      return await response.json()
+      const response = await $fetch<HealthCheckResponseDTO>(`${this.BASE_URL}/health`)
+      return response
     } catch (error) {
-      console.error('AI服务健康检查失败:', error)
+      console.error('Failed to check health:', error)
       throw error
     }
   }
@@ -28,19 +25,15 @@ export class AIService {
    */
   static async getSuggestion(request: SuggestionRequestDTO): Promise<SuggestionResponseDTO> {
     try {
-      const response = await fetch(`${this.BASE_URL}/suggestion`, {
+      const response = await $fetch<SuggestionResponseDTO>(`${this.BASE_URL}/suggestion`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(request)
+        body: request
       })
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      return await response.json()
+      return response
     } catch (error) {
       console.error('Failed to get suggestion:', error)
       throw error
@@ -52,11 +45,8 @@ export class AIService {
    */
   static async getServiceInfo(): Promise<any> {
     try {
-      const response = await fetch(`${this.BASE_URL}/`)
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      return await response.json()
+      const response = await $fetch<any>(`${this.BASE_URL}/`)
+      return response
     } catch (error) {
       console.error('Failed to get service info:', error)
       throw error
