@@ -28,7 +28,7 @@ spring:
         - id: server_route
           uri: http://localhost:8081
           predicates:
-            - Path=/api/server/**
+            - Path=/api/**
           filters:
             - StripPrefix=1
         - id: genai_route

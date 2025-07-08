@@ -1,4 +1,4 @@
-import { proxyRequest } from 'h3'
+import { proxyRequest, defineEventHandler } from 'h3'
 
 export default defineEventHandler(async event => {
   const gatewayHost = process.env.GATEWAY_HOST || 'localhost'
@@ -10,6 +10,9 @@ export default defineEventHandler(async event => {
     const urlWithoutProxy = url.replace('/api/proxy', '/api')
     await proxyRequest(event, `${proxyUrl.origin}${urlWithoutProxy}`, {
       headers: {
+        ...Object.fromEntries(
+          Object.entries(event.node.req.headers).filter(([_, v]) => typeof v === 'string')
+        ),
         host: proxyUrl.host
       }
     })

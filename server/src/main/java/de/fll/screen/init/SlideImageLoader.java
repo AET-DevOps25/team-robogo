@@ -6,13 +6,15 @@ import de.fll.screen.repository.SlideImageMetaRepository;
 import de.fll.screen.repository.SlideImageContentRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class SlideImageLoader implements CommandLineRunner {
@@ -23,16 +25,18 @@ public class SlideImageLoader implements CommandLineRunner {
     @Autowired
     private SlideImageContentRepository contentRepository;
 
+    @Value("${slides.path:/data/slides}")
+    private String slidesPath;
+
+    private static final Logger logger = LoggerFactory.getLogger(SlideImageLoader.class);
+
     @Override
     public void run(String... args) throws Exception {
-        String slidesPath = "slides";
-        ClassLoader classLoader = getClass().getClassLoader();
-        URL resource = classLoader.getResource(slidesPath);
-        if (resource == null) {
-            System.out.println("File Directory not found");
+        File slidesDir = new File(slidesPath);
+        if (!slidesDir.exists() || !slidesDir.isDirectory()) {
+            logger.warn("Slides directory not found: {}", slidesPath);
             return;
         }
-        File slidesDir = new File(resource.toURI());
         File[] files = slidesDir.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -53,9 +57,9 @@ public class SlideImageLoader implements CommandLineRunner {
                         imageContent.setMeta(savedMeta);
                         contentRepository.save(imageContent);
 
-                        System.out.println("Loaded image: " + file.getName());
+                        logger.info("Loaded image: {}", file.getName());
                     } catch (IOException e) {
-                        System.err.println("Failed to load image: " + file.getName());
+                        logger.error("Failed to load image: {}", file.getName(), e);
                     }
                 }
             }

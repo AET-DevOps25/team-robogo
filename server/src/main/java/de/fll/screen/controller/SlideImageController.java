@@ -13,9 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpStatus;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import de.fll.core.dto.SlideImageMetaDTO;
+
 
 @RestController
-@RequestMapping("/api/slide-images")
+@RequestMapping("/slide-images")
 public class SlideImageController {
 
     @Autowired
@@ -29,8 +32,10 @@ public class SlideImageController {
      * Only returns id, name, contentType.
      */
     @GetMapping
-    public List<SlideImageMeta> getAllImages() {
-        return metaRepository.findAll();
+    public List<SlideImageMetaDTO> getAllImages() {
+        return metaRepository.findAll().stream()
+            .map(meta -> new SlideImageMetaDTO(meta.getId(), meta.getName(), meta.getContentType()))
+            .collect(Collectors.toList());
     }
 
     /**

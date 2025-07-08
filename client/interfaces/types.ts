@@ -52,3 +52,9 @@ export interface CreateSlideGroupDTO {
   slideIds?: number[]
   speed?: number
 }
+
+export interface SlideImageMetaDTO {
+  id: number
+  name: string
+  contentType: string
+}
