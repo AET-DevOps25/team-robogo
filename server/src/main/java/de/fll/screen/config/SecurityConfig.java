@@ -33,7 +33,14 @@ public class SecurityConfig {
 						.requestMatchers("/auth/login", "/auth/signup", "/auth/session", "/auth/logout",
 								"/auth/verify-email").permitAll()
 						.requestMatchers("/actuator/**").permitAll()
+						.requestMatchers("/h2-console/**").permitAll()
+						.requestMatchers(
+								"/swagger-ui.html",
+								"/swagger-ui/**",
+								"/v3/api-docs/**"
+						).permitAll()
 						.anyRequest().authenticated())
+				.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
