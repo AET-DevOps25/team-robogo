@@ -23,7 +23,7 @@ spring:
         - id: server_route
           uri: http://${SERVER_SERVICE_SERVICE_HOST:localhost}:${SERVER_SERVICE_SERVICE_PORT:8081}
           predicates:
-            - Path=/api/server/**
+            - Path=/api/**
           filters:
             - StripPrefix=1
         - id: genai_route

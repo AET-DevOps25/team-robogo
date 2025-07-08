@@ -14,6 +14,8 @@ services:
   server:
     build:
       dockerfile: server/Dockerfile
+    volumes:
+      - ./server/src/main/resources/slides:/data/slides
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/robogo_db
@@ -26,6 +28,7 @@ services:
       - "8081:8081"
     depends_on:
       - db
+      - redis
     labels:
       - "logging.jobname=server"
 

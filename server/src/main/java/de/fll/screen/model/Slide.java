@@ -20,6 +20,10 @@ public class Slide {
 	@JoinColumn(name = "slidedeck_id", nullable = false)
 	private SlideDeck slidedeck;
 
+	@ManyToOne
+	@JoinColumn(name = "image_id", nullable = true)
+	private SlideImageMeta imageMeta;
+
 	public Slide() {
 
 	}
@@ -38,5 +42,13 @@ public class Slide {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public SlideImageMeta getImageMeta() {
+		return imageMeta;
+	}
+
+	public void setImageMeta(SlideImageMeta imageMeta) {
+		this.imageMeta = imageMeta;
 	}
 }
