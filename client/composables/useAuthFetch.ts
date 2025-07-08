@@ -6,7 +6,7 @@ export function useAuthFetch() {
   async function authFetch<T = any>(url: string, options: RequestInit = {}): Promise<T> {
     const headers = {
       ...(options.headers || {}),
-      Authorization: token.value ? `Bearer ${token.value}` : ''
+      Authorization: token.value ? `${token.value}` : ''
     }
     const res = await fetch(url, { ...options, headers })
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
