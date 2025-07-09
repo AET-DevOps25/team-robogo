@@ -84,7 +84,6 @@ public class ScoreServiceTest {
         team.getScores().addAll(List.of(s1, s2));
         Set<Integer> highlight = Set.of(1);
         when(fllRobotGameComparator.getHighlightIndices(team)).thenReturn(highlight);
-        // categoryScoring 必须和构造时一致
         category.setCategoryScoring(CategoryScoring.FLL_ROBOT_GAME);
         List<ScoreDTO> dtos = scoreService.getScoreDTOsWithHighlight(team, category);
         assertEquals(2, dtos.size());
