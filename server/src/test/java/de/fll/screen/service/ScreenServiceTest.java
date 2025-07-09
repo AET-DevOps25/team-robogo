@@ -1,6 +1,7 @@
 package de.fll.screen.service;
 
 import de.fll.screen.model.Screen;
+import de.fll.screen.model.ScreenStatus;
 import de.fll.screen.model.SlideDeck;
 import de.fll.screen.repository.ScreenRepository;
 import de.fll.screen.repository.SlideDeckRepository;
@@ -12,7 +13,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class ScreenServiceTest {
+public class ScreenServiceTest {
 
     @InjectMocks
     private ScreenService screenService;
@@ -32,12 +33,12 @@ class ScreenServiceTest {
     void testCreateScreen() {
         Screen screen = new Screen();
         screen.setName("TestScreen");
-        screen.setStatus("online");
+        screen.setStatus(ScreenStatus.ONLINE);
         when(screenRepository.save(any(Screen.class))).thenReturn(screen);
 
         Screen result = screenService.createScreen(screen);
         assertEquals("TestScreen", result.getName());
-        assertEquals("online", result.getStatus());
+        assertEquals(ScreenStatus.ONLINE, result.getStatus());
     }
 
     @Test
@@ -54,18 +55,18 @@ class ScreenServiceTest {
     void testUpdateScreen() {
         Screen oldScreen = new Screen();
         oldScreen.setName("Old");
-        oldScreen.setStatus("offline");
+        oldScreen.setStatus(ScreenStatus.OFFLINE);
 
         Screen newScreen = new Screen();
         newScreen.setName("New");
-        newScreen.setStatus("online");
+        newScreen.setStatus(ScreenStatus.ONLINE);
 
         when(screenRepository.findById(1L)).thenReturn(Optional.of(oldScreen));
         when(screenRepository.save(any(Screen.class))).thenReturn(oldScreen);
 
         Screen updated = screenService.updateScreen(1L, newScreen);
         assertEquals("New", updated.getName());
-        assertEquals("online", updated.getStatus());
+        assertEquals(ScreenStatus.ONLINE, updated.getStatus());
     }
 
     @Test
