@@ -18,7 +18,7 @@ class UserRepositoryTest {
     @Test
     void findByUsername_ShouldReturnUser_WhenUserExists() {
         // Arrange
-        User user = new User("testuser", "password", "test@example.com");
+        User user = new User("testuser", "password");
         userRepository.save(user);
 
         // Act
@@ -27,7 +27,6 @@ class UserRepositoryTest {
         // Assert
         assertThat(result).isPresent();
         assertThat(result.get().getUsername()).isEqualTo("testuser");
-        assertThat(result.get().getEmail()).isEqualTo("test@example.com");
     }
 
     @Test
@@ -42,7 +41,7 @@ class UserRepositoryTest {
     @Test
     void existsByUsername_ShouldReturnTrue_WhenUserExists() {
         // Arrange
-        User user = new User("testuser", "password", "test@example.com");
+        User user = new User("testuser", "password");
         userRepository.save(user);
 
         // Act
@@ -61,25 +60,4 @@ class UserRepositoryTest {
         assertThat(exists).isFalse();
     }
 
-    @Test
-    void existsByEmail_ShouldReturnTrue_WhenEmailExists() {
-        // Arrange
-        User user = new User("testuser", "password", "test@example.com");
-        userRepository.save(user);
-
-        // Act
-        boolean exists = userRepository.existsByEmail("test@example.com");
-
-        // Assert
-        assertThat(exists).isTrue();
-    }
-
-    @Test
-    void existsByEmail_ShouldReturnFalse_WhenEmailDoesNotExist() {
-        // Act
-        boolean exists = userRepository.existsByEmail("nonexistent@example.com");
-
-        // Assert
-        assertThat(exists).isFalse();
-    }
 } 

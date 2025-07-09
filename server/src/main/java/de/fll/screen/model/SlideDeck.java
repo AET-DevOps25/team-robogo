@@ -33,7 +33,7 @@ public class SlideDeck {
 
 	@OneToMany(mappedBy = "slidedeck", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderColumn(name = "index")
-	private final List<Slide> slides;
+	private final List<Slide> slides = new ArrayList<>();
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "competition_id")
@@ -41,13 +41,14 @@ public class SlideDeck {
 	private Competition competition;
 
 	public SlideDeck() {
-		this("", 0, new ArrayList<>());
+		this("", 0, new ArrayList<>(), null);
 	}
 
-	public SlideDeck(String name, int transitionTime, List<Slide> slides) {
+	public SlideDeck(String name, int transitionTime, List<Slide> slides, Competition competition) {
 		this.name = name;
 		this.transitionTime = transitionTime;
-		this.slides = slides;
+		this.slides.addAll(slides);
+		this.competition = competition;
 	}
 
 	public String getName() {
@@ -76,5 +77,13 @@ public class SlideDeck {
 
 	public List<Slide> getSlides() {
 		return slides;
+	}
+
+	public Competition getCompetition() {
+		return competition;
+	}
+
+	public void setCompetition(Competition competition) {
+		this.competition = competition;
 	}
 }

@@ -17,14 +17,18 @@ public abstract class Slide {
 	@Column(name = "name")
 	private String name;
 
+	@Column(name = "index", nullable = false)
+	private int index;
+
 	@ManyToOne
 	@JoinColumn(name = "slidedeck_id", nullable = false)
 	private SlideDeck slidedeck;
 
 	public long getId() { return id; }
-	public void setId(long id) { this.id = id; }
 	public String getName() { return name; }
 	public void setName(String name) { this.name = name; }
+	public int getIndex() { return index; }
+	public void setIndex(int index) { this.index = index; }
 	public SlideDeck getSlidedeck() { return slidedeck; }
 	public void setSlidedeck(SlideDeck slidedeck) { this.slidedeck = slidedeck; }
 }

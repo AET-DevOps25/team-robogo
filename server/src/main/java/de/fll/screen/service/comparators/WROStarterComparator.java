@@ -2,9 +2,11 @@ package de.fll.screen.service.comparators;
 
 import de.fll.screen.model.Score;
 import de.fll.screen.model.Team;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Service
 public class WROStarterComparator extends AbstractWROComparator {
 
 	@Override

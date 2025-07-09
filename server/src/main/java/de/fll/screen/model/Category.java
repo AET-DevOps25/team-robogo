@@ -68,4 +68,8 @@ public final class Category {
     public CategoryScoring getCategoryScoring() {
         return categoryScoring;
     }
+
+    public void setCategoryScoring(CategoryScoring categoryScoring) {
+        this.categoryScoring = categoryScoring;
+    }
 }

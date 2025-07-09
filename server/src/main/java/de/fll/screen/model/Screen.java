@@ -11,22 +11,19 @@ public class Screen {
 
     private String name;
 
-    private String status; // online/offline
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ScreenStatus status;
 
     @ManyToOne
     @JoinColumn(name = "slide_deck_id")
     private SlideDeck slideDeck;
 
-    // getter/setter
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
+    public ScreenStatus getStatus() { return status; }
+    public void setStatus(ScreenStatus status) { this.status = status; }
     public SlideDeck getSlideDeck() { return slideDeck; }
     public void setSlideDeck(SlideDeck slideDeck) { this.slideDeck = slideDeck; }
 }
