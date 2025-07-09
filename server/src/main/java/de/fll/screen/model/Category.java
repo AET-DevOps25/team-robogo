@@ -21,12 +21,12 @@ public final class Category {
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "competition_id")
+    @JoinColumn(name = "competition_id", nullable = false)
     @JsonIgnore
     private Competition competition;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(name = "scoring")
+    @Column(name = "scoring", nullable = false)
     @JsonIgnore
     private CategoryScoring categoryScoring;
 

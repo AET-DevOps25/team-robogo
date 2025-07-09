@@ -15,8 +15,8 @@ public class Screen {
     @Column(name = "status", nullable = false)
     private ScreenStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "slide_deck_id")
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "slide_deck_id", nullable = false)
     private SlideDeck slideDeck;
 
     public Long getId() { return id; }

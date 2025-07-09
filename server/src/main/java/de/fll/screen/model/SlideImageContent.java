@@ -9,10 +9,11 @@ public class SlideImageContent {
     private Long id;
 
     @Lob
+    @Column(name = "content", nullable = false, columnDefinition = "LONGBLOB")
     private byte[] content;
 
     @OneToOne
-    @JoinColumn(name = "image_id", nullable = false)
+    @JoinColumn(name = "image_id", nullable = false, unique = true)
     private SlideImageMeta meta;
 
     public Long getId() { return id; }

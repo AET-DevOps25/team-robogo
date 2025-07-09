@@ -35,8 +35,8 @@ public class SlideDeck {
 	@OrderColumn(name = "index")
 	private final List<Slide> slides = new ArrayList<>();
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "competition_id")
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "competition_id", nullable = false)
 	@JsonIgnore
 	private Competition competition;
 

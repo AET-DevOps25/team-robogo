@@ -14,13 +14,13 @@ public abstract class Slide {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
-	@Column(name = "name")
+	@Column(name = "name", nullable = false)
 	private String name;
 
 	@Column(name = "index", nullable = false)
 	private int index;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "slidedeck_id", nullable = false)
 	private SlideDeck slidedeck;
 
