@@ -70,10 +70,9 @@ public class ScreenServiceTest {
     }
 
     @Test
-    void testDeleteScreen() {
-        doNothing().when(screenRepository).deleteById(1L);
-        screenService.deleteScreen(1L);
-        verify(screenRepository, times(1)).deleteById(1L);
+    void testUpdateScreenNotFound() {
+        when(screenRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(NoSuchElementException.class, () -> screenService.updateScreen(1L, new Screen()));
     }
 
     @Test
@@ -87,5 +86,32 @@ public class ScreenServiceTest {
 
         Screen result = screenService.assignSlideDeck(1L, 2L);
         assertEquals(deck, result.getSlideDeck());
+    }
+
+    @Test
+    void testAssignSlideDeckScreenNotFound() {
+        when(screenRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(NoSuchElementException.class, () -> screenService.assignSlideDeck(1L, 2L));
+    }
+
+    @Test
+    void testAssignSlideDeckDeckNotFound() {
+        Screen screen = new Screen();
+        when(screenRepository.findById(1L)).thenReturn(Optional.of(screen));
+        when(slideDeckRepository.findById(2L)).thenReturn(Optional.empty());
+        assertThrows(NoSuchElementException.class, () -> screenService.assignSlideDeck(1L, 2L));
+    }
+
+    @Test
+    void testDeleteScreen() {
+        doNothing().when(screenRepository).deleteById(1L);
+        screenService.deleteScreen(1L);
+        verify(screenRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testGetScreenByIdNotFound() {
+        when(screenRepository.findById(1L)).thenReturn(Optional.empty());
+        assertTrue(screenService.getScreenById(1L).isEmpty());
     }
 }

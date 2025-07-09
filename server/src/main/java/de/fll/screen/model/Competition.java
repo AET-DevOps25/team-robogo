@@ -26,6 +26,9 @@ public final class Competition {
     @OneToMany(mappedBy = "competition", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SlideDeck> slideDecks = new HashSet<>();
 
+    @OneToMany(mappedBy = "competition", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Category> categories = new HashSet<>();
+
     public String getName() {
         return name;
     }
@@ -52,5 +55,9 @@ public final class Competition {
 
     public Set<SlideDeck> getSlideDecks() {
         return slideDecks;
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
     }
 }

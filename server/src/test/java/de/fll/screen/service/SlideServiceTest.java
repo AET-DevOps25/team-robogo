@@ -1,7 +1,7 @@
 package de.fll.screen.service;
 
 import de.fll.screen.model.*;
-import de.fll.core.dto.SlideDisplayDTO;
+import de.fll.core.dto.SlideImageDisplayDTO;
 import de.fll.core.dto.ScoreDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ public class SlideServiceTest {
         meta.setContentType("image/png");
         imageSlide.setImageMeta(meta);
 
-        SlideDisplayDTO dto = slideService.assembleSlideDisplay(imageSlide, null);
+        SlideImageDisplayDTO dto = slideService.assembleSlideDisplay(imageSlide, null);
         assertEquals("Image1", dto.getName());
         assertEquals("image", dto.getType());
         assertNotNull(dto.getImageMeta());
@@ -56,7 +56,7 @@ public class SlideServiceTest {
         List<ScoreDTO> mockScoreDTOs = List.of(ScoreDTO.builder().points(99.0).time(123).highlight(true).build());
         when(scoreService.getAllTeamsScoreDTOsWithHighlight(anyList(), eq(category))).thenReturn(mockScoreDTOs);
 
-        SlideDisplayDTO dto = slideService.assembleSlideDisplay(scoreSlide, allScores);
+        SlideImageDisplayDTO dto = slideService.assembleSlideDisplay(scoreSlide, allScores);
         assertEquals("Score1", dto.getName());
         assertEquals("score", dto.getType());
         assertNull(dto.getImageMeta());

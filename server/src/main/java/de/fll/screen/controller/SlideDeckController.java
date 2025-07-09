@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/slidedecks")
+@RequestMapping("/slidedecks")
 public class SlideDeckController {
 
     @Autowired
@@ -25,6 +25,24 @@ public class SlideDeckController {
     public SlideDeck getSlideDeckById(@PathVariable Long deckId) {
         return slideDeckService.getSlideDeckById(deckId)
                 .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
+    }
+
+    // 创建SlideDeck
+    @PostMapping
+    public SlideDeck createSlideDeck(@RequestBody SlideDeck slideDeck) {
+        return slideDeckService.createSlideDeck(slideDeck);
+    }
+
+    // 更新SlideDeck
+    @PutMapping("/{deckId}")
+    public SlideDeck updateSlideDeck(@PathVariable Long deckId, @RequestBody SlideDeck slideDeck) {
+        return slideDeckService.updateSlideDeck(deckId, slideDeck);
+    }
+
+    // 删除SlideDeck
+    @DeleteMapping("/{deckId}")
+    public void deleteSlideDeck(@PathVariable Long deckId) {
+        slideDeckService.deleteSlideDeck(deckId);
     }
 
     // 添加新幻灯片到SlideDeck

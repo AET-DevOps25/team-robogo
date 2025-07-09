@@ -1,18 +1,26 @@
 package de.fll.screen.controller;
 
-import de.fll.screen.model.Screen;
+import de.fll.core.dto.ScreenContentDTO;
+import de.fll.core.dto.SlideImageMetaDTO;
+import de.fll.screen.model.*;
 import de.fll.screen.service.ScreenService;
+import de.fll.screen.service.ScoreService;
+import de.fll.screen.assembler.ScreenContentAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.http.ResponseEntity;
+import java.util.*;
 
 @RestController
-@RequestMapping("/api/screens")
+@RequestMapping("/screens")
 public class ScreenController {
 
     @Autowired
     private ScreenService screenService;
+    @Autowired(required = false)
+    private ScoreService scoreService;
+    @Autowired
+    private ScreenContentAssembler screenContentAssembler;
 
     @GetMapping
     public List<Screen> getAllScreens() {
@@ -42,5 +50,15 @@ public class ScreenController {
     @PostMapping("/{id}/assign-slide-deck/{slideDeckId}")
     public Screen assignSlideDeck(@PathVariable Long id, @PathVariable Long slideDeckId) {
         return screenService.assignSlideDeck(id, slideDeckId);
+    }
+
+    @GetMapping("/{id}/content")
+    public ResponseEntity<ScreenContentDTO> getScreenContent(@PathVariable Long id) {
+        Optional<Screen> screenOpt = screenService.getScreenById(id);
+        if (screenOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        ScreenContentDTO dto = screenContentAssembler.toDTO(screenOpt.get());
+        return ResponseEntity.ok(dto);
     }
 }

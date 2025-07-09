@@ -86,4 +86,8 @@ public class SlideDeck {
 	public void setCompetition(Competition competition) {
 		this.competition = competition;
 	}
+
+	public long getId() {
+		return id;
+	}
 }

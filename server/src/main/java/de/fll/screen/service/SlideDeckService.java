@@ -26,12 +26,12 @@ public class SlideDeckService {
         return slideDeckRepository.findById(id);
     }
 
-    public SlideDeck saveSlideDeck(SlideDeck slideDeck) {
-        return slideDeckRepository.save(slideDeck);
-    }
-
     public void deleteSlideDeck(Long id) {
         slideDeckRepository.deleteById(id);
+    }
+
+    public SlideDeck createSlideDeck(SlideDeck slideDeck) {
+        return slideDeckRepository.save(slideDeck);
     }
 
     public SlideDeck addSlideToDeck(Long deckId, Slide slide) {
@@ -63,5 +63,16 @@ public class SlideDeckService {
         deck.getSlides().removeIf(s -> s.getId() == slideId);
         deck.setVersion(deck.getVersion() + 1);
         return slideDeckRepository.save(deck);
+    }
+
+    public SlideDeck updateSlideDeck(Long deckId, SlideDeck updateData) {
+        SlideDeck existing = slideDeckRepository.findById(deckId)
+            .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
+        existing.setName(updateData.getName());
+        existing.setTransitionTime(updateData.getTransitionTime());
+        existing.setCompetition(updateData.getCompetition());
+        // version is incremented to indicate that the slide deck has changed
+        existing.setVersion(existing.getVersion() + 1);
+        return slideDeckRepository.save(existing);
     }
 } 

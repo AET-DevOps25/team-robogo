@@ -3,7 +3,7 @@ package de.fll.screen.service;
 import de.fll.screen.model.Slide;
 import de.fll.screen.model.SlideImageMeta;
 import de.fll.screen.model.Score;
-import de.fll.core.dto.SlideDisplayDTO;
+import de.fll.core.dto.SlideImageDisplayDTO;
 import de.fll.core.dto.SlideImageMetaDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,8 +23,8 @@ public class SlideService {
     private ScoreService scoreService;
 
     // assemble a single Slide into a SlideDisplayDTO
-    public SlideDisplayDTO assembleSlideDisplay(Slide slide, List<Score> allScores) {
-        SlideDisplayDTO.SlideDisplayDTOBuilder builder = SlideDisplayDTO.builder()
+    public SlideImageDisplayDTO assembleSlideDisplay(Slide slide, List<Score> allScores) {
+        SlideImageDisplayDTO.SlideDisplayDTOBuilder builder = SlideImageDisplayDTO.builder()
                 .id(slide.getId())
                 .name(slide.getName());
 

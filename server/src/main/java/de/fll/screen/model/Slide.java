@@ -31,4 +31,13 @@ public abstract class Slide {
 	public void setIndex(int index) { this.index = index; }
 	public SlideDeck getSlidedeck() { return slidedeck; }
 	public void setSlidedeck(SlideDeck slidedeck) { this.slidedeck = slidedeck; }
+
+	public SlideType getType() {
+		String typeStr = this.getClass().getSimpleName().replace("Slide", "").toUpperCase();
+		try {
+			return SlideType.valueOf(typeStr);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
 }
