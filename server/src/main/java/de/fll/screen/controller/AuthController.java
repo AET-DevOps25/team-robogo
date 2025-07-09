@@ -61,7 +61,6 @@ public class AuthController {
                 .user(UserDTO.builder()
                     .id(user.getId())
                     .username(username)
-                    .email(user.getEmail())
                     .build())
                 .build());
         } catch (Exception e) {
