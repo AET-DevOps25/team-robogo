@@ -368,16 +368,15 @@
     }
   }
 
-  watchOnce(
-    () => store.slideGroups.length > 0 || store.screens.length > 0,
-    () => {
-      // 数据已从 localStorage 加载
-      if (!store.slideTimerStarted) {
-        store.startSlideTimer()
-        store.slideTimerStarted = true
-      }
+watchOnce(
+  () => store.slideGroups.length > 0 || store.screens.length > 0,
+  () => {
+    if (!store._timer) {           //  _timer 为 null 才启动
+      store.startSlideTimer()
     }
-  )
+  }
+)
+
 
   // 延迟初始化空状态
   watchOnce(

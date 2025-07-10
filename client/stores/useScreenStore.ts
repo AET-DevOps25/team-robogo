@@ -1,5 +1,6 @@
 // stores/useScreenStore.ts
 import { defineStore } from 'pinia'
+import 'pinia-plugin-persistedstate'
 import { ref } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 import type { Screen, SlideGroup, SlideItem } from '@/interfaces/types'
@@ -112,6 +113,7 @@ export const useScreenStore = defineStore(
       screens,
       slideGroups,
       slideTimerStarted,
+      _timer,
 
       // Actions
       initStore,
@@ -124,6 +126,9 @@ export const useScreenStore = defineStore(
     }
   },
   {
-    persist: true
+    persist: {
+      // do not persist timer 
+      paths: ['screens', 'slideGroups']
+    }
   }
 )
