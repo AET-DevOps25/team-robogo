@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import de.fll.core.dto.SlideDeckDTO;
 
 @WebMvcTest(
     controllers = ScreenController.class,
@@ -47,6 +48,7 @@ public class ScreenControllerTest {
 
     private Screen screen;
     private SlideDeck slideDeck;
+    private ScreenContentDTO screenContentDTO;
 
     @BeforeEach
     void setUp() {
@@ -58,6 +60,14 @@ public class ScreenControllerTest {
         screen.setStatus(ScreenStatus.ONLINE);
         setId(screen, 1L);
         screen.setSlideDeck(slideDeck);
+        screenContentDTO = new ScreenContentDTO();
+        screenContentDTO.setId(1L);
+        screenContentDTO.setName("Screen1");
+        screenContentDTO.setStatus("ONLINE");
+        SlideDeckDTO slideDeckDTO = new SlideDeckDTO();
+        slideDeckDTO.setId(2L);
+        slideDeckDTO.setName("Deck");
+        screenContentDTO.setSlideDeck(slideDeckDTO);
     }
 
     private void setId(Object entity, Long id) {
@@ -77,6 +87,7 @@ public class ScreenControllerTest {
     @Test
     void testGetAllScreens() throws Exception {
         when(screenService.getAllScreens()).thenReturn(Collections.singletonList(screen));
+        when(screenContentAssembler.toDTO(screen)).thenReturn(screenContentDTO);
         mockMvc.perform(get("/screens"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Screen1"));
@@ -85,6 +96,8 @@ public class ScreenControllerTest {
     @Test
     void testGetScreenById() throws Exception {
         when(screenService.getScreenById(1L)).thenReturn(Optional.of(screen));
+        when(screenContentAssembler.toDTO(screen)).thenReturn(screenContentDTO);
+
         mockMvc.perform(get("/screens/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Screen1"));
@@ -92,20 +105,26 @@ public class ScreenControllerTest {
 
     @Test
     void testCreateScreen() throws Exception {
+        when(screenContentAssembler.fromDTO(any(ScreenContentDTO.class))).thenReturn(screen);
         when(screenService.createScreen(any(Screen.class))).thenReturn(screen);
+        when(screenContentAssembler.toDTO(screen)).thenReturn(screenContentDTO);
+
         mockMvc.perform(post("/screens")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(screen)))
+                .content(objectMapper.writeValueAsString(screenContentDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Screen1"));
     }
 
     @Test
     void testUpdateScreen() throws Exception {
+        when(screenContentAssembler.fromDTO(any(ScreenContentDTO.class))).thenReturn(screen);
         when(screenService.updateScreen(eq(1L), any(Screen.class))).thenReturn(screen);
+        when(screenContentAssembler.toDTO(screen)).thenReturn(screenContentDTO);
+
         mockMvc.perform(put("/screens/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(screen)))
+                .content(objectMapper.writeValueAsString(screenContentDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Screen1"));
     }
@@ -119,6 +138,7 @@ public class ScreenControllerTest {
     @Test
     void testAssignSlideDeck() throws Exception {
         when(screenService.assignSlideDeck(1L, 2L)).thenReturn(screen);
+        when(screenContentAssembler.toDTO(screen)).thenReturn(screenContentDTO);
         mockMvc.perform(post("/screens/1/assign-slide-deck/2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.slideDeck.name").value("Deck"));
@@ -127,6 +147,7 @@ public class ScreenControllerTest {
     @Test
     void testUpdateScreenStatus() throws Exception {
         when(screenService.updateScreenStatus(1L, ScreenStatus.OFFLINE)).thenReturn(screen);
+        when(screenContentAssembler.toDTO(screen)).thenReturn(screenContentDTO);
         mockMvc.perform(put("/screens/1/status?status=OFFLINE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Screen1"));
@@ -134,12 +155,8 @@ public class ScreenControllerTest {
 
     @Test
     void testGetScreenContent() throws Exception {
-        ScreenContentDTO dto = new ScreenContentDTO();
-        dto.setId(1L);
-        dto.setName("Screen1");
-        dto.setStatus("ONLINE");
         when(screenService.getScreenById(1L)).thenReturn(Optional.of(screen));
-        when(screenContentAssembler.toDTO(screen)).thenReturn(dto);
+        when(screenContentAssembler.toDTO(screen)).thenReturn(screenContentDTO);
         mockMvc.perform(get("/screens/1/content"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Screen1"));

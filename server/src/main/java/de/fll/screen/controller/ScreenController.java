@@ -1,15 +1,13 @@
 package de.fll.screen.controller;
 
 import de.fll.core.dto.ScreenContentDTO;
-import de.fll.core.dto.SlideImageMetaDTO;
 import de.fll.screen.model.*;
 import de.fll.screen.service.ScreenService;
-import de.fll.screen.service.ScoreService;
 import de.fll.screen.assembler.ScreenContentAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/screens")
@@ -22,23 +20,29 @@ public class ScreenController {
     private ScreenContentAssembler screenContentAssembler;
 
     @GetMapping
-    public List<Screen> getAllScreens() {
-        return screenService.getAllScreens();
+    public List<ScreenContentDTO> getAllScreens() {
+        List<Screen> screens = screenService.getAllScreens();
+        return screens.stream().map(screenContentAssembler::toDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public Screen getScreenById(@PathVariable Long id) {
-        return screenService.getScreenById(id).orElseThrow();
+    public ScreenContentDTO getScreenById(@PathVariable Long id) {
+        Screen screen = screenService.getScreenById(id).orElseThrow();
+        return screenContentAssembler.toDTO(screen);
     }
 
     @PostMapping
-    public Screen createScreen(@RequestBody Screen screen) {
-        return screenService.createScreen(screen);
+    public ScreenContentDTO createScreen(@RequestBody ScreenContentDTO screenDTO) {
+        Screen screen = screenContentAssembler.fromDTO(screenDTO);
+        Screen saved = screenService.createScreen(screen);
+        return screenContentAssembler.toDTO(saved);
     }
 
     @PutMapping("/{id}")
-    public Screen updateScreen(@PathVariable Long id, @RequestBody Screen screen) {
-        return screenService.updateScreen(id, screen);
+    public ScreenContentDTO updateScreen(@PathVariable Long id, @RequestBody ScreenContentDTO screenDTO) {
+        Screen screen = screenContentAssembler.fromDTO(screenDTO);
+        Screen updated = screenService.updateScreen(id, screen);
+        return screenContentAssembler.toDTO(updated);
     }
 
     @DeleteMapping("/{id}")
@@ -47,22 +51,20 @@ public class ScreenController {
     }
 
     @PostMapping("/{id}/assign-slide-deck/{slideDeckId}")
-    public Screen assignSlideDeck(@PathVariable Long id, @PathVariable Long slideDeckId) {
-        return screenService.assignSlideDeck(id, slideDeckId);
+    public ScreenContentDTO assignSlideDeck(@PathVariable Long id, @PathVariable Long slideDeckId) {
+        Screen screen = screenService.assignSlideDeck(id, slideDeckId);
+        return screenContentAssembler.toDTO(screen);
     }
 
     @GetMapping("/{id}/content")
-    public ResponseEntity<ScreenContentDTO> getScreenContent(@PathVariable Long id) {
-        Optional<Screen> screenOpt = screenService.getScreenById(id);
-        if (screenOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        ScreenContentDTO dto = screenContentAssembler.toDTO(screenOpt.get());
-        return ResponseEntity.ok(dto);
+    public ScreenContentDTO getScreenContent(@PathVariable Long id) {
+        Screen screen = screenService.getScreenById(id).orElseThrow();
+        return screenContentAssembler.toDTO(screen);
     }
 
     @PutMapping("/{id}/status")
-    public Screen updateScreenStatus(@PathVariable Long id, @RequestParam ScreenStatus status) {
-        return screenService.updateScreenStatus(id, status);
+    public ScreenContentDTO updateScreenStatus(@PathVariable Long id, @RequestParam ScreenStatus status) {
+        Screen screen = screenService.updateScreenStatus(id, status);
+        return screenContentAssembler.toDTO(screen);
     }
 }
