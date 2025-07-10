@@ -14,7 +14,7 @@
             :key="screen.id"
             :screen="screen"
             :slide-groups="slideGroups"
-            :all-slides="contentList"
+            :all-slides="slides"
             @update-group="onUpdateScreenGroup"
             @request-delete="
               (screen: Screen) => {
@@ -155,9 +155,7 @@
             v-model:slide-ids="currentGroup.slideIds"
             v-model:speed="currentGroup.speed"
             :title="currentGroup.id"
-            :all-slides="contentList"
             :selected-content="selectedContent"
-            :slides="currentGroupSlides"
             @select="selectContent"
           />
         </div>
@@ -407,18 +405,15 @@
 
   const screens = computed(() => store.screens)
 
-  const contentList = computed(() => store.contentList)
+  import { useSlides } from '@/composables/useSlides'
+  const { slides, add } = useSlides()
 
   const slideGroups = computed(() => store.slideGroups)
 
   const selectedGroupId = ref(store.slideGroups[0]?.id || 'None')
 
   const currentGroup = computed(() => slideGroups.value.find(g => g.id === selectedGroupId.value))
-  const currentGroupSlides = computed(() =>
-    currentGroup.value
-      ? store.contentList.filter(s => currentGroup.value!.slideIds.includes(s.id))
-      : []
-  )
+ 
   const onUpdateScreenGroup = (updatedScreen: Screen) => {
     store.updateScreenGroup(updatedScreen.id, updatedScreen.groupId)
   }
@@ -535,9 +530,6 @@
         name: file.name,
         url: imageUrl
       }
-
-      contentList.value.push(newSlide)
-      store.contentList.push(newSlide)
 
       const targetGroup = store.slideGroups.find(g => g.id === selectedGroupId.value)
       if (targetGroup && targetGroup.id !== 'None') {

@@ -31,7 +31,7 @@
 
       <div
         class="w-[300px] h-[200px] rounded overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-5xl text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-        @click="showDialog = true"
+        @click="openDialog"
       >
         +
       </div>
@@ -50,7 +50,7 @@
         <!-- Slide Selection -->
         <div class="flex flex-wrap gap-4 mb-6">
           <SlideCard
-            v-for="s in allSlides"
+            v-for="s in slides"
             :key="s.id"
             :item="s"
             :selected="s.id === selectedToAdd"
@@ -64,14 +64,14 @@
             class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-400 dark:hover:bg-gray-500"
             @click="cancelAdd"
           >
-            取消
+            Cancel
           </button>
           <button
             class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-gray-400 dark:disabled:bg-gray-600"
             :disabled="!selectedToAdd"
             @click="confirmAdd"
           >
-            确认添加
+            Confirm
           </button>
         </div>
 
@@ -91,7 +91,9 @@
   import draggable from 'vuedraggable'
   import SlideCard from './SlideCard.vue'
   import SpeedControl from './SpeedControl.vue'
-
+  import { useSlides } from '@/composables/useSlides'
+  import type { SlideItem } from '@/interfaces/types'
+  const { slides, refresh } = useSlides()
   interface Slide {
     id: number
     name: string
@@ -99,11 +101,7 @@
   }
   const slideIds = defineModel<number[]>('slide-ids', { required: true })
   const speed = defineModel<number>('speed', { required: true })
-  const props = defineProps<{
-    title: string
-    allSlides: Slide[]
-    selectedContent?: Slide
-  }>()
+  const props = defineProps<{ title:string; selectedContent?:SlideItem }>()
 
   defineEmits<{
     (e: 'select', item: Slide): void
@@ -111,7 +109,13 @@
     (e: 'update:slide-ids', ids: number[]): void
   }>()
 
-  const showDialog = ref(false)
+/* 打开弹窗前刷新一次 */
+const showDialog = ref(false)
+async function openDialog() {
+  await refresh()
+  console.log(slides)
+  showDialog.value = true
+}
   const selectedToAdd = ref<number | null>(null)
 
   /* 拖拽时使用的临时数组 */
@@ -120,9 +124,11 @@
     localSlideIds.value = [...ids]
   })
 
+
+
   const id2Slide = computed<Record<number, Slide>>(() => {
     const map: Record<number, Slide> = {}
-    props.allSlides.forEach(s => {
+      slides.value.forEach(s => {
       map[s.id] = s
     })
     return map
