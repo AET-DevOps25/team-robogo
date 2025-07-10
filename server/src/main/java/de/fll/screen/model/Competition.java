@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Entity
@@ -16,14 +17,17 @@ public final class Competition {
     @Column(name = "id")
     private long id;
 
-    @Column(name = "internal_id", nullable = false)
-    private long internalId;
+    @Column(name = "internal_id", nullable = false, unique = true)
+    private UUID internalId;
 
     @Column(name = "name", nullable = false)
     private String name;
 
     @OneToMany(mappedBy = "competition", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SlideDeck> slideDecks = new HashSet<>();
+
+    @OneToMany(mappedBy = "competition", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Category> categories = new HashSet<>();
 
     public String getName() {
         return name;
@@ -37,11 +41,11 @@ public final class Competition {
         this.id = id;
     }
 
-    public long getInternalId() {
+    public UUID getInternalId() {
         return internalId;
     }
 
-    public void setInternalId(long internalId) {
+    public void setInternalId(UUID internalId) {
         this.internalId = internalId;
     }
 
@@ -51,5 +55,9 @@ public final class Competition {
 
     public Set<SlideDeck> getSlideDecks() {
         return slideDecks;
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
     }
 }

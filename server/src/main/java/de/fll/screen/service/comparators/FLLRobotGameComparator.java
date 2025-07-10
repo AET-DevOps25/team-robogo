@@ -3,9 +3,11 @@ package de.fll.screen.service.comparators;
 import de.fll.screen.model.Score;
 import de.fll.screen.model.Team;
 import de.fll.core.dto.TeamDTO;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Service
 public class FLLRobotGameComparator extends AbstractFLLComparator {
 
 	@Override

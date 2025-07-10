@@ -9,7 +9,6 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Value;
 
 @Service
@@ -21,8 +20,6 @@ public class UserService {
     private String adminUsername;
     @Value("${admin.password:admin}")
     private String adminPassword;
-    @Value("${admin.email:admin@fll.de}")
-    private String adminEmail;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, 
                       JwtService jwtService) {
@@ -34,28 +31,9 @@ public class UserService {
     @PostConstruct
     public void init() {
         if (userRepository.count() == 0) {
-            User admin = new User(adminUsername, passwordEncoder.encode(adminPassword), adminEmail);
-            admin.setEmailVerified(true);
+            User admin = new User(adminUsername, passwordEncoder.encode(adminPassword));
             userRepository.save(admin);
         }
-    }
-
-    @Transactional
-    public boolean verifyEmail(String token) {
-        User user = userRepository.findByVerificationToken(token)
-            .orElse(null);
-
-        if (user == null || 
-            user.getVerificationTokenExpiry().isBefore(LocalDateTime.now()) || 
-            user.isEmailVerified()) {
-            return false;
-        }
-
-        user.setEmailVerified(true);
-        user.setVerificationToken(null);
-        user.setVerificationTokenExpiry(null);
-        userRepository.save(user);
-        return true;
     }
 
     @Transactional(readOnly = true)
@@ -70,7 +48,6 @@ public class UserService {
                     .user(UserDTO.builder()
                         .id(user.getId())
                         .username(user.getUsername())
-                        .email(user.getEmail())
                         .build())
                     .build();
             })

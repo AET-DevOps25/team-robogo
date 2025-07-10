@@ -25,15 +25,6 @@ public class AuthController {
         this.jwtService = jwtService;
     }
 
-    // @PostMapping("/signup")
-    // public ResponseEntity<LoginResponseDTO> signup(@RequestBody SignupRequestDTO request) {
-    //     // 注册功能已禁用
-    //     return ResponseEntity.status(403).body(LoginResponseDTO.builder()
-    //         .success(false)
-    //         .error("Signup is disabled")
-    //         .build());
-    // }
-
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
         logger.debug("Received login request for user: {}", request.getUsername());
@@ -70,7 +61,6 @@ public class AuthController {
                 .user(UserDTO.builder()
                     .id(user.getId())
                     .username(username)
-                    .email(user.getEmail())
                     .build())
                 .build());
         } catch (Exception e) {

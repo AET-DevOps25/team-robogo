@@ -24,7 +24,7 @@ public final class Score {
     private int time;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id")
+    @JoinColumn(name = "team_id", nullable = false)
     @JsonIgnore
     private Team team;
 

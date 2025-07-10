@@ -3,16 +3,18 @@ package de.fll.screen.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "slide_image_content")
 public class SlideImageContent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Lob
+    @Column(name = "content", nullable = false)
     private byte[] content;
 
     @OneToOne
-    @JoinColumn(name = "image_id", nullable = false)
+    @JoinColumn(name = "image_id", nullable = false, unique = true)
     private SlideImageMeta meta;
 
     public Long getId() { return id; }

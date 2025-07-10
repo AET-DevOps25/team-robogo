@@ -3,11 +3,13 @@ package de.fll.screen.service.comparators;
 import de.fll.screen.model.Score;
 import de.fll.screen.model.Team;
 import de.fll.core.dto.TeamDTO;
+import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+@Service
 public class FLLQuarterFinalComparator extends AbstractFLLComparator {
 
 	// TODO: Implement score extraction such that only the relevant scores are used here.

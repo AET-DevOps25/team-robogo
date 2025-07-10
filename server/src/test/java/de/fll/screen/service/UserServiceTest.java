@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -42,7 +42,6 @@ class UserServiceTest {
         // Set the @Value fields using reflection since they're not injected in unit tests
         setField(userService, "adminUsername", "admin");
         setField(userService, "adminPassword", "admin");
-        setField(userService, "adminEmail", "admin@fll.de");
     }
     
     private void setField(Object target, String fieldName, Object value) throws Exception {
@@ -66,7 +65,6 @@ class UserServiceTest {
         User savedUser = userCaptor.getValue();
         assertThat(savedUser.getUsername()).isEqualTo("admin");
         assertThat(savedUser.getPassword()).isEqualTo("encodedPassword");
-        assertThat(savedUser.getEmail()).isEqualTo("admin@fll.de");
     }
 
     @Test
@@ -105,7 +103,7 @@ class UserServiceTest {
         request.setUsername("user");
         request.setPassword("wrongPassword");
 
-        User user = new User("user", "encodedPassword", "user@example.com");
+        User user = new User("user", "encodedPassword");
         when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
 
@@ -124,7 +122,7 @@ class UserServiceTest {
         request.setUsername("user");
         request.setPassword("password");
 
-        User user = new User("user", "encodedPassword", "user@example.com");
+        User user = new User("user", "encodedPassword");
         user.setId(1L);
         when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
@@ -137,59 +135,12 @@ class UserServiceTest {
         assertThat(response.getSuccess()).isTrue();
         assertThat(response.getToken()).isEqualTo("jwt-token");
         assertThat(response.getUser().getUsername()).isEqualTo("user");
-        assertThat(response.getUser().getEmail()).isEqualTo("user@example.com");
-    }
-
-    @Test
-    void verifyEmail_ShouldReturnFalse_WhenTokenNotFound() {
-        // Arrange
-        when(userRepository.findByVerificationToken("invalid-token")).thenReturn(Optional.empty());
-
-        // Act
-        boolean result = userService.verifyEmail("invalid-token");
-
-        // Assert
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    void verifyEmail_ShouldReturnFalse_WhenTokenExpired() {
-        // Arrange
-        User user = new User("user", "password", "user@example.com");
-        user.setVerificationToken("valid-token");
-        user.setVerificationTokenExpiry(java.time.LocalDateTime.now().minusHours(25)); // Token expired
-        when(userRepository.findByVerificationToken("valid-token")).thenReturn(Optional.of(user));
-
-        // Act
-        boolean result = userService.verifyEmail("valid-token");
-
-        // Assert
-        assertThat(result).isFalse();
-    }
-
-    @Test
-    void verifyEmail_ShouldReturnTrue_WhenTokenValid() {
-        // Arrange
-        User user = new User("user", "password", "user@example.com");
-        user.setVerificationToken("valid-token");
-        user.setVerificationTokenExpiry(java.time.LocalDateTime.now().plusHours(23)); // Token still valid
-        when(userRepository.findByVerificationToken("valid-token")).thenReturn(Optional.of(user));
-
-        // Act
-        boolean result = userService.verifyEmail("valid-token");
-
-        // Assert
-        assertThat(result).isTrue();
-        assertThat(user.isEmailVerified()).isTrue();
-        assertThat(user.getVerificationToken()).isNull();
-        assertThat(user.getVerificationTokenExpiry()).isNull();
-        verify(userRepository).save(user);
     }
 
     @Test
     void findByUsername_ShouldReturnUser_WhenUserExists() {
         // Arrange
-        User user = new User("user", "password", "user@example.com");
+        User user = new User("user", "password");
         when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
 
         // Act
@@ -198,7 +149,6 @@ class UserServiceTest {
         // Assert
         assertThat(result).isNotNull();
         assertThat(result.getUsername()).isEqualTo("user");
-        assertThat(result.getEmail()).isEqualTo("user@example.com");
     }
 
     @Test

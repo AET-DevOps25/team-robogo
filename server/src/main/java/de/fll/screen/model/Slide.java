@@ -5,50 +5,39 @@ import jakarta.persistence.*;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Entity
-// TODO add subclasses
-public class Slide {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
+@Table(name = "slide")
+public abstract class Slide {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
 	private long id;
 
-	@Column(name = "name", nullable = true)
+	@Column(name = "name", nullable = false)
 	private String name;
 
-	@ManyToOne
+	@Column(name = "index", nullable = false)
+	private int index;
+
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "slidedeck_id", nullable = false)
 	private SlideDeck slidedeck;
 
-	@ManyToOne
-	@JoinColumn(name = "image_id", nullable = true)
-	private SlideImageMeta imageMeta;
+	public long getId() { return id; }
+	public String getName() { return name; }
+	public void setName(String name) { this.name = name; }
+	public int getIndex() { return index; }
+	public void setIndex(int index) { this.index = index; }
+	public SlideDeck getSlidedeck() { return slidedeck; }
+	public void setSlidedeck(SlideDeck slidedeck) { this.slidedeck = slidedeck; }
 
-	public Slide() {
-
-	}
-
-	public Slide(String name) {
-		this.name = name;
-	}
-
-	public long getId() {
-		return id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public SlideImageMeta getImageMeta() {
-		return imageMeta;
-	}
-
-	public void setImageMeta(SlideImageMeta imageMeta) {
-		this.imageMeta = imageMeta;
+	public SlideType getType() {
+		String typeStr = this.getClass().getSimpleName().replace("Slide", "").toUpperCase();
+		try {
+			return SlideType.valueOf(typeStr);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
 	}
 }
