@@ -10,7 +10,6 @@ export const useScreenStore = defineStore(
     // State
     const screens = ref<Screen[]>([])
     const slideGroups = ref<SlideGroup[]>([])
-    const contentList = ref<SlideItem[]>([])
     const slideTimerStarted = ref(false)
     const _timer = ref<ReturnType<typeof setInterval> | null>(null)
 
@@ -92,7 +91,6 @@ export const useScreenStore = defineStore(
       // State
       screens,
       slideGroups,
-      contentList,
       slideTimerStarted,
 
       // Actions
