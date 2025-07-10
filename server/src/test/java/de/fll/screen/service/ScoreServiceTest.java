@@ -2,6 +2,8 @@ package de.fll.screen.service;
 
 import de.fll.core.dto.ScoreDTO;
 import de.fll.screen.model.*;
+import de.fll.screen.repository.CategoryRepository;
+import de.fll.screen.repository.SlideRepository;
 import de.fll.screen.repository.ScoreRepository;
 import de.fll.screen.repository.TeamRepository;
 import de.fll.screen.service.comparators.FLLRobotGameComparator;
@@ -27,6 +29,10 @@ public class ScoreServiceTest {
     @Mock
     private TeamRepository teamRepository;
     @Mock
+    private CategoryRepository categoryRepository;
+    @Mock
+    private SlideRepository slideRepository;
+    @Mock
     private FLLRobotGameComparator fllRobotGameComparator;
     @Mock
     private FLLQuarterFinalComparator fllQuarterFinalComparator;
@@ -46,6 +52,8 @@ public class ScoreServiceTest {
         scoreService = new ScoreService(
             scoreRepository,
             teamRepository,
+            categoryRepository,
+            slideRepository,
             fllRobotGameComparator,
             fllQuarterFinalComparator,
             fllTestRoundComparator,
@@ -85,7 +93,7 @@ public class ScoreServiceTest {
         Set<Integer> highlight = Set.of(1);
         when(fllRobotGameComparator.getHighlightIndices(team)).thenReturn(highlight);
         category.setCategoryScoring(CategoryScoring.FLL_ROBOT_GAME);
-        List<ScoreDTO> dtos = scoreService.getScoreDTOsWithHighlight(team, category);
+        List<ScoreDTO> dtos = scoreService.getScoreDTOsWithHighlight(team);
         assertEquals(2, dtos.size());
         assertFalse(dtos.get(0).getHighlight());
         assertTrue(dtos.get(1).getHighlight());
@@ -100,7 +108,7 @@ public class ScoreServiceTest {
         when(fllRobotGameComparator.getHighlightIndices(t1)).thenReturn(Set.of(0));
         when(fllRobotGameComparator.getHighlightIndices(t2)).thenReturn(Set.of());
         category.setCategoryScoring(CategoryScoring.FLL_ROBOT_GAME);
-        List<ScoreDTO> dtos = scoreService.getAllTeamsScoreDTOsWithHighlight(List.of(t1, t2), category);
+        List<ScoreDTO> dtos = scoreService.getAllTeamsScoreDTOsWithHighlight(List.of(t1, t2));
         assertEquals(2, dtos.size());
         assertTrue(dtos.get(0).getHighlight());
         assertFalse(dtos.get(1).getHighlight());

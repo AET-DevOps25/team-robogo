@@ -43,13 +43,15 @@ public class SlideLoader implements CommandLineRunner {
         SlideImageMeta meta = images.get(0);
 
         for (SlideDeck deck : decks) {
-            Slide scoreSlide = new ScoreSlide();
-            scoreSlide.setName("Score Board");
-            scoreSlide.setSlidedeck(deck);
-            scoreSlide.setIndex(0);
-            deck.getSlides().add(scoreSlide);
-            slideRepository.save(scoreSlide);
-
+            for (int i = 0; i < 3; i++) { // 多创建几个 ScoreSlide
+                ScoreSlide scoreSlide = new ScoreSlide();
+                scoreSlide.setName("Score Board " + (i + 1));
+                scoreSlide.setSlidedeck(deck);
+                scoreSlide.setIndex(i);
+                deck.getSlides().add(scoreSlide);
+                slideRepository.save(scoreSlide);
+            }
+            // 保留原有ImageSlide逻辑
             ImageSlide imageSlide = new ImageSlide();
             imageSlide.setName("Demo Image");
             imageSlide.setImageMeta(meta);
