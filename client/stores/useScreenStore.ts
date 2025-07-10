@@ -87,6 +87,26 @@ export const useScreenStore = defineStore(
       if (screen) screen.groupId = groupId
     }
 
+    /** 播放指定分组（从第一张开始） */
+    const playGroup = (groupId: string) => {
+      const g = slideGroups.value.find(g => g.id === groupId)
+      if (!g || !g.slideIds.length) return
+
+      g._currentSlideIndex = 0
+      g._lastSwitchTime    = Date.now()
+
+      // 把所有绑定这个分组的屏幕立即切到首张
+      screens.value
+        .filter(s => s.groupId === groupId)
+        .forEach(s => (s.currentContent = g.slideIds[0].toString()))
+    }
+
+    /** 播放全部分组 */
+    const playAllGroups = () => {
+      slideGroups.value.forEach(g => playGroup(g.id))
+    }
+
+
     return {
       // State
       screens,
@@ -98,7 +118,9 @@ export const useScreenStore = defineStore(
       startSlideTimer,
       addScreen,
       addGroup,
-      updateScreenGroup
+      updateScreenGroup,
+      playGroup,
+      playAllGroups
     }
   },
   {

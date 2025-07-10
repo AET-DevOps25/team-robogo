@@ -46,11 +46,7 @@
           :placeholder="t('screenName')"
           class="mb-2 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded"
         />
-        <input
-          v-model="newScreenUrl"
-          :placeholder="t('thumbnailUrl')"
-          class="mb-4 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded"
-        />
+
 
         <div class="flex justify-end gap-2">
           <button
@@ -121,7 +117,12 @@
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
             {{ t('slideGroups') }}
           </h2>
-
+          <button
+      class="px-3 py-1 bg-green-600 dark:bg-green-500 text-white rounded hover:bg-green-700 dark:hover:bg-green-600"
+      @click="store.playAllGroups()"
+    >
+      ▶ Play&nbsp;All
+    </button>
           <button
             class="text-sm px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
             @click="triggerFileInput"
