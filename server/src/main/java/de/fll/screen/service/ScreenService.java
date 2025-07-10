@@ -1,6 +1,7 @@
 package de.fll.screen.service;
 
 import de.fll.screen.model.Screen;
+import de.fll.screen.model.ScreenStatus;
 import de.fll.screen.model.SlideDeck;
 import de.fll.screen.repository.ScreenRepository;
 import de.fll.screen.repository.SlideDeckRepository;
@@ -46,6 +47,12 @@ public class ScreenService {
         Screen screen = screenRepository.findById(screenId).orElseThrow();
         SlideDeck slideDeck = slideDeckRepository.findById(slideDeckId).orElseThrow();
         screen.setSlideDeck(slideDeck);
+        return screenRepository.save(screen);
+    }
+
+    public Screen updateScreenStatus(Long id, ScreenStatus status) {
+        Screen screen = screenRepository.findById(id).orElseThrow();
+        screen.setStatus(status);
         return screenRepository.save(screen);
     }
 }

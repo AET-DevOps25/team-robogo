@@ -3,6 +3,7 @@ package de.fll.screen.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "slide_image_meta")
 public class SlideImageMeta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

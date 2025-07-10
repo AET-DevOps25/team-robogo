@@ -51,7 +51,7 @@ public class SlideDeckControllerTest {
     @Test
     void testGetAllSlideDecks() throws Exception {
         when(slideDeckService.getAllSlideDecks()).thenReturn(Collections.singletonList(slideDeck));
-        mockMvc.perform(get("/api/slidedecks"))
+        mockMvc.perform(get("/slidedecks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Test Deck"));
     }
@@ -59,7 +59,7 @@ public class SlideDeckControllerTest {
     @Test
     void testGetSlideDeckById() throws Exception {
         when(slideDeckService.getSlideDeckById(1L)).thenReturn(Optional.of(slideDeck));
-        mockMvc.perform(get("/api/slidedecks/1"))
+        mockMvc.perform(get("/slidedecks/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Test Deck"));
     }
@@ -67,7 +67,7 @@ public class SlideDeckControllerTest {
     @Test
     void testCreateSlideDeck() throws Exception {
         when(slideDeckService.createSlideDeck(any(SlideDeck.class))).thenReturn(slideDeck);
-        mockMvc.perform(post("/api/slidedecks")
+        mockMvc.perform(post("/slidedecks")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(slideDeck)))
                 .andExpect(status().isOk())
@@ -77,7 +77,7 @@ public class SlideDeckControllerTest {
     @Test
     void testUpdateSlideDeck() throws Exception {
         when(slideDeckService.updateSlideDeck(any(Long.class), any(SlideDeck.class))).thenReturn(slideDeck);
-        mockMvc.perform(put("/api/slidedecks/1")
+        mockMvc.perform(put("/slidedecks/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(slideDeck)))
                 .andExpect(status().isOk())
@@ -86,7 +86,7 @@ public class SlideDeckControllerTest {
 
     @Test
     void testDeleteSlideDeck() throws Exception {
-        mockMvc.perform(delete("/api/slidedecks/1"))
+        mockMvc.perform(delete("/slidedecks/1"))
                 .andExpect(status().isOk());
     }
 } 

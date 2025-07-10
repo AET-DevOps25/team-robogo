@@ -17,8 +17,7 @@ public class ScreenController {
 
     @Autowired
     private ScreenService screenService;
-    @Autowired(required = false)
-    private ScoreService scoreService;
+
     @Autowired
     private ScreenContentAssembler screenContentAssembler;
 
@@ -60,5 +59,10 @@ public class ScreenController {
         }
         ScreenContentDTO dto = screenContentAssembler.toDTO(screenOpt.get());
         return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/{id}/status")
+    public Screen updateScreenStatus(@PathVariable Long id, @RequestParam ScreenStatus status) {
+        return screenService.updateScreenStatus(id, status);
     }
 }

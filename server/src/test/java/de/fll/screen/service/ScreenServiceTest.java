@@ -114,4 +114,15 @@ public class ScreenServiceTest {
         when(screenRepository.findById(1L)).thenReturn(Optional.empty());
         assertTrue(screenService.getScreenById(1L).isEmpty());
     }
+
+    @Test
+    void testUpdateScreenStatus() {
+        Screen screen = new Screen();
+        screen.setStatus(ScreenStatus.OFFLINE);
+        when(screenRepository.findById(1L)).thenReturn(Optional.of(screen));
+        when(screenRepository.save(any(Screen.class))).thenReturn(screen);
+        Screen updated = screenService.updateScreenStatus(1L, ScreenStatus.ONLINE);
+
+        assertEquals(ScreenStatus.ONLINE, updated.getStatus());
+    }
 }

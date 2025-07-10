@@ -9,6 +9,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Entity
+@Table(name = "slide_deck")
 public class SlideDeck {
 
 	@Id
