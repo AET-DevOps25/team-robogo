@@ -2,7 +2,6 @@ package de.fll.screen.assembler;
 
 import de.fll.core.dto.ScreenContentDTO;
 import de.fll.screen.model.Screen;
-import de.fll.screen.model.ScreenStatus;
 import de.fll.screen.model.SlideDeck;
 import de.fll.screen.service.ScreenService;
 
@@ -18,7 +17,9 @@ public class ScreenContentAssembler implements AbstractDTOAssembler<Screen, Scre
     @Autowired
     private ScreenService screenService;
 
+    @Override
     public ScreenContentDTO toDTO(Screen screen) {
+        if (screen == null) return null;
         ScreenContentDTO dto = new ScreenContentDTO();
         dto.setId(screen.getId());
         dto.setName(screen.getName());
@@ -30,15 +31,9 @@ public class ScreenContentAssembler implements AbstractDTOAssembler<Screen, Scre
         return dto;
     }
 
+    @Override
     public Screen fromDTO(ScreenContentDTO dto) {
         if (dto == null) return null;
-        Screen screen = new Screen();
-        screen.setName(dto.getName());
-        if (dto.getStatus() != null) {
-            screen.setStatus(ScreenStatus.valueOf(dto.getStatus()));
-        }
-        // Don't assemble slideDeck here, let the Service layer do it
-        screenService.createScreenFromDTO(dto);
-        return screen;
+        return screenService.createScreenFromDTO(dto);
     }
 }

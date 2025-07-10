@@ -1,116 +1,101 @@
 package de.fll.screen.service;
 
 import de.fll.core.dto.ScoreDTO;
+import de.fll.core.dto.ScoreSlideDTO;
 import de.fll.screen.model.*;
-import de.fll.screen.repository.CategoryRepository;
-import de.fll.screen.repository.SlideRepository;
-import de.fll.screen.repository.ScoreRepository;
-import de.fll.screen.repository.TeamRepository;
-import de.fll.screen.service.comparators.FLLRobotGameComparator;
-import de.fll.screen.service.comparators.FLLQuarterFinalComparator;
-import de.fll.screen.service.comparators.FLLTestRoundComparator;
-import de.fll.screen.service.comparators.WROStarterComparator;
-import de.fll.screen.service.comparators.WRO2025Comparator;
-import de.fll.screen.model.CategoryScoring;
+import de.fll.screen.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ScoreServiceTest {
+class ScoreServiceTest {
+
     @InjectMocks
     private ScoreService scoreService;
 
     @Mock
-    private ScoreRepository scoreRepository;
+    private CategoryRepository categoryRepository;
     @Mock
     private TeamRepository teamRepository;
     @Mock
-    private CategoryRepository categoryRepository;
-    @Mock
     private SlideRepository slideRepository;
     @Mock
-    private FLLRobotGameComparator fllRobotGameComparator;
-    @Mock
-    private FLLQuarterFinalComparator fllQuarterFinalComparator;
-    @Mock
-    private FLLTestRoundComparator fllTestRoundComparator;
-    @Mock
-    private WROStarterComparator wroStarterComparator;
-    @Mock
-    private WRO2025Comparator wro2025Comparator;
-
-    private Category category;
-    private Team team;
+    private ScoreRepository scoreRepository;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        scoreService = new ScoreService(
-            scoreRepository,
-            teamRepository,
-            categoryRepository,
-            slideRepository,
-            fllRobotGameComparator,
-            fllQuarterFinalComparator,
-            fllTestRoundComparator,
-            wroStarterComparator,
-            wro2025Comparator
-        );
-        category = new Category();
-        category.setCategoryScoring(CategoryScoring.FLL_ROBOT_GAME);
-        team = new Team("T1");
     }
 
     @Test
-    void testAddScore() {
-        when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> i.getArgument(0));
-        Score score = scoreService.addScore(1L, 88.5, 120);
-        assertEquals(88.5, score.getPoints());
-        assertEquals(120, score.getTime());
+    void testCreateScoreSlideFromDTO_Normal() {
+        // 构造 DTO
+        ScoreSlideDTO dto = new ScoreSlideDTO();
+        dto.setName("slide1");
+        dto.setIndex(1);
+        dto.setCategoryId(100L);
+
+        ScoreDTO scoreDTO = new ScoreDTO();
+        scoreDTO.setTeamId(200L);
+        scoreDTO.setPoints(50.0);
+        scoreDTO.setTime(123);
+        dto.setScores(List.of(scoreDTO));
+
+        // Mock category/team
+        Category category = new Category();
+        category.setId(100L);
+        Team team = new Team();
+        team.setId(200L);
+
+        when(categoryRepository.findById(100L)).thenReturn(Optional.of(category));
+        when(teamRepository.findById(200L)).thenReturn(Optional.of(team));
+
+        // 调用
+        ScoreSlide slide = scoreService.createScoreSlideFromDTO(dto);
+
+        // 断言
+        assertNotNull(slide);
+        assertEquals("slide1", slide.getName());
+        assertEquals(1, slide.getIndex());
+        assertEquals(category, slide.getCategory());
+        assertEquals(1, slide.getScores().size());
+        Score score = slide.getScores().get(0);
         assertEquals(team, score.getTeam());
-        assertTrue(team.getScores().contains(score));
+        assertEquals(50, score.getPoints());
+        assertEquals(123, score.getTime());
+
+        // 验证保存
+        verify(slideRepository).save(slide);
+        verify(scoreRepository).save(score);
     }
 
     @Test
-    void testGetScoresForTeam() {
-        List<Score> scores = List.of(new Score(10, 1), new Score(20, 2));
-        when(scoreRepository.findByTeam(team)).thenReturn(scores);
-        List<Score> result = scoreService.getScoresForTeam(team);
-        assertEquals(2, result.size());
-        assertEquals(10, result.get(0).getPoints());
+    void testCreateScoreSlideFromDTO_NullCategory() {
+        ScoreSlideDTO dto = new ScoreSlideDTO();
+        dto.setCategoryId(999L);
+        when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
+
+        ScoreSlide slide = scoreService.createScoreSlideFromDTO(dto);
+        assertNull(slide.getCategory());
     }
 
     @Test
-    void testGetScoreDTOsWithHighlight() {
-        Score s1 = new Score(10, 1);
-        Score s2 = new Score(20, 2);
-        team.getScores().addAll(List.of(s1, s2));
-        Set<Integer> highlight = Set.of(1);
-        when(fllRobotGameComparator.getHighlightIndices(team)).thenReturn(highlight);
-        category.setCategoryScoring(CategoryScoring.FLL_ROBOT_GAME);
-        List<ScoreDTO> dtos = scoreService.getScoreDTOsWithHighlight(team);
-        assertEquals(2, dtos.size());
-        assertFalse(dtos.get(0).getHighlight());
-        assertTrue(dtos.get(1).getHighlight());
+    void testCreateScoreSlideFromDTO_NullTeam() {
+        ScoreSlideDTO dto = new ScoreSlideDTO();
+        dto.setScores(List.of(new ScoreDTO()));
+        when(teamRepository.findById(any())).thenReturn(Optional.empty());
+
+        ScoreSlide slide = scoreService.createScoreSlideFromDTO(dto);
+        assertTrue(slide.getScores().isEmpty());
     }
 
     @Test
-    void testGetAllTeamsScoreDTOsWithHighlight() {
-        Team t1 = new Team("A");
-        Team t2 = new Team("B");
-        t1.getScores().add(new Score(10, 1));
-        t2.getScores().add(new Score(20, 2));
-        when(fllRobotGameComparator.getHighlightIndices(t1)).thenReturn(Set.of(0));
-        when(fllRobotGameComparator.getHighlightIndices(t2)).thenReturn(Set.of());
-        category.setCategoryScoring(CategoryScoring.FLL_ROBOT_GAME);
-        List<ScoreDTO> dtos = scoreService.getAllTeamsScoreDTOsWithHighlight(List.of(t1, t2));
-        assertEquals(2, dtos.size());
-        assertTrue(dtos.get(0).getHighlight());
-        assertFalse(dtos.get(1).getHighlight());
+    void testCreateScoreSlideFromDTO_NullDTO() {
+        assertNull(scoreService.createScoreSlideFromDTO(null));
     }
 } 

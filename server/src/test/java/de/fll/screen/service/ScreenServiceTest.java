@@ -1,5 +1,8 @@
 package de.fll.screen.service;
 
+import de.fll.core.dto.ScreenContentDTO;
+import de.fll.core.dto.SlideDeckDTO;
+import de.fll.screen.assembler.SlideDeckAssembler;
 import de.fll.screen.model.Screen;
 import de.fll.screen.model.ScreenStatus;
 import de.fll.screen.model.SlideDeck;
@@ -23,6 +26,9 @@ public class ScreenServiceTest {
 
     @Mock
     private SlideDeckRepository slideDeckRepository;
+
+    @Mock
+    private SlideDeckAssembler slideDeckAssembler;
 
     @BeforeEach
     void setUp() {
@@ -124,5 +130,69 @@ public class ScreenServiceTest {
         Screen updated = screenService.updateScreenStatus(1L, ScreenStatus.ONLINE);
 
         assertEquals(ScreenStatus.ONLINE, updated.getStatus());
+    }
+
+    @Test
+    void testCreateScreenFromDTO_Normal() {
+        // 构造 DTO
+        ScreenContentDTO dto = new ScreenContentDTO();
+        dto.setName("screen1");
+        dto.setStatus("ONLINE");
+        SlideDeckDTO deckDTO = new SlideDeckDTO();
+        dto.setSlideDeck(deckDTO);
+
+        SlideDeck deck = new SlideDeck();
+        when(slideDeckAssembler.fromDTO(deckDTO)).thenReturn(deck);
+
+        Screen savedScreen = new Screen();
+        savedScreen.setName("screen1");
+        savedScreen.setStatus(ScreenStatus.ONLINE);
+        savedScreen.setSlideDeck(deck);
+
+        when(screenRepository.save(any(Screen.class))).thenReturn(savedScreen);
+
+        // 调用
+        Screen result = screenService.createScreenFromDTO(dto);
+
+        // 断言
+        assertNotNull(result);
+        assertEquals("screen1", result.getName());
+        assertEquals(ScreenStatus.ONLINE, result.getStatus());
+        assertEquals(deck, result.getSlideDeck());
+
+        verify(slideDeckAssembler).fromDTO(deckDTO);
+        verify(screenRepository).save(any(Screen.class));
+    }
+
+    @Test
+    void testCreateScreenFromDTO_NullStatusAndDeck() {
+        ScreenContentDTO dto = new ScreenContentDTO();
+        dto.setName("screen2");
+        dto.setStatus(null);
+        dto.setSlideDeck(null);
+
+        Screen savedScreen = new Screen();
+        savedScreen.setName("screen2");
+        savedScreen.setStatus(null);
+        savedScreen.setSlideDeck(null);
+
+        when(screenRepository.save(any(Screen.class))).thenReturn(savedScreen);
+
+        Screen result = screenService.createScreenFromDTO(dto);
+
+        assertNotNull(result);
+        assertEquals("screen2", result.getName());
+        assertNull(result.getStatus());
+        assertNull(result.getSlideDeck());
+
+        verify(screenRepository).save(any(Screen.class));
+        verify(slideDeckAssembler, never()).fromDTO(any());
+    }
+
+    @Test
+    void testCreateScreenFromDTO_NullDTO() {
+        assertNull(screenService.createScreenFromDTO(null));
+        verify(screenRepository, never()).save(any());
+        verify(slideDeckAssembler, never()).fromDTO(any());
     }
 }
