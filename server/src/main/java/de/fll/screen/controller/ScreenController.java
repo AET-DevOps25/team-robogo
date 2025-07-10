@@ -7,6 +7,7 @@ import de.fll.screen.assembler.ScreenContentAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/screens")
@@ -21,11 +22,7 @@ public class ScreenController {
     @GetMapping
     public List<ScreenContentDTO> getAllScreens() {
         List<Screen> screens = screenService.getAllScreens();
-        List<ScreenContentDTO> dtos = new ArrayList<>();
-        for (Screen screen : screens) {
-            dtos.add(screenContentAssembler.toDTO(screen));
-        }
-        return dtos;
+        return screens.stream().map(screenContentAssembler::toDTO).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

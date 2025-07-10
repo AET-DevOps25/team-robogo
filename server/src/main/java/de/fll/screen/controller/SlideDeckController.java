@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.ArrayList;
+import de.fll.core.dto.SlideDTO;
+import de.fll.screen.assembler.SlideAssembler;
 
 @RestController
 @RequestMapping("/slidedecks")
@@ -19,6 +21,9 @@ public class SlideDeckController {
 
     @Autowired
     private SlideDeckAssembler slideDeckAssembler;
+
+    @Autowired
+    private SlideAssembler slideAssembler;
 
     @GetMapping
     public List<SlideDeckDTO> getAllSlideDecks() {
@@ -57,7 +62,8 @@ public class SlideDeckController {
     }
 
     @PostMapping("/{deckId}/slides")
-    public SlideDeckDTO addSlideToDeck(@PathVariable Long deckId, @RequestBody Slide slide) {
+    public SlideDeckDTO addSlideToDeck(@PathVariable Long deckId, @RequestBody SlideDTO slideDTO) {
+        Slide slide = slideAssembler.fromDTO(slideDTO);
         SlideDeck deck = slideDeckService.addSlideToDeck(deckId, slide);
         return slideDeckAssembler.toDTO(deck);
     }
