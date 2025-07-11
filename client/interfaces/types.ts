@@ -20,6 +20,7 @@ export interface SlideGroup {
   id: string
   slideIds: number[]
   speed: number
+  version: number
   _currentSlideIndex?: number
   _lastSwitchTime?: number
 }

@@ -21,11 +21,21 @@ export const useScreenStore = defineStore(
           id: 'None',
           slideIds: [],
           speed: 5,
+          version:0,
           _currentSlideIndex: 0,
           _lastSwitchTime: Date.now()
         })
       }
     }
+
+    function replaceGroup(g: SlideGroup) {
+    const idx = slideGroups.value.findIndex(x => x.id === g.id)
+    if (idx !== -1) slideGroups.value[idx] = {
+      ...g,
+      _currentSlideIndex: 0,
+      _lastSwitchTime: Date.now()
+    }
+  }
 
     const startSlideTimer = () => {
       if (_timer.value) return
@@ -78,6 +88,7 @@ export const useScreenStore = defineStore(
         id: name,
         slideIds: [],
         speed: 5,
+        version:1, //init version 1
         _currentSlideIndex: 0,
         _lastSwitchTime: Date.now()
       })
@@ -117,6 +128,7 @@ export const useScreenStore = defineStore(
 
       // Actions
       initStore,
+      replaceGroup,
       startSlideTimer,
       addScreen,
       addGroup,
