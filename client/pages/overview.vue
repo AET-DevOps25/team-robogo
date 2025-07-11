@@ -339,7 +339,28 @@
   import { AIService } from '@/services/aiService'
   import type { Screen, SlideItem, ChatMessage, SlideGroup } from '@/interfaces/types'
   import type { SuggestionRequestDTO } from '@/interfaces/dto'
+import { fetchGroups, saveGroup } from '@/services/groupService'
+  import { useSlides } from '@/composables/useSlides'
+  const { slides, refresh, add } = useSlides()
 
+onMounted(async () => {
+  store.slideGroups = await fetchGroups()      // 初始化
+  
+    if (store.slideGroups.length > 0) {
+    selectedGroupId.value = store.slideGroups[0].id
+    await refresh()
+  }
+})
+
+/* SlideGroupCard 拖拽 / 调速完成后 */
+async function onGroupChanged(localGroup: SlideGroup) {
+  try {
+    const saved = await saveGroup(localGroup)  // 后端 version++
+    store.replaceGroup(saved)                  // 覆盖并重置指针
+  } catch (e) {
+    console.error('保存失败', e)
+  }
+}
   const { t } = useI18n()
 
   const scoreTarget = ref('')
@@ -405,8 +426,7 @@ watchOnce(
 
   const screens = computed(() => store.screens)
 
-  import { useSlides } from '@/composables/useSlides'
-  const { slides, add } = useSlides()
+
 
   const slideGroups = computed(() => store.slideGroups)
 
