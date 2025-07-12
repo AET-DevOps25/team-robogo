@@ -111,4 +111,3 @@ grafana:
 postgresExporter:
   port: 9187
 
-namespace: team-robogo
