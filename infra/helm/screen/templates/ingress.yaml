@@ -17,19 +17,13 @@ spec:
   tls:
     - hosts:
         - "{{ .Values.ingress.host }}"
+        - "{{ .Values.ingress.grafanaHost }}"
       secretName: "{{ .Values.ingress.secretName }}"
   {{- end }}
   rules:
     - host: "{{ .Values.ingress.host }}"
       http:
         paths:
-          - path: /grafana
-            pathType: Prefix
-            backend:
-              service:
-                name: grafana
-                port:
-                  number: {{ .Values.grafana.service.port }}
           - path: /
             pathType: Prefix
             backend:
@@ -37,5 +31,14 @@ spec:
                 name: client-service
                 port:
                   number: {{ .Values.client.port }}
-
+    - host: "grafana.{{ .Values.ingress.host }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: {{ .Values.grafana.service.port }}
 {{- end }}

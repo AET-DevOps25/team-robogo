@@ -27,3 +27,6 @@ scrape_configs:
     metrics_path: '/metrics'
     static_configs:
       - targets: ['genai-service.team-robogo.svc:5000'] 
+
+rule_files:
+  - "/etc/prometheus-rules/alert.rules.yml" 
