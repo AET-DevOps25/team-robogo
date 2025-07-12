@@ -19,10 +19,9 @@ export interface SlideItem {
 export interface SlideGroup {
   id: string
   slideIds: number[]
-  speed: number
+  speed: number        //s
+  lastResetAt: number // ms
   version: number
-  _currentSlideIndex?: number
-  _lastSwitchTime?: number
 }
 
 // chat related types

@@ -3,8 +3,6 @@ export interface SlideGroup {
   slideIds: number[]
   speed: number
   version: number               // ★ 单调递增
-  _currentSlideIndex?: number   // 运行时字段，不持久化
-  _lastSwitchTime?: number
 }
 
 export const fakeSlideGroups: SlideGroup[] = [

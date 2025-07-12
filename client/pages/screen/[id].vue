@@ -13,7 +13,7 @@ const screenId = useRoute().params.id as string
 const screen = computed(() => store.screens.find(s => s.id === screenId))
 const group = computed(() => store.slideGroups.find(g => g.id === screen.value?.groupId))
 
-const currentIndex = computed(() => group.value?._currentSlideIndex ?? 0)
+
 const currentSlide = computed(() => {
   const id = Number(screen.value?.currentContent)
   if (!id) return null

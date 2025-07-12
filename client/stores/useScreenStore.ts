@@ -12,7 +12,7 @@ export const useScreenStore = defineStore(
     const screens = ref<Screen[]>([])
     const slideGroups = ref<SlideGroup[]>([])
     const slideTimerStarted = ref(false)
-    const _timer = ref<ReturnType<typeof setInterval> | null>(null)
+    let _timer: ReturnType<typeof setInterval> | null = null
 
     // Actions
     const initStore = () => {
@@ -21,54 +21,48 @@ export const useScreenStore = defineStore(
           id: 'None',
           slideIds: [],
           speed: 5,
-          version:0,
-          _currentSlideIndex: 0,
-          _lastSwitchTime: Date.now()
+          version: 0,
+          lastResetAt: Date.now() // ms
         })
       }
     }
 
     function replaceGroup(g: SlideGroup) {
-    const idx = slideGroups.value.findIndex(x => x.id === g.id)
-    if (idx !== -1) slideGroups.value[idx] = {
-      ...g,
-      _currentSlideIndex: 0,
-      _lastSwitchTime: Date.now()
+      const idx = slideGroups.value.findIndex(x => x.id === g.id)
+      if (idx !== -1)
+        slideGroups.value[idx] = {
+          ...g,
+          lastResetAt: Date.now()
+        }
     }
-  }
+
+    function calcIndex(g: SlideGroup) {
+      if (!g.slideIds.length) return 0
+      const elapsed = Date.now() - g.lastResetAt
+      return Math.floor(elapsed / (g.speed * 1000)) % g.slideIds.length
+    }
 
     const startSlideTimer = () => {
-      if (_timer.value) return
-      _timer.value = setInterval(() => {
-        const now = Date.now()
-        for (const group of slideGroups.value) {
-          if (!group.slideIds.length) continue
-          if (!group._lastSwitchTime) {
-            group._lastSwitchTime = now
-            group._currentSlideIndex = 0
-            continue
-          }
-          const speedMs = (group.speed || 5) * 1000
-          if (now - group._lastSwitchTime >= speedMs) {
-            group._lastSwitchTime = now
-            group._currentSlideIndex =
-              ((group._currentSlideIndex ?? -1) + 1) % group.slideIds.length
-          }
-        }
-
-        for (const screen of screens.value) {
-          const group = slideGroups.value.find(g => g.id === screen.groupId)
-          if (!group || !group.slideIds.length) {
+      if (_timer) return // ← 已有计时器就别再建
+      _timer = setInterval(() => {
+        console.log('tick')
+        screens.value.forEach(screen => {
+          const g = slideGroups.value.find(x => x.id === screen.groupId)
+          if (!g || !g.slideIds.length) {
             screen.currentContent = 'BLACK_SCREEN'
-            continue
+          } else {
+            const idx = calcIndex(g)
+            screen.currentContent = g.slideIds[idx].toString()
           }
-          const id = group.slideIds[group._currentSlideIndex ?? 0]
-          screen.currentContent = id.toString()
-        }
+        })
       }, 1000)
-      slideTimerStarted.value = true
     }
 
+    /** ▶ Play 按钮或保存成功时 */
+    function resetGroup(g: SlideGroup) {
+      g.lastResetAt = Date.now()
+      // 如需全端同步 → PUT /groups/{id}
+    }
     const addScreen = (name: string, url: string) => {
       const id = uuidv4()
       screens.value.push({
@@ -88,9 +82,8 @@ export const useScreenStore = defineStore(
         id: name,
         slideIds: [],
         speed: 5,
-        version:1, //init version 1
-        _currentSlideIndex: 0,
-        _lastSwitchTime: Date.now()
+        version: 1, //init version 1
+        lastResetAt: Date.now()
       })
     }
 
@@ -104,8 +97,7 @@ export const useScreenStore = defineStore(
       const g = slideGroups.value.find(g => g.id === groupId)
       if (!g || !g.slideIds.length) return
 
-      g._currentSlideIndex = 0
-      g._lastSwitchTime    = Date.now()
+      g.lastResetAt = Date.now()
 
       // 把所有绑定这个分组的屏幕立即切到首张
       screens.value
@@ -117,7 +109,6 @@ export const useScreenStore = defineStore(
     const playAllGroups = () => {
       slideGroups.value.forEach(g => playGroup(g.id))
     }
-
 
     return {
       // State
@@ -132,6 +123,7 @@ export const useScreenStore = defineStore(
       startSlideTimer,
       addScreen,
       addGroup,
+      resetGroup,
       updateScreenGroup,
       playGroup,
       playAllGroups
@@ -139,7 +131,7 @@ export const useScreenStore = defineStore(
   },
   {
     persist: {
-      // do not persist timer 
+      // do not persist timer
       paths: ['screens', 'slideGroups']
     }
   }
