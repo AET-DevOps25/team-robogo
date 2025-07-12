@@ -88,6 +88,18 @@ services:
     labels:
       - "logging.jobname=redis"
 
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.61.0
+    restart: always
+    environment:
+      - REDIS_ADDR=redis:6379
+    ports:
+      - "9121:9121"
+    depends_on:
+      - redis
+    labels:
+      - "logging.jobname=redis-exporter"
+
   prometheus:
     image: prom/prometheus:v2.45.0
     ports:
@@ -104,6 +116,7 @@ services:
       - '--web.enable-lifecycle'
     depends_on:
       - postgres-exporter
+      - redis-exporter
 
   postgres-exporter:
     image: quay.io/prometheuscommunity/postgres-exporter

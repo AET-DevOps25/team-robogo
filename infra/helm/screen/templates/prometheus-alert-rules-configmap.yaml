@@ -5,4 +5,4 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   alert.rules.yml: |-
-{{ .Files.Get "monitoring/alert.rules.yml" | indent 4 }} 
+{{ .Files.Get "files/monitoring/alert.rules.yml" | indent 4 }} 
