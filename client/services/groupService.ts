@@ -54,9 +54,3 @@ export async function saveGroup(local: SlideGroup): Promise<SlideGroup> {
 
   return merged
 }
-
-export async function fetchGroupVersion(id: string): Promise<number> {
-  const res = await fetch(`/api/groups/${id}/version`)
-  if (!res.ok) throw new Error(String(res.status))
-  return (await res.json()).version as number
-}
