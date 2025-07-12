@@ -1,9 +1,9 @@
 import { beforeAll, beforeEach, afterEach, afterAll, vi } from 'vitest'
 import { setupServer } from 'msw/node'
-import { handlers } from './mocks/handlers'
 
 import { setActivePinia } from 'pinia'
 import { createTestingPinia } from '@pinia/testing'
+import { handlers } from './mocks/handlers'
 
 // Create MSW server
 const server = setupServer(...handlers)
@@ -60,8 +60,8 @@ beforeEach(() => {
    */
   setActivePinia(
     createTestingPinia({
-      stubActions: true,   // 如果想测试 action 的真实实现可设为 false
-      createSpy: vi.fn     // 让 Vitest 生成 spy
+      stubActions: true, // 如果想测试 action 的真实实现可设为 false
+      createSpy: vi.fn // 让 Vitest 生成 spy
     })
   )
 })

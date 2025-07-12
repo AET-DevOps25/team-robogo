@@ -5,11 +5,10 @@ import SlideCard from '@/components/SlideCard.vue'
 const mockItem = {
   id: 1,
   name: 'Test Slide',
-  url: 'https://example.com/slide.jpg',
+  url: 'https://example.com/slide.jpg'
 }
 
-const factory = (selected = false) =>
-  mount(SlideCard, { props: { item: mockItem, selected } })
+const factory = (selected = false) => mount(SlideCard, { props: { item: mockItem, selected } })
 
 describe('SlideCard', () => {
   it('renders image & name', () => {

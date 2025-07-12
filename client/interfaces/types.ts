@@ -19,7 +19,7 @@ export interface SlideItem {
 export interface SlideGroup {
   id: string
   slideIds: number[]
-  speed: number        //s
+  speed: number // s
   lastResetAt: number // ms
   version: number
 }

@@ -6,7 +6,7 @@ const slides = ref<SlideItem[]>([])
 
 export function useSlides() {
   async function refresh() {
-    slides.value = await fetchAvailableSlides()   // 打接口
+    slides.value = await fetchAvailableSlides() // 打接口
   }
 
   /** 本地上传时把新 Slide 塞进列表（同时可选再调后台） */

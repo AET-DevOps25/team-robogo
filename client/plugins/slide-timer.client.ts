@@ -4,5 +4,5 @@ import { useScreenStore } from '@/stores/useScreenStore'
 
 export default defineNuxtPlugin(() => {
   const store = useScreenStore()
-  if (!store._timer) store.startSlideTimer()   // 只启动一次
+  if (!store._timer) store.startSlideTimer() // 只启动一次
 })

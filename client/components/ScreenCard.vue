@@ -56,7 +56,7 @@
       thumbnailUrl: string
       urlPath: string
     }
-    slideGroups: { id: string; slideIds: number[]; speed: number; lastResetAt: number; }[]
+    slideGroups: { id: string; slideIds: number[]; speed: number; lastResetAt: number }[]
     allSlides: { id: number; name: string; url: string }[]
   }>()
 

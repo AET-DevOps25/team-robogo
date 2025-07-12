@@ -116,10 +116,7 @@ import { http, HttpResponse } from 'msw'
 // Override default response in specific tests
 server.use(
   http.get('/api/proxy/genai/health', () => {
-    return HttpResponse.json(
-      { error: 'Service unavailable' },
-      { status: 503 }
-    )
+    return HttpResponse.json({ error: 'Service unavailable' }, { status: 503 })
   })
 )
 ```
@@ -139,9 +136,9 @@ it('should handle async operations', async () => {
 ```typescript
 it('should handle network errors', async () => {
   // Use special error trigger word
-  await expect(
-    AIService.getSuggestion({ text: 'error' })
-  ).rejects.toThrow('HTTP error! status: 400')
+  await expect(AIService.getSuggestion({ text: 'error' })).rejects.toThrow(
+    'HTTP error! status: 400'
+  )
 })
 ```
 
@@ -188,6 +185,7 @@ yarn test --bail=1
 ### Q: Why use MSW instead of other mock libraries?
 
 A: MSW advantages:
+
 - 🌐 Real HTTP request interception
 - 🔧 Same mock setup works for both testing and development
 - 🎯 Closer to real network environment
@@ -200,12 +198,12 @@ A: Create more complex response logic in `handlers.ts`:
 ```typescript
 http.post('/api/complex', async ({ request }) => {
   const body = await request.json()
-  
+
   // Return different responses based on request content
   if (body.type === 'special') {
     return HttpResponse.json({ special: true })
   }
-  
+
   return HttpResponse.json({ normal: true })
 })
 ```
@@ -219,4 +217,4 @@ A: Use special input values to trigger errors, or temporarily override mock resp
 - [Vitest Documentation](https://vitest.dev/)
 - [MSW Documentation](https://mswjs.io/)
 - [Vue Test Utils Documentation](https://vue-test-utils.vuejs.org/)
-- [Nuxt Testing Documentation](https://nuxt.com/docs/getting-started/testing) 
+- [Nuxt Testing Documentation](https://nuxt.com/docs/getting-started/testing)

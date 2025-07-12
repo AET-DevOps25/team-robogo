@@ -10,7 +10,7 @@ export async function fetchGroups(): Promise<SlideGroup[]> {
 
     // 后端返回的结构里没有 lastResetAt —— 统一补上
     const now = Date.now()
-    const groups = (await res.json() as SlideGroup[]).map(g => ({
+    const groups = ((await res.json()) as SlideGroup[]).map(g => ({
       ...g,
       lastResetAt: now
     }))
@@ -24,7 +24,6 @@ export async function fetchGroups(): Promise<SlideGroup[]> {
     return fakeSlideGroups.map(g => ({ ...g, lastResetAt: now }))
   }
 }
-
 
 /** 保存分组；成功后自动合并 version、保留 lastResetAt */
 export async function saveGroup(local: SlideGroup): Promise<SlideGroup> {

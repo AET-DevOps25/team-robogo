@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import 'pinia-plugin-persistedstate'
 import { ref } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
-import type { Screen, SlideGroup, SlideItem } from '@/interfaces/types'
+import type { Screen, SlideGroup } from '@/interfaces/types'
 
 export const useScreenStore = defineStore(
   'screen',
@@ -45,7 +45,6 @@ export const useScreenStore = defineStore(
     const startSlideTimer = () => {
       if (_timer) return // ← 已有计时器就别再建
       _timer = setInterval(() => {
-        console.log('tick')
         screens.value.forEach(screen => {
           const g = slideGroups.value.find(x => x.id === screen.groupId)
           if (!g || !g.slideIds.length) {
@@ -82,7 +81,7 @@ export const useScreenStore = defineStore(
         id: name,
         slideIds: [],
         speed: 5,
-        version: 1, //init version 1
+        version: 1, // init version 1
         lastResetAt: Date.now()
       })
     }
