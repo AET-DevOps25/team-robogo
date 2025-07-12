@@ -28,3 +28,9 @@ spec:
                 secretKeyRef:
                   name: genai-secret
                   key: OPENAI_API_KEY
+            - name: REDIS_HOST
+              value: {{ .Values.redis.host | quote }}
+            - name: REDIS_PORT
+              value: {{ .Values.redis.port | quote }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.redis.password | quote }}

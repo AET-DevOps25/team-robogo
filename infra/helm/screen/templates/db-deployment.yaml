@@ -18,9 +18,13 @@ spec:
           image: postgres:15
           ports:
             - containerPort: 5432
-          envFrom:
-            - secretRef:
-                name: db-credentials
+          env:
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.db.password | quote }}
+            - name: POSTGRES_USER
+              value: {{ .Values.db.user | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.db.name | quote }}
           volumeMounts:
             - name: db-data
               mountPath: /var/lib/postgresql/data
