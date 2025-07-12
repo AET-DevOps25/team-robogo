@@ -1,0 +1,38 @@
+groups:
+  - name: example-alerts
+    rules:
+      - alert: GatewayDown
+        expr: up{job="gateway"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "API Gateway is down"
+          description: "API Gateway has been unreachable for 1 minute."
+
+      - alert: ServerDown
+        expr: up{job="server"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Server is down"
+          description: "Server has been unreachable for 1 minute."
+
+      - alert: GenAIDown
+        expr: up{job="genai"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "GenAI service is down"
+          description: "GenAI service has been unreachable for 1 minute."
+
+      - alert: HighGatewayCPU
+        expr: process_cpu_seconds_total{job="gateway"} > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Gateway CPU usage is high"
+          description: "Gateway process CPU usage has been above 80% for 5 minutes."
