@@ -1,6 +1,6 @@
 /* ── src/services/groupService.ts ───────────────────────────── */
 import type { SlideGroup } from '@/interfaces/types'
-import { fakeSlideGroups } from '@/data/fakeSlideGroups' // 同一个 mock 文件也行
+import { fakeSlideGroups } from '@/data/fakeSlideGroups'
 import { useScreenStore } from '@/stores/useScreenStore'
 
 export async function fetchGroups(): Promise<SlideGroup[]> {

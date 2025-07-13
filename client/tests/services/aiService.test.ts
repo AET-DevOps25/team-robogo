@@ -2,6 +2,46 @@ import { describe, it, expect, vi } from 'vitest'
 import { AIService } from '@/services/aiService'
 import type { SuggestionRequestDTO } from '@/interfaces/dto'
 
+// mock useAuthFetch
+vi.mock('@/composables/useAuthFetch', () => ({
+  useAuthFetch: vi.fn(() => ({
+    authFetch: (url: string, options: { body: string }) => {
+      if (typeof url === 'string' && url.includes('/suggestion')) {
+        const bodyObj = options && options.body ? JSON.parse(options.body) : {}
+        if (bodyObj.text === 'error') {
+          return Promise.reject(new Error('Mocked error'))
+        }
+        return Promise.resolve({
+          suggestion: `${bodyObj.text || ''} - suggestion from ${bodyObj.service || 'openwebui'}`
+        })
+      }
+      if (typeof url === 'string' && url.includes('/health')) {
+        return Promise.resolve({ status: 'healthy', service: 'genai' })
+      }
+      if ((typeof url === 'string' && url.includes('/service-info')) || url.endsWith('/genai/')) {
+        return Promise.resolve({
+          name: 'GenAI Service',
+          version: '1.0.0',
+          status: 'running',
+          features: ['suggestion', 'health-check']
+        })
+      }
+      return Promise.resolve({})
+    }
+  }))
+}))
+
+// mock useNuxtApp
+vi.mock('#app', () => ({
+  useNuxtApp: () => ({
+    $config: {
+      public: {
+        aiServiceUrl: 'http://mock-ai-service'
+      }
+    }
+  })
+}))
+
 describe('AIService', () => {
   describe('checkHealth', () => {
     it('should successfully get health check information', async () => {
