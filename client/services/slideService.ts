@@ -7,7 +7,6 @@ export async function fetchAvailableSlides(): Promise<SlideItem[]> {
 
     return (await res.json()) as SlideItem[]
   } catch (err) {
-    console.warn('[slideService] /api/slides failed，use mock slides: ', err)
     return mockSlides
   }
 }

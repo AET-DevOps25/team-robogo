@@ -1,4 +1,3 @@
-import type { Screen } from '@/interfaces/types'
 import type { ScreenContentDTO } from '@/interfaces/dto'
 
 const BASE_URL = '/api/screens'
