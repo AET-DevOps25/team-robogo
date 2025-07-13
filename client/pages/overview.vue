@@ -14,7 +14,7 @@
             :key="screen.id"
             :screen="screen"
             :slide-groups="slideGroups"
-            :all-slides="contentList"
+            :all-slides="slides"
             @update-group="onUpdateScreenGroup"
             @request-delete="
               (screen: Screen) => {
@@ -45,11 +45,6 @@
           v-model="newScreenName"
           :placeholder="t('screenName')"
           class="mb-2 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded"
-        />
-        <input
-          v-model="newScreenUrl"
-          :placeholder="t('thumbnailUrl')"
-          class="mb-4 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded"
         />
 
         <div class="flex justify-end gap-2">
@@ -121,7 +116,12 @@
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
             {{ t('slideGroups') }}
           </h2>
-
+          <button
+            class="px-3 py-1 bg-green-600 dark:bg-green-500 text-white rounded hover:bg-green-700 dark:hover:bg-green-600"
+            @click="store.playAllGroups()"
+          >
+            ▶ Play&nbsp;All
+          </button>
           <button
             class="text-sm px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
             @click="triggerFileInput"
@@ -155,9 +155,7 @@
             v-model:slide-ids="currentGroup.slideIds"
             v-model:speed="currentGroup.speed"
             :title="currentGroup.id"
-            :all-slides="contentList"
             :selected-content="selectedContent"
-            :slides="currentGroupSlides"
             @select="selectContent"
           />
         </div>
@@ -340,6 +338,17 @@
   import { AIService } from '@/services/aiService'
   import type { Screen, SlideItem, ChatMessage, SlideGroup } from '@/interfaces/types'
   import type { SuggestionRequestDTO } from '@/interfaces/dto'
+  import { fetchGroups } from '@/services/groupService'
+  import { useSlides } from '@/composables/useSlides'
+  const { slides, refresh } = useSlides()
+  onMounted(async () => {
+    store.slideGroups = await fetchGroups() // 初始化
+
+    if (store.slideGroups.length > 0) {
+      selectedGroupId.value = store.slideGroups[0].id
+      await refresh()
+    }
+  })
 
   const { t } = useI18n()
 
@@ -372,10 +381,9 @@
   watchOnce(
     () => store.slideGroups.length > 0 || store.screens.length > 0,
     () => {
-      // 数据已从 localStorage 加载
-      if (!store.slideTimerStarted) {
+      if (!store._timer) {
+        //  _timer 为 null 才启动
         store.startSlideTimer()
-        store.slideTimerStarted = true
       }
     }
   )
@@ -407,20 +415,16 @@
 
   const screens = computed(() => store.screens)
 
-  const contentList = computed(() => store.contentList)
-
   const slideGroups = computed(() => store.slideGroups)
 
   const selectedGroupId = ref(store.slideGroups[0]?.id || 'None')
 
   const currentGroup = computed(() => slideGroups.value.find(g => g.id === selectedGroupId.value))
-  const currentGroupSlides = computed(() =>
-    currentGroup.value
-      ? store.contentList.filter(s => currentGroup.value!.slideIds.includes(s.id))
-      : []
-  )
-  const onUpdateScreenGroup = (updatedScreen: Screen) => {
-    store.updateScreenGroup(updatedScreen.id, updatedScreen.groupId)
+
+  const onUpdateScreenGroup = (updated: Screen) => {
+    store.updateScreenGroup(updated.id, updated.groupId) // 1) 换组
+    const g = store.slideGroups.find(g => g.id === updated.groupId)
+    if (g) store.resetGroup(g) // 2) 立即重播
   }
 
   const showAddScreenDialog = ref(false)
@@ -434,8 +438,8 @@
   }
 
   /*
-  AI Chat Integration
-  */
+AI Chat Integration
+*/
   const userMessage = ref('')
   const chatHistory = ref<ChatMessage[]>([])
   const isAiLoading = ref(false)
@@ -535,9 +539,6 @@
         name: file.name,
         url: imageUrl
       }
-
-      contentList.value.push(newSlide)
-      store.contentList.push(newSlide)
 
       const targetGroup = store.slideGroups.find(g => g.id === selectedGroupId.value)
       if (targetGroup && targetGroup.id !== 'None') {

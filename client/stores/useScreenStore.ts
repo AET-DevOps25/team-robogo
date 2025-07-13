@@ -1,8 +1,9 @@
 // stores/useScreenStore.ts
 import { defineStore } from 'pinia'
+import 'pinia-plugin-persistedstate'
 import { ref } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
-import type { Screen, SlideGroup, SlideItem } from '@/interfaces/types'
+import type { Screen, SlideGroup } from '@/interfaces/types'
 
 export const useScreenStore = defineStore(
   'screen',
@@ -10,9 +11,8 @@ export const useScreenStore = defineStore(
     // State
     const screens = ref<Screen[]>([])
     const slideGroups = ref<SlideGroup[]>([])
-    const contentList = ref<SlideItem[]>([])
     const slideTimerStarted = ref(false)
-    const _timer = ref<ReturnType<typeof setInterval> | null>(null)
+    let _timer: ReturnType<typeof setInterval> | null = null
 
     // Actions
     const initStore = () => {
@@ -21,44 +21,47 @@ export const useScreenStore = defineStore(
           id: 'None',
           slideIds: [],
           speed: 5,
-          _currentSlideIndex: 0,
-          _lastSwitchTime: Date.now()
+          version: 0,
+          lastResetAt: Date.now() // ms
         })
       }
     }
 
-    const startSlideTimer = () => {
-      if (_timer.value) return
-      _timer.value = setInterval(() => {
-        const now = Date.now()
-        for (const group of slideGroups.value) {
-          if (!group.slideIds.length) continue
-          if (!group._lastSwitchTime) {
-            group._lastSwitchTime = now
-            group._currentSlideIndex = 0
-            continue
-          }
-          const speedMs = (group.speed || 5) * 1000
-          if (now - group._lastSwitchTime >= speedMs) {
-            group._lastSwitchTime = now
-            group._currentSlideIndex =
-              ((group._currentSlideIndex ?? -1) + 1) % group.slideIds.length
-          }
+    function replaceGroup(g: SlideGroup) {
+      const idx = slideGroups.value.findIndex(x => x.id === g.id)
+      if (idx !== -1)
+        slideGroups.value[idx] = {
+          ...g,
+          lastResetAt: Date.now()
         }
-
-        for (const screen of screens.value) {
-          const group = slideGroups.value.find(g => g.id === screen.groupId)
-          if (!group || !group.slideIds.length) {
-            screen.currentContent = 'BLACK_SCREEN'
-            continue
-          }
-          const id = group.slideIds[group._currentSlideIndex ?? 0]
-          screen.currentContent = id.toString()
-        }
-      }, 1000)
-      slideTimerStarted.value = true
     }
 
+    function calcIndex(g: SlideGroup) {
+      if (!g.slideIds.length) return 0
+      const elapsed = Date.now() - g.lastResetAt
+      return Math.floor(elapsed / (g.speed * 1000)) % g.slideIds.length
+    }
+
+    const startSlideTimer = () => {
+      if (_timer) return // ← 已有计时器就别再建
+      _timer = setInterval(() => {
+        screens.value.forEach(screen => {
+          const g = slideGroups.value.find(x => x.id === screen.groupId)
+          if (!g || !g.slideIds.length) {
+            screen.currentContent = 'BLACK_SCREEN'
+          } else {
+            const idx = calcIndex(g)
+            screen.currentContent = g.slideIds[idx].toString()
+          }
+        })
+      }, 1000)
+    }
+
+    /** ▶ Play 按钮或保存成功时 */
+    function resetGroup(g: SlideGroup) {
+      g.lastResetAt = Date.now()
+      // 如需全端同步 → PUT /groups/{id}
+    }
     const addScreen = (name: string, url: string) => {
       const id = uuidv4()
       screens.value.push({
@@ -78,8 +81,8 @@ export const useScreenStore = defineStore(
         id: name,
         slideIds: [],
         speed: 5,
-        _currentSlideIndex: 0,
-        _lastSwitchTime: Date.now()
+        version: 1, // init version 1
+        lastResetAt: Date.now()
       })
     }
 
@@ -88,22 +91,47 @@ export const useScreenStore = defineStore(
       if (screen) screen.groupId = groupId
     }
 
+    /** 播放指定分组（从第一张开始） */
+    const playGroup = (groupId: string) => {
+      const g = slideGroups.value.find(g => g.id === groupId)
+      if (!g || !g.slideIds.length) return
+
+      g.lastResetAt = Date.now()
+
+      // 把所有绑定这个分组的屏幕立即切到首张
+      screens.value
+        .filter(s => s.groupId === groupId)
+        .forEach(s => (s.currentContent = g.slideIds[0].toString()))
+    }
+
+    /** 播放全部分组 */
+    const playAllGroups = () => {
+      slideGroups.value.forEach(g => playGroup(g.id))
+    }
+
     return {
       // State
       screens,
       slideGroups,
-      contentList,
       slideTimerStarted,
+      _timer,
 
       // Actions
       initStore,
+      replaceGroup,
       startSlideTimer,
       addScreen,
       addGroup,
-      updateScreenGroup
+      resetGroup,
+      updateScreenGroup,
+      playGroup,
+      playAllGroups
     }
   },
   {
-    persist: true
+    persist: {
+      // do not persist timer
+      paths: ['screens', 'slideGroups']
+    }
   }
 )

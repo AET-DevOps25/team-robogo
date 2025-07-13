@@ -1,5 +1,8 @@
-import { beforeAll, afterEach, afterAll, vi } from 'vitest'
+import { beforeAll, beforeEach, afterEach, afterAll, vi } from 'vitest'
 import { setupServer } from 'msw/node'
+
+import { setActivePinia } from 'pinia'
+import { createTestingPinia } from '@pinia/testing'
 import { handlers } from './mocks/handlers'
 
 // Create MSW server
@@ -47,3 +50,18 @@ afterEach(() => server.resetHandlers())
 
 // Close server after all tests
 afterAll(() => server.close())
+
+beforeEach(() => {
+  /**
+   * createTestingPinia 会：
+   * 1) 返回一个 Pinia 实例
+   * 2) 自动 setActivePinia(...)
+   * 3) 把 action 默认 stub 成 vi.fn（可通过选项关闭）
+   */
+  setActivePinia(
+    createTestingPinia({
+      stubActions: true, // 如果想测试 action 的真实实现可设为 false
+      createSpy: vi.fn // 让 Vitest 生成 spy
+    })
+  )
+})

@@ -1237,7 +1237,7 @@
     rc9 "^2.1.2"
     std-env "^3.8.1"
 
-"@nuxt/test-utils@>=3.13.1", "@nuxt/test-utils@^3.15.0":
+"@nuxt/test-utils@>=3.13.1", "@nuxt/test-utils@^3.19.2":
   version "3.19.2"
   resolved "https://registry.yarnpkg.com/@nuxt/test-utils/-/test-utils-3.19.2.tgz#e6b9dde4682ea7b2f1850f8c868d2475b1e27367"
   integrity sha512-jvpCbTNd1e8t2vrGAMpVq8j7N25Jao0NpblRiIYwogXgNXOPrH1XBZxgufyLA701g64SeiplUe+pddtnJnQu/g==
@@ -1775,6 +1775,11 @@
   integrity sha512-tCD8ioWhhIHKwm8Y9VvyhBAV/kK4W5uGBIYbI5iM4N1t7duOqK6ECBUavrMxMolELayqqMLb9+evegrh3S7s2A==
   dependencies:
     "@nuxt/kit" "^3.9.0"
+
+"@pinia/testing@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@pinia/testing/-/testing-1.0.2.tgz#85afa987eca6209df2cf07fd5b96edcfb5ecc55a"
+  integrity sha512-yZVXJTKh677J0AT8kOPxGk5s1v7hMQIDT3tmeriwtR5LDu41DvXTEBQf0ql9SsHW1mCSDG38QDFzSSl5ucJqnQ==
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"

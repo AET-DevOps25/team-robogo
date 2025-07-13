@@ -28,7 +28,7 @@
         {{ screen.status }}
       </span>
       <p class="text-gray-700 dark:text-gray-300 text-base">
-        Current Group: {{ currentSlide?.name ?? 'none' }}
+        Current Group: {{ screen.groupId || 'None' }}
       </p>
       <p class="text-gray-500 dark:text-gray-400 text-sm">URL: {{ screen.urlPath }}</p>
     </div>
@@ -56,7 +56,7 @@
       thumbnailUrl: string
       urlPath: string
     }
-    slideGroups: { id: string; slideIds: number[] }[]
+    slideGroups: { id: string; slideIds: number[]; speed: number; lastResetAt: number }[]
     allSlides: { id: number; name: string; url: string }[]
   }>()
 
