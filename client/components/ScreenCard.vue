@@ -22,11 +22,6 @@
     </div>
     <div class="px-6 py-4">
       <div class="font-bold text-xl mb-2 text-gray-900 dark:text-white">{{ screen.name }}</div>
-      <span
-        class="inline-block bg-red-400 dark:bg-red-600 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 dark:text-gray-200 mr-2 mb-2"
-      >
-        {{ screen.status }}
-      </span>
       <p class="text-gray-700 dark:text-gray-300 text-base">
         Current Group: {{ screen.groupId || 'None' }}
       </p>
