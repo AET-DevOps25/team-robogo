@@ -2,7 +2,7 @@
 
 // ImageSlideMeta
 export interface ImageSlideMeta {
-  id: string | number
+  id: number
   name: string
   contentType: string
 }
@@ -17,14 +17,14 @@ export interface Score {
 // SlideItem → 多态联合类型
 export type SlideItem =
   | {
-      id: string | number
+      id: number
       index: number
       name: string
       type: 'image'
       imageMeta: ImageSlideMeta
     }
   | {
-      id: string | number
+      id: number
       index: number
       name: string
       type: 'score'
@@ -32,7 +32,7 @@ export type SlideItem =
       categoryId: number
     }
   | {
-      id: string | number
+      id: number
       index: number
       name: string
       type: string // 其它类型
@@ -40,9 +40,9 @@ export type SlideItem =
 
 // SlideDeck
 export interface SlideDeck {
-  id: string | number
+  id: number
   name: string
-  competitionId: string | number
+  competitionId: number
   slides: SlideItem[]
   transitionTime: number
   version: number
@@ -50,7 +50,7 @@ export interface SlideDeck {
 
 // ScreenContent
 export interface ScreenContent {
-  id: number | string
+  id: number
   name: string
   status: string
   slideDeck: SlideDeck

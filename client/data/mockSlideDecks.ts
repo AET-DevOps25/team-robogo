@@ -3,7 +3,7 @@ import type { SlideDeck } from '@/interfaces/types'
 
 export const mockSlideDecks: SlideDeck[] = [
   {
-    id: 'Deck-A',
+    id: 1,
     name: 'Test Deck',
     competitionId: 1,
     slides: mockSlides.slice(0, 3), // 取前3个slide
@@ -11,7 +11,7 @@ export const mockSlideDecks: SlideDeck[] = [
     version: 0
   },
   {
-    id: 'Deck-B',
+    id: 2,
     name: 'Another Deck',
     competitionId: 2,
     slides: [mockSlides[3], mockSlides[4]], // 取第4、5个slide

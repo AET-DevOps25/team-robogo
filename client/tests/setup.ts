@@ -7,6 +7,16 @@ import { handlers } from './mocks/handlers'
 import { mockSlides } from '@/data/mockSlides'
 import { mockSlideDecks } from '@/data/mockSlideDecks'
 
+const mockScreenContent = {
+  id: 1,
+  name: 'Screen 1',
+  status: 'online',
+  slideDeck: mockSlideDecks[0],
+  currentContent: '',
+  thumbnailUrl: '',
+  urlPath: ''
+}
+
 // Create MSW server
 const server = setupServer(...handlers)
 
@@ -44,7 +54,7 @@ vi.stubGlobal('$fetch', async (url: string, options: any = {}) => {
   return await response.json()
 })
 
-// 全局 mock useAuthFetch（AIService 相关接口）
+// 全局 mock useAuthFetch
 vi.mock('@/composables/useAuthFetch', () => ({
   useAuthFetch: () => ({
     authFetch: vi.fn((url: string, _options?: any) => {
@@ -129,6 +139,68 @@ vi.mock('@/composables/useAuthFetch', () => ({
           return slide
         }
       }
+
+      // mock assignSlideDeck (必须放在 /screens/:id 之前)
+      if (/\/screens\/\d+\/assign-slide-deck\/\d+$/.test(url) && _options?.method === 'POST') {
+        const match = url.match(/\/screens\/(\d+)\/assign-slide-deck\/(\w+)/)
+        if (match) {
+          const [, , deckId] = match
+          const deck =
+            mockSlideDecks.find(d => String(d.id) === String(deckId)) || mockSlideDecks[0]
+          return {
+            id: 1,
+            name: 'Screen 1',
+            status: 'online',
+            slideDeck: deck,
+            currentContent: '',
+            thumbnailUrl: '',
+            urlPath: ''
+          }
+        }
+
+        // fallback
+        return {
+          id: 1,
+          name: 'Screen 1',
+          status: 'online',
+          slideDeck: mockSlideDecks[0],
+          currentContent: '',
+          thumbnailUrl: '',
+          urlPath: ''
+        }
+      }
+      // mock 获取所有 screens
+      if (url.endsWith('/screens') && (!_options?.method || _options.method === 'GET')) {
+        return [mockScreenContent]
+      }
+      // mock 获取单个 screen
+      if (/\/screens\/\d+$/.test(url) && (!_options?.method || _options.method === 'GET')) {
+        return mockScreenContent
+      }
+      // mock 创建 screen
+      if (url.endsWith('/screens') && _options?.method === 'POST') {
+        return { ...mockScreenContent, ...JSON.parse(_options.body) }
+      }
+      // mock 更新 screen
+      if (/\/screens\/\d+$/.test(url) && _options?.method === 'PUT') {
+        return { ...mockScreenContent, ...JSON.parse(_options.body) }
+      }
+      // mock 删除 screen
+      if (/\/screens\/\d+$/.test(url) && _options?.method === 'DELETE') {
+        return undefined
+      }
+      // mock fetchScreenContent
+      if (
+        /\/screens\/\d+\/content$/.test(url) &&
+        (!_options?.method || _options.method === 'GET')
+      ) {
+        return mockScreenContent
+      }
+      // mock updateScreenStatus
+      if (/\/screens\/\d+\/status/.test(url) && _options?.method === 'PUT') {
+        return { ...mockScreenContent, status: url.match(/status=([^&]+)/)?.[1] || 'online' }
+      }
+
       return {}
     })
   })

@@ -20,7 +20,7 @@
       >
         <template #item="{ element }">
           <SlideCard
-            v-if="id2Slide[element]"
+            v-if="typeof element === 'number' && id2Slide[element]"
             :item="id2Slide[element]"
             :selected="selectedContent?.id === element"
             @click="$emit('select', id2Slide[element])"
@@ -97,17 +97,11 @@
   const props = defineProps<{ title: string; selectedContent?: SlideItem; slides: SlideItem[] }>()
   // 移除未使用的 store 变量
   // 修复 id 相关类型报错
-  interface Slide {
-    id: number
-    name: string
-    url: string
-  }
   const slideIds = defineModel<number[]>('slide-ids', { required: true })
   const speed = defineModel<number>('speed', { required: true })
 
   defineEmits<{
-    (e: 'select', item: Slide): void
-    // (e: 'update:content', items: SlideItem[]): void
+    (e: 'select', item: SlideItem): void
     (e: 'update:slide-ids', ids: number[]): void
   }>()
 
