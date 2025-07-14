@@ -2,11 +2,13 @@
   import { ref, onMounted } from 'vue'
   import { useI18n } from 'vue-i18n'
   import { fetchSlideDecks } from '@/services/slideDeckService'
-  import type { SlideDeck } from '@/interfaces/types'
+  import { fetchScreens } from '@/services/screenService'
+  import type { SlideDeck, ScreenContent } from '@/interfaces/types'
   import SlideCard from '@/components/SlideCard.vue'
 
   const { t } = useI18n()
   const slideDecks = ref<SlideDeck[]>([])
+  const screens = ref<ScreenContent[]>([])
   const loading = ref(false)
   const error = ref('')
 
@@ -14,7 +16,8 @@
     loading.value = true
     try {
       slideDecks.value = await fetchSlideDecks()
-      console.log('fetchSlideDecks result:', slideDecks.value)
+      screens.value = await fetchScreens()
+      console.log('fetchScreens result:', screens.value)
     } catch (e: any) {
       error.value = e?.message || t('fetchFailed')
     } finally {
@@ -50,5 +53,63 @@
         </div>
       </li>
     </ul>
+    <div v-if="screens.length" class="mt-10">
+      <h2 class="text-xl font-bold mb-2">{{ t('screensMonitor') }}</h2>
+      <ul>
+        <li v-for="screen in screens" :key="screen.id" class="mb-2">
+          <b>{{ t('id') }}:</b>
+          {{ screen.id }},
+          <b>{{ t('name') }}:</b>
+          {{ screen.name }},
+          <b>{{ t('status') }}:</b>
+          {{ screen.status }},
+          <b>{{ t('slideDeck') }}:</b>
+          {{ screen.slideDeck?.name || '-' }}
+          <details v-if="screen.slideDeck">
+            <summary class="cursor-pointer text-blue-600 underline mt-1">
+              Show SlideDeck Details
+            </summary>
+            <div class="ml-4 mt-2 p-2 border rounded bg-gray-50 dark:bg-gray-800">
+              <div>
+                <b>ID:</b>
+                {{ screen.slideDeck.id }}
+              </div>
+              <div>
+                <b>Name:</b>
+                {{ screen.slideDeck.name }}
+              </div>
+              <div>
+                <b>Version:</b>
+                {{ screen.slideDeck.version }}
+              </div>
+              <div>
+                <b>Transition Time:</b>
+                {{ screen.slideDeck.transitionTime }}
+              </div>
+              <div>
+                <b>Competition ID:</b>
+                {{ screen.slideDeck.competitionId }}
+              </div>
+              <div>
+                <b>Slides:</b>
+                {{ screen.slideDeck.slides?.length || 0 }}
+              </div>
+              <ul v-if="screen.slideDeck.slides && screen.slideDeck.slides.length">
+                <li v-for="slide in screen.slideDeck.slides" :key="slide.id">
+                  <b>{{ t('id') }}:</b>
+                  {{ slide.id }},
+                  <b>{{ t('name') }}:</b>
+                  {{ slide.name }},
+                  <b>{{ t('type') }}:</b>
+                  {{ slide.type }},
+                  <b>{{ t('index') }}:</b>
+                  {{ slide.index }}
+                </li>
+              </ul>
+            </div>
+          </details>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>

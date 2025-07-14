@@ -73,7 +73,8 @@
   "addNewGroup": "Add New Group",
   "groupName": "Group Name",
   "test": "Test",
-  "scoreUnit": "pts",
+  "scoreUnit": "Score",
+  "time": "Time",
   "category": "Category",
   "notScoreType": "Not a score type",
   "loading": "Loading...",
@@ -82,5 +83,15 @@
   "name": "Name",
   "slides": "Slides",
   "fetchFailed": "Failed to fetch data",
-  "unknownSlideType": "Unknown slide type: {type}"
+  "unknownSlideType": "Unknown slide type: {type}",
+  "categoryScoring": {
+    "QUARTER_FINAL": "Quarter Final",
+    "SEMI_FINAL": "Semi Final",
+    "FINAL": "Final",
+    "FLL_ROBOT_GAME": "FLL Robot Game",
+    "FLL_QUARTER_FINAL": "FLL Quarter Final",
+    "FLL_TESTROUND": "FLL Test Round",
+    "WRO_STARTER": "WRO Starter",
+    "WRO_ROBOMISSION_2025": "WRO Robomission 2025"
+  }
 }

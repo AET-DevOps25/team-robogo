@@ -74,6 +74,7 @@
   "groupName": "Gruppenname",
   "test": "Test",
   "scoreUnit": "Pkt.",
+  "time": "Zeit",
   "category": "Kategorie",
   "notScoreType": "Kein Score-Typ",
   "loading": "Lädt...",
@@ -82,5 +83,15 @@
   "name": "Name",
   "slides": "Folien",
   "fetchFailed": "Daten konnten nicht geladen werden",
-  "unknownSlideType": "Unbekannter Folientyp: {type}"
+  "unknownSlideType": "Unbekannter Folientyp: {type}",
+  "categoryScoring": {
+    "QUARTER_FINAL": "Viertelfinale",
+    "SEMI_FINAL": "Halbfinale",
+    "FINAL": "Finale",
+    "FLL_ROBOT_GAME": "FLL Robot Game",
+    "FLL_QUARTER_FINAL": "FLL Viertelfinale",
+    "FLL_TESTROUND": "FLL Testrunde",
+    "WRO_STARTER": "WRO Starter",
+    "WRO_ROBOMISSION_2025": "WRO Robomission 2025"
+  }
 }

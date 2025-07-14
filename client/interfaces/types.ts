@@ -1,5 +1,13 @@
 // unified type definition file
 
+// Category
+export interface Category {
+  id: number
+  name: string
+  competitionId: number
+  categoryScoring: string
+}
+
 // ImageSlideMeta
 export interface ImageSlideMeta {
   id: number
@@ -12,6 +20,7 @@ export interface Score {
   points: number
   time: number
   highlight: boolean
+  teamId: number
 }
 
 // Slide类型枚举，和后端保持一致
@@ -35,7 +44,7 @@ export type SlideItem =
       name: string
       type: SlideType.SCORE
       scores: Score[]
-      categoryId: number
+      category: Category
     }
   | {
       id: number
