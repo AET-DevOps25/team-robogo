@@ -9,16 +9,16 @@
         <SpeedControl v-model="speed" />
         <button
           class="ml-2 px-2 py-1 bg-blue-600 dark:bg-blue-500 rounded text-white hover:bg-blue-700 dark:hover:bg-blue-600"
-          @click="saveSpeed"
           title="If you want to record the speed change to the backend, please click Save"
+          @click="saveSpeed"
         >
-          Save 
+          Save
         </button>
         <!-- ▶ Play 按钮 -->
         <button
           class="ml-2 px-2 py-1 bg-green-600 dark:bg-green-500 rounded text-white hover:bg-green-700 dark:hover:bg-green-600"
-          @click="play()"
           title="Replay this group"
+          @click="play()"
         >
           ▶
         </button>
