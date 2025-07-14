@@ -4,7 +4,6 @@ import java.util.List;
 
 import de.fll.core.dto.ScoreDTO;
 import de.fll.core.dto.ScoreSlideDTO;
-import de.fll.screen.assembler.CategoryAssembler;
 import de.fll.screen.model.ScoreSlide;
 import de.fll.screen.service.ScoreService;
 import de.fll.screen.repository.SlideRepository;
@@ -34,8 +33,7 @@ public class ScoreSlideAssembler implements AbstractDTOAssembler<ScoreSlide, Sco
         dto.setIndex(slide.getIndex());
         dto.setType(slide.getType().name());
         dto.setCategory(categoryAssembler.toDTO(slide.getCategory()));
-        List<ScoreDTO> scores = scoreService.getAllTeamsScoreDTOsWithHighlight(
-                slide.getCategory().getTeams().stream().toList());
+        List<ScoreDTO> scores = scoreService.getScoreDTOsWithHighlight(slide.getCategory());
         dto.setScores(scores);
         return dto;
     }

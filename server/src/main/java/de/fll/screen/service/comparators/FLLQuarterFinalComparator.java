@@ -2,7 +2,7 @@ package de.fll.screen.service.comparators;
 
 import de.fll.screen.model.Score;
 import de.fll.screen.model.Team;
-import de.fll.core.dto.TeamDTO;
+import de.fll.core.dto.ScoreDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -26,7 +26,7 @@ public class FLLQuarterFinalComparator extends AbstractFLLComparator {
 	}
 
 	@Override
-	public List<TeamDTO> assignRanks(Set<Team> teams) {
+	public List<ScoreDTO> assignRanks(Set<Team> teams) {
 		// Quarter final only has 8 competing teams
 		return assignRanks(teams, (team -> team.getScoreForRound(0))).subList(0, Math.min(8, teams.size()));
 	}

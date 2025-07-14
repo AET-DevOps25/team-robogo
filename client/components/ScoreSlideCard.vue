@@ -12,7 +12,7 @@
               <th
                 class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-4 py-2 first:rounded-tl-lg last:rounded-tr-lg border-b"
               >
-                {{ t('teamId') }}
+                {{ t('teamName') }}
               </th>
               <th
                 class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-4 py-2 border-b"
@@ -30,6 +30,11 @@
                 {{ t('category') }}
               </th>
               <th
+                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-4 py-2 border-b"
+              >
+                {{ t('rank') }}
+              </th>
+              <th
                 class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-4 py-2 last:rounded-tr-lg border-b"
               >
                 {{ t('categoryScoring') }}
@@ -39,7 +44,7 @@
           <tbody>
             <tr
               v-for="score in item.scores"
-              :key="score.teamId"
+              :key="score.team.id"
               :class="[
                 'transition-colors',
                 score.highlight
@@ -48,10 +53,11 @@
                 'border-b last:border-b-0'
               ]"
             >
-              <td class="px-4 py-2 border-b">{{ score.teamId }}</td>
+              <td class="px-4 py-2 border-b">{{ score.team.name }}</td>
               <td class="px-4 py-2 border-b">{{ score.points }}</td>
               <td class="px-4 py-2 border-b">{{ score.time }}</td>
               <td class="px-4 py-2 border-b">{{ item.category?.name }}</td>
+              <td class="px-4 py-2 border-b">{{ score.rank }}</td>
               <td class="px-4 py-2 border-b">
                 <span v-if="item.category?.categoryScoring">
                   {{ t('categoryScoring.' + item.category.categoryScoring) }}

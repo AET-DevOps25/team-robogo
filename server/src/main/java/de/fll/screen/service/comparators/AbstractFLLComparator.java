@@ -14,38 +14,37 @@ abstract class AbstractFLLComparator implements CategoryComparator {
 
 	protected abstract List<Score> getRelevantScores(Team team);
 
-	protected List<TeamDTO> assignRanks(Set<Team> teams, Function<Team, Score> scoreExtractor) {
+	// assignRanks返回List<ScoreDTO>，每个ScoreDTO带rank
+	protected List<ScoreDTO> assignRanks(Set<Team> teams, Function<Team, Score> scoreExtractor) {
 		List<Team> sorted = new ArrayList<>(teams);
 		sorted.sort(this);
-		List<TeamDTO> teamDTOs = new ArrayList<>(teams.size());
-
+		List<ScoreDTO> scoreDTOs = new ArrayList<>();
 		double previousScore = -1;
 		int rank = 0;
 		for (int i = 0; i < sorted.size(); i++) {
 			Team team = sorted.get(i);
 			Score bestScore = scoreExtractor.apply(team);
-			if (bestScore.getPoints() != previousScore) {
+			if (bestScore != null && bestScore.getPoints() != previousScore) {
 				rank = i + 1;
 			}
-
 			var highlightIndices = getHighlightIndices(team);
-
-			var scores = getRelevantScores(team).stream()
-					.map(score -> ScoreDTO.builder()
-						.points(score.getPoints())
-						.time(score.getTime())
-						.highlight(highlightIndices.contains(team.getScores().indexOf(score)))
-						.build())
-					.toList();
-			teamDTOs.add(TeamDTO.builder()
-				.id(team.getId())
-				.name(team.getName())
-				.rank(rank)
-				.scores(scores)
-				.build());
-			previousScore = bestScore.getPoints();
+			List<Score> scores = getRelevantScores(team);
+			for (int j = 0; j < scores.size(); j++) {
+				Score s = scores.get(j);
+				if (s == null) continue;
+				scoreDTOs.add(ScoreDTO.builder()
+					.points(s.getPoints())
+					.time(s.getTime())
+					.highlight(highlightIndices.contains(team.getScores().indexOf(s)))
+					.team(TeamDTO.builder().id(team.getId()).name(team.getName()).build())
+					.rank(rank)
+					.build());
+			}
+			if (bestScore != null) {
+				previousScore = bestScore.getPoints();
+			}
 		}
-		return teamDTOs;
+		return scoreDTOs;
 	}
 
 	protected int compareOneScore(Team t1, Team t2, int roundIndex) {

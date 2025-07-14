@@ -2,7 +2,7 @@ package de.fll.screen.service;
 
 import de.fll.screen.model.Category;
 import de.fll.screen.model.Team;
-import de.fll.core.dto.TeamDTO;
+import de.fll.core.dto.ScoreDTO;
 import de.fll.screen.model.CategoryScoring;
 import de.fll.screen.service.comparators.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class RankingService {
         comparatorMap.put(CategoryScoring.WRO_ROBOMISSION_2025, wro2025Comparator);
     }
 
-    public List<TeamDTO> getRankedTeams(Category category, Set<Team> teams) {
+    public List<ScoreDTO> getRankedTeams(Category category, Set<Team> teams) {
         CategoryComparator comparator = comparatorMap.get(category.getCategoryScoring());
         if (comparator == null) {
             throw new IllegalArgumentException("No comparator for scoring: " + category.getCategoryScoring());
