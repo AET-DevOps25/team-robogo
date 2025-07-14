@@ -2,7 +2,7 @@ package de.fll.screen.service.comparators;
 
 import de.fll.screen.model.Team;
 import de.fll.screen.model.Score;
-import de.fll.core.dto.TeamDTO;
+import de.fll.core.dto.ScoreDTO;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +35,7 @@ public class WRO2025ComparatorTest {
         Team t1 = buildTeam(1, "A", 50, 60, 70, 80);
         Team t2 = buildTeam(2, "B", 40, 50, 60, 70);
         Set<Team> teams = Set.of(t1, t2);
-        List<TeamDTO> ranked = comparator.assignRanks(teams);
+        List<ScoreDTO> ranked = comparator.assignRanks(teams);
         assertEquals(2, ranked.size());
     }
 } 

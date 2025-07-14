@@ -70,7 +70,11 @@ public final class Team {
 
     @Override
     public String toString() {
-        return "Team{" + "name='" + name + '\'' + ", scores=" + scores + '}';
+        return "Team{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", category=" + (category != null ? category.getId() : null) +
+                '}';
     }
 
     public void setId(long id) {

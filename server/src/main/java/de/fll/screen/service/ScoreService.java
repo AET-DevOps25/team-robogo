@@ -60,7 +60,7 @@ public class ScoreService {
 
     public List<ScoreDTO> getScoreDTOsWithHighlight(Category category) {
         if (category == null) return List.of();
-        return rankingService.getRankedTeams(category, category.getTeams());
+        return rankingService.getRankedTeams(category, categoryRepository.findTeamsByCategoryId(category.getId()));
     }
 
     public List<ScoreDTO> getAllTeamsScoreDTOsWithHighlight(List<Category> categories) {

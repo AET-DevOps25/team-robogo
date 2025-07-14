@@ -91,4 +91,15 @@ public class SlideDeck {
 	public long getId() {
 		return id;
 	}
+
+    @Override
+    public String toString() {
+        return "SlideDeck{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", transitionTime=" + transitionTime +
+                ", version=" + version +
+                ", competition=" + (competition != null ? competition.getId() : null) +
+                '}';
+    }
 }

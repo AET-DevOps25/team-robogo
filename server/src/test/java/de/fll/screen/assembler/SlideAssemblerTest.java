@@ -5,6 +5,7 @@ import de.fll.core.dto.ScoreSlideDTO;
 import de.fll.core.dto.SlideDTO;
 import de.fll.screen.model.ImageSlide;
 import de.fll.screen.model.ScoreSlide;
+import de.fll.screen.model.SlideImageMeta;
 import de.fll.screen.model.SlideType;
 import de.fll.screen.model.Slide;
 
@@ -39,11 +40,17 @@ class SlideAssemblerTest {
         setId(slide, 1L);
         slide.setName("img");
         slide.setIndex(1);
-        SlideDTO dto = assembler.toDTO(slide);
-        assertNotNull(dto);
-        assertEquals(1L, dto.getId());
-        assertEquals("img", dto.getName());
-        assertEquals(SlideType.IMAGE.name(), dto.getType());
+        ImageSlideDTO dto = new ImageSlideDTO();
+        dto.setId(slide.getId());
+        dto.setName(slide.getName());
+        dto.setIndex(slide.getIndex());
+        dto.setType(slide.getType().name());
+        when(imageSlideAssembler.toDTO(slide)).thenReturn(dto);
+        SlideDTO dtoResult = assembler.toDTO(slide);
+        assertNotNull(dtoResult);
+        assertEquals(1L, dtoResult.getId());
+        assertEquals("img", dtoResult.getName());
+        assertEquals(SlideType.IMAGE.name(), dtoResult.getType());
     }
 
     @Test

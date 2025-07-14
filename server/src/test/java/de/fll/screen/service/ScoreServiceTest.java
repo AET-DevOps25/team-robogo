@@ -1,5 +1,7 @@
 package de.fll.screen.service;
 
+import de.fll.core.dto.CategoryDTO;
+import de.fll.core.dto.TeamDTO;
 import de.fll.core.dto.ScoreDTO;
 import de.fll.core.dto.ScoreSlideDTO;
 import de.fll.screen.model.*;
@@ -38,10 +40,10 @@ class ScoreServiceTest {
         ScoreSlideDTO dto = new ScoreSlideDTO();
         dto.setName("slide1");
         dto.setIndex(1);
-        dto.setCategoryId(100L);
+        dto.setCategory(CategoryDTO.builder().id(100L).build());
 
         ScoreDTO scoreDTO = new ScoreDTO();
-        scoreDTO.setTeamId(200L);
+        scoreDTO.setTeam(TeamDTO.builder().id(200L).build());
         scoreDTO.setPoints(50.0);
         scoreDTO.setTime(123);
         dto.setScores(List.of(scoreDTO));
@@ -77,7 +79,7 @@ class ScoreServiceTest {
     @Test
     void testCreateScoreSlideFromDTO_NullCategory() {
         ScoreSlideDTO dto = new ScoreSlideDTO();
-        dto.setCategoryId(999L);
+        dto.setCategory(CategoryDTO.builder().id(999L).build());
         when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
 
         ScoreSlide slide = scoreService.createScoreSlideFromDTO(dto);

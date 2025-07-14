@@ -30,7 +30,7 @@ public final class Category {
     @JsonIgnore
     private CategoryScoring categoryScoring;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Team> teams = new HashSet<>();
 
     public long getId() {
@@ -71,5 +71,15 @@ public final class Category {
 
     public void setCategoryScoring(CategoryScoring categoryScoring) {
         this.categoryScoring = categoryScoring;
+    }
+
+    @Override
+    public String toString() {
+        return "Category{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", competition=" + (competition != null ? competition.getId() : null) +
+                ", categoryScoring=" + categoryScoring +
+                '}';
     }
 }

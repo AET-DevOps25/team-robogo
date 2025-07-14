@@ -54,13 +54,14 @@ public final class Score {
 
     @Override
     public String toString() {
-        if (points == -1) {
-            return "---";
-        }
-        if (time == -1) {
-            return points + "";
-        }
-        return points + "(" + time + ')';
+        return "Score{" +
+                "id=" + id +
+                ", points=" + points +
+                ", time=" + time +
+                ", round=" + round +
+                ", team=" + (team != null ? team.getId() : null) +
+                ", scoreSlide=" + (scoreSlide != null ? scoreSlide.getId() : null) +
+                '}';
     }
 
     public int compareToWithTime(Score o) {

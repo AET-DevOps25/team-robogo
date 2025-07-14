@@ -22,4 +22,14 @@ public class ScoreSlide extends Slide {
     public List<Score> getScores() { return scores; }
 
     public void setScores(List<Score> scores) { this.scores = scores; }
+
+    @Override
+    public String toString() {
+        return "ScoreSlide{" +
+                "id=" + getId() +
+                ", name='" + getName() + '\'' +
+                ", index=" + getIndex() +
+                ", category=" + (category != null ? category.getId() : null) +
+                '}';
+    }
 } 

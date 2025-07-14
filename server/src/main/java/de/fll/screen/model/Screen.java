@@ -26,4 +26,14 @@ public class Screen {
     public void setStatus(ScreenStatus status) { this.status = status; }
     public SlideDeck getSlideDeck() { return slideDeck; }
     public void setSlideDeck(SlideDeck slideDeck) { this.slideDeck = slideDeck; }
+
+    @Override
+    public String toString() {
+        return "Screen{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", status=" + status +
+                ", slideDeck=" + (slideDeck != null ? slideDeck.getId() : null) +
+                '}';
+    }
 }

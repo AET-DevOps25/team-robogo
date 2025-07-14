@@ -33,4 +33,9 @@ public enum CategoryScoring implements CategoryComparator {
 	public Set<Integer> getHighlightIndices(Team team) {
 		return this.categoryComparator.getHighlightIndices(team);
 	}
+
+    @Override
+    public String toString() {
+        return name();
+    }
 }

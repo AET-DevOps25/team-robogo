@@ -40,4 +40,14 @@ public abstract class Slide {
 			return null;
 		}
 	}
+
+    @Override
+    public String toString() {
+        return "Slide{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", index=" + index +
+                ", slidedeck=" + (slidedeck != null ? slidedeck.getId() : null) +
+                '}';
+    }
 }

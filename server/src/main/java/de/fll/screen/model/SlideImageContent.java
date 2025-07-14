@@ -22,4 +22,12 @@ public class SlideImageContent {
     public void setContent(byte[] content) { this.content = content; }
     public SlideImageMeta getMeta() { return meta; }
     public void setMeta(SlideImageMeta meta) { this.meta = meta; }
+
+    @Override
+    public String toString() {
+        return "SlideImageContent{" +
+                "id=" + id +
+                ", meta=" + (meta != null ? meta.getId() : null) +
+                '}';
+    }
 } 

@@ -28,6 +28,7 @@ public class SlideDeckAssembler implements AbstractDTOAssembler<SlideDeck, Slide
         dto.setCompetitionId(deck.getCompetition().getId());
         List<SlideDTO> slideDTOs = new ArrayList<>();
         for (Slide slide : deck.getSlides()) {
+            System.out.println("slide: " + slide);
             SlideDTO slideDTO = slideAssembler.toDTO(slide);
             slideDTOs.add(slideDTO);
         }

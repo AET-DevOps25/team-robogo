@@ -25,4 +25,13 @@ public class SlideImageMeta {
     public void setContentType(String contentType) { this.contentType = contentType; }
     public SlideImageContent getContent() { return content; }
     public void setContent(SlideImageContent content) { this.content = content; }
+
+    @Override
+    public String toString() {
+        return "SlideImageMeta{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", contentType='" + contentType + '\'' +
+                '}';
+    }
 } 
