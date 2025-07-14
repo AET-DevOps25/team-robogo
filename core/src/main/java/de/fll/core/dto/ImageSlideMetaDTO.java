@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SlideImageMetaDTO {
+public class ImageSlideMetaDTO {
     private Long id;
     private String name;
     private String contentType;

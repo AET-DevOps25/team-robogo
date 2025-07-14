@@ -1,14 +1,10 @@
 import { http, HttpResponse } from 'msw'
-import type {
-  SuggestionRequestDTO,
-  SuggestionResponseDTO,
-  HealthCheckResponseDTO
-} from '@/interfaces/dto'
+import type { SuggestionRequest, SuggestionResponse, HealthCheckResponse } from '@/interfaces/types'
 
 export const handlers = [
   // Health check endpoint
   http.get('/api/proxy/genai/health', () => {
-    return HttpResponse.json<HealthCheckResponseDTO>({
+    return HttpResponse.json<HealthCheckResponse>({
       status: 'healthy',
       service: 'genai'
     })
@@ -17,7 +13,7 @@ export const handlers = [
   // Get suggestion endpoint
   http.post('/api/proxy/genai/suggestion', async ({ request }) => {
     try {
-      const body = (await request.json()) as SuggestionRequestDTO
+      const body = (await request.json()) as SuggestionRequest
 
       // Simulate different request scenarios
       if (body.text === 'error') {
@@ -29,7 +25,7 @@ export const handlers = [
         await new Promise(resolve => setTimeout(resolve, 5000))
       }
 
-      return HttpResponse.json<SuggestionResponseDTO>({
+      return HttpResponse.json<SuggestionResponse>({
         suggestion: `This is AI suggestion content for "${body.text}". Service type: ${body.service || 'openwebui'}`
       })
     } catch (error) {

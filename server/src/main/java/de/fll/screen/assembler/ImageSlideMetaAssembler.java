@@ -3,20 +3,20 @@ package de.fll.screen.assembler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import de.fll.core.dto.SlideImageMetaDTO;
+import de.fll.core.dto.ImageSlideMetaDTO;
 import de.fll.screen.model.SlideImageMeta;
 import de.fll.screen.repository.SlideImageMetaRepository;
 
 @Component
-public class ImageSlideMetaAssembler implements AbstractDTOAssembler<SlideImageMeta, SlideImageMetaDTO> {
+public class ImageSlideMetaAssembler implements AbstractDTOAssembler<SlideImageMeta, ImageSlideMetaDTO> {
     @Autowired
     private SlideImageMetaRepository slideImageMetaRepository;
 
     @Override
-    public SlideImageMetaDTO toDTO(SlideImageMeta meta) {
+    public ImageSlideMetaDTO toDTO(SlideImageMeta meta) {
         if (meta == null)
             return null;
-        SlideImageMetaDTO dto = new SlideImageMetaDTO();
+        ImageSlideMetaDTO dto = new ImageSlideMetaDTO();
         dto.setId(meta.getId());
         dto.setName(meta.getName());
         dto.setContentType(meta.getContentType());
@@ -24,7 +24,7 @@ public class ImageSlideMetaAssembler implements AbstractDTOAssembler<SlideImageM
     }
 
     @Override
-    public SlideImageMeta fromDTO(SlideImageMetaDTO dto) {
+    public SlideImageMeta fromDTO(ImageSlideMetaDTO dto) {
         if (dto == null)
             return null;
         SlideImageMeta meta = slideImageMetaRepository.findById(dto.getId())

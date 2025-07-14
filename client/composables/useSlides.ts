@@ -1,18 +1,30 @@
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { SlideItem } from '@/interfaces/types'
-import { fetchAvailableSlides } from '@/services/slideService'
 
-const slides = ref<SlideItem[]>([])
+export function useSlides(slideDeck: { slides: SlideItem[] }) {
+  // 本地 slides 响应式副本
+  const slides = ref<SlideItem[]>([...slideDeck.slides])
 
-export function useSlides() {
-  async function refresh() {
-    slides.value = await fetchAvailableSlides() // 打接口
-  }
+  // 保持与外部 slideDeck.slides 同步
+  watch(
+    () => slideDeck.slides,
+    newSlides => {
+      slides.value = [...newSlides]
+    },
+    { deep: true }
+  )
 
-  /** 本地上传时把新 Slide 塞进列表（同时可选再调后台） */
   function add(newSlide: SlideItem) {
     slides.value.push(newSlide)
+    slideDeck.slides.push(newSlide) // 同步到原 deck
   }
 
-  return { slides, refresh, add }
+  function remove(slideId: string | number) {
+    slides.value = slides.value.filter((s: SlideItem) => s.id !== slideId)
+    slideDeck.slides = slideDeck.slides.filter((s: SlideItem) => s.id !== slideId)
+  }
+
+  // 其它操作如 reorder、update 可继续扩展
+
+  return { slides, add, remove }
 }

@@ -1,27 +1,75 @@
 // unified type definition file
 
-export interface Screen {
-  id: string
+// ImageSlideMeta
+export interface ImageSlideMeta {
+  id: string | number
+  name: string
+  contentType: string
+}
+
+// Score
+export interface Score {
+  points: number
+  time: number
+  highlight: boolean
+}
+
+// SlideItem → 多态联合类型
+export type SlideItem =
+  | {
+      id: string | number
+      index: number
+      name: string
+      type: 'image'
+      imageMeta: ImageSlideMeta
+    }
+  | {
+      id: string | number
+      index: number
+      name: string
+      type: 'score'
+      scores: Score[]
+      categoryId: number
+    }
+  | {
+      id: string | number
+      index: number
+      name: string
+      type: string // 其它类型
+    }
+
+// SlideDeck
+export interface SlideDeck {
+  id: string | number
+  name: string
+  competitionId: string | number
+  slides: SlideItem[]
+  transitionTime: number
+  version: number
+}
+
+// ScreenContent
+export interface ScreenContent {
+  id: number | string
   name: string
   status: string
-  groupId: string
+  slideDeck: SlideDeck
   currentContent: string
-  thumbnailUrl: string
-  urlPath: string
+  thumbnailUrl?: string
+  urlPath?: string
 }
 
-export interface SlideItem {
-  id: number
-  name: string
-  url: string
+// AI服务相关接口
+export interface SuggestionRequest {
+  text: string
+  service?: 'openwebui' | 'openai'
 }
-
-export interface SlideGroup {
-  id: string
-  slideIds: number[]
-  speed: number // s
-  lastResetAt: number // ms
-  version: number
+export interface SuggestionResponse {
+  suggestion: string
+}
+export interface HealthCheckResponse {
+  status: string
+  service: string
 }
 
 // chat related types
@@ -30,31 +78,6 @@ export interface ChatMessage {
   text: string
 }
 
-// API response type
-export interface ApiResponse<T = any> {
-  success: boolean
-  data?: T
-  message?: string
-}
-
 // common types
 export type ScreenStatus = 'online' | 'offline' | 'error'
 export type ContentType = 'BLACK_SCREEN' | string
-
-// create related DTO types
-export interface CreateScreenDTO {
-  name: string
-  url?: string
-}
-
-export interface CreateSlideGroupDTO {
-  name: string
-  slideIds?: number[]
-  speed?: number
-}
-
-export interface SlideImageMetaDTO {
-  id: number
-  name: string
-  contentType: string
-}

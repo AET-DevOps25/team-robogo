@@ -1,6 +1,6 @@
 package de.fll.screen.controller;
 
-import de.fll.core.dto.SlideImageMetaDTO;
+import de.fll.core.dto.ImageSlideMetaDTO;
 import de.fll.screen.model.SlideImageContent;
 import de.fll.screen.model.SlideImageMeta;
 import de.fll.screen.service.SlideImageService;
@@ -26,7 +26,7 @@ public class SlideImageController {
      * Only returns id, name, contentType.
      */
     @GetMapping
-    public List<SlideImageMetaDTO> getAllImages() {
+    public List<ImageSlideMetaDTO> getAllImages() {
         return slideImageService.getAllImages();
     }
 
@@ -56,9 +56,9 @@ public class SlideImageController {
      * Saves both meta and content, returns created meta.
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<SlideImageMetaDTO> uploadImage(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<ImageSlideMetaDTO> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
-            SlideImageMetaDTO dto = slideImageService.uploadImage(file);
+            ImageSlideMetaDTO dto = slideImageService.uploadImage(file);
             return ResponseEntity.status(HttpStatus.CREATED).body(dto);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

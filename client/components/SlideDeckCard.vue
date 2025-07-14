@@ -3,17 +3,10 @@
   <div class="w-full rounded-xl shadow-lg p-4 bg-white dark:bg-gray-800 space-y-3">
     <div class="flex gap-2 justify-between items-center">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
-      <div class="flex items-center gap-2 mt-2" />
       <div class="flex items-center gap-2 mt-2">
         <span class="text-lg font-semibold text-gray-900 dark:text-white">Speed (s)</span>
         <SpeedControl v-model="speed" />
         <!-- ▶ Play 按钮 -->
-        <button
-          class="ml-2 px-2 py-1 bg-green-600 dark:bg-green-500 rounded text-white hover:bg-green-700 dark:hover:bg-green-600"
-          @click="play()"
-        >
-          ▶
-        </button>
       </div>
     </div>
 
@@ -58,7 +51,7 @@
         <!-- Slide Selection -->
         <div class="flex flex-wrap gap-4 mb-6">
           <SlideCard
-            v-for="s in slides"
+            v-for="s in props.slides"
             :key="s.id"
             :item="s"
             :selected="s.id === selectedToAdd"
@@ -99,15 +92,11 @@
   import draggable from 'vuedraggable'
   import SlideCard from './SlideCard.vue'
   import SpeedControl from './SpeedControl.vue'
-  import { useSlides } from '@/composables/useSlides'
   import type { SlideItem } from '@/interfaces/types'
-  import { useScreenStore } from '@/stores/useScreenStore'
-  const store = useScreenStore()
-
-  function play() {
-    store.playGroup(props.title) // title 就是 groupId
-  }
-  const { slides, refresh } = useSlides()
+  // 只保留一次 defineProps
+  const props = defineProps<{ title: string; selectedContent?: SlideItem; slides: SlideItem[] }>()
+  // 移除未使用的 store 变量
+  // 修复 id 相关类型报错
   interface Slide {
     id: number
     name: string
@@ -115,7 +104,6 @@
   }
   const slideIds = defineModel<number[]>('slide-ids', { required: true })
   const speed = defineModel<number>('speed', { required: true })
-  const props = defineProps<{ title: string; selectedContent?: SlideItem }>()
 
   defineEmits<{
     (e: 'select', item: Slide): void
@@ -125,8 +113,7 @@
 
   /* 打开弹窗前刷新一次 */
   const showDialog = ref(false)
-  async function openDialog() {
-    await refresh()
+  function openDialog() {
     showDialog.value = true
   }
   const selectedToAdd = ref<number | null>(null)
@@ -137,9 +124,9 @@
     localSlideIds.value = [...ids]
   })
 
-  const id2Slide = computed<Record<number, Slide>>(() => {
-    const map: Record<number, Slide> = {}
-    slides.value.forEach(s => {
+  const id2Slide = computed<Record<number, SlideItem>>(() => {
+    const map: Record<number, SlideItem> = {}
+    props.slides.forEach((s: SlideItem) => {
       map[s.id] = s
     })
     return map

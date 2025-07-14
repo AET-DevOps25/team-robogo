@@ -79,4 +79,18 @@ public class SlideDeckController {
         SlideDeck deck = slideDeckService.removeSlideFromDeck(deckId, slideId);
         return slideDeckAssembler.toDTO(deck);
     }
+
+    @GetMapping("/{deckId}/slides/{slideId}")
+    public SlideDTO getSlideFromDeck(
+            @PathVariable Long deckId,
+            @PathVariable Long slideId
+    ) {
+        SlideDeck deck = slideDeckService.getSlideDeckById(deckId)
+                .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
+        Slide slide = deck.getSlides().stream()
+                .filter(s -> Long.valueOf(s.getId()).equals(slideId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Slide not found in deck"));
+        return slideAssembler.toDTO(slide);
+    }
 } 

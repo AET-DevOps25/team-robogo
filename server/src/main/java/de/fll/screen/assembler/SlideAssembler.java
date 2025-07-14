@@ -1,6 +1,8 @@
 package de.fll.screen.assembler;
 
 import de.fll.core.dto.SlideDTO;
+import de.fll.screen.model.ImageSlide;
+import de.fll.screen.model.ScoreSlide;
 import de.fll.screen.model.Slide;
 import de.fll.screen.model.SlideType;
 import de.fll.core.dto.ImageSlideDTO;
@@ -18,12 +20,19 @@ public class SlideAssembler implements AbstractDTOAssembler<Slide, SlideDTO> {
     @Override
     public SlideDTO toDTO(Slide slide) {
         if (slide == null) return null;
-        SlideDTO dto = new SlideDTO();
-        dto.setId(slide.getId());
-        dto.setName(slide.getName());
-        dto.setIndex(slide.getIndex());
-        dto.setType(slide.getType().name());
-        return dto;
+        switch (slide.getType()) {
+            case IMAGE:
+                return imageSlideAssembler.toDTO((ImageSlide) slide);
+            case SCORE:
+                return scoreSlideAssembler.toDTO((ScoreSlide) slide);
+            default:
+                SlideDTO dto = new SlideDTO();
+                dto.setId(slide.getId());
+                dto.setName(slide.getName());
+                dto.setIndex(slide.getIndex());
+                dto.setType(slide.getType().name());
+                return dto;
+        }
     }
 
     @Override

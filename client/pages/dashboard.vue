@@ -139,7 +139,7 @@
         <div>
           <USelectMenu
             v-model="selectedGroupId"
-            :items="slideGroups.map((g: SlideGroup) => g.id)"
+            :items="slideGroups.map((g: any) => g.id)"
             class="w-48"
           />
           <UButton color="neutral" variant="outline" @click="showAddGroupDialog = true">
@@ -149,7 +149,7 @@
         <div
           class="h-[400px] w-full overflow-y-auto border-gray-200 dark:border-gray-600 rounded p-2 flex flex-wrap gap-6 justify-start scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800"
         >
-          <SlideGroupCard
+          <SlideDeckCard
             v-if="currentGroup && currentGroup.id !== 'None'"
             :key="currentGroup.id"
             v-model:slide-ids="currentGroup.slideIds"
@@ -333,14 +333,12 @@
   import { watchOnce } from '@vueuse/core'
   import { useI18n } from 'vue-i18n'
   import ScreenCard from '../components/ScreenCard.vue'
-  import SlideGroupCard from '../components/SlideGroupCard.vue'
+  import SlideDeckCard from '../components/SlideDeckCard.vue'
   import { useScreenStore } from '@/stores/useScreenStore'
-  import { AIService } from '@/services/aiService'
-  import type { Screen, SlideItem, ChatMessage, SlideGroup } from '@/interfaces/types'
-  import type { SuggestionRequestDTO } from '@/interfaces/dto'
-  import { fetchGroups } from '@/services/groupService'
+  import { checkHealth, getSuggestion, getServiceInfo } from '@/services/aiService'
+  import type { Screen, SlideItem, ChatMessage } from '@/interfaces/types'
   import { useSlides } from '@/composables/useSlides'
-  const { slides, refresh } = useSlides()
+  const { slides } = useSlides()
   onMounted(async () => {
     store.slideGroups = await fetchGroups() // 初始化
 
@@ -416,15 +414,15 @@
   const screens = computed(() => store.screens)
 
   const slideGroups = computed(() => store.slideGroups)
-
   const selectedGroupId = ref(store.slideGroups[0]?.id || 'None')
-
-  const currentGroup = computed(() => slideGroups.value.find(g => g.id === selectedGroupId.value))
+  const currentGroup = computed(() =>
+    slideGroups.value.find((g: any) => g.id === selectedGroupId.value)
+  )
 
   const onUpdateScreenGroup = (updated: Screen) => {
-    store.updateScreenGroup(updated.id, updated.groupId) // 1) 换组
-    const g = store.slideGroups.find(g => g.id === updated.groupId)
-    if (g) store.resetGroup(g) // 2) 立即重播
+    store.updateScreenGroup(updated.id, updated.groupId)
+    const g = store.slideGroups.find((g: any) => g.id === updated.groupId)
+    if (g) store.resetGroup(g)
   }
 
   const showAddScreenDialog = ref(false)
@@ -450,7 +448,7 @@ AI Chat Integration
   // Check AI service health on component mount
   onMounted(async () => {
     try {
-      const health = await AIService.checkHealth()
+      const health = await checkHealth()
       aiServiceStatus.value = health.status === 'healthy'
     } catch (error) {
       aiServiceStatus.value = false
@@ -459,33 +457,17 @@ AI Chat Integration
 
   const sendMessage = async () => {
     if (!userMessage.value.trim()) return
-
     const messageText = userMessage.value.trim()
     userMessage.value = ''
-
-    // Add user message to chat history
-    chatHistory.value.push({
-      role: 'You',
-      text: messageText
-    })
-
-    // Show loading state
+    chatHistory.value.push({ role: 'You', text: messageText })
     isAiLoading.value = true
     aiError.value = ''
-
     try {
-      const request: SuggestionRequestDTO = {
+      const response = await getSuggestion({
         text: messageText,
         service: selectedAiService.value
-      }
-
-      const response = await AIService.getSuggestion(request)
-
-      // Add AI response to chat history
-      chatHistory.value.push({
-        role: 'AI',
-        text: response.suggestion
       })
+      chatHistory.value.push({ role: 'AI', text: response.suggestion })
     } catch (error: any) {
       aiError.value = error.message || t('aiServiceFailed')
       console.error('AI service error:', error) // eslint-disable-line no-console
@@ -511,7 +493,7 @@ AI Chat Integration
 
   const confirmDeleteScreen = () => {
     if (!screenToDelete.value) return
-    store.screens = store.screens.filter(s => s.id !== screenToDelete.value!.id)
+    store.screens = store.screens.filter((s: any) => s.id !== screenToDelete.value!.id)
     showDeleteConfirm.value = false
     screenToDelete.value = null
   }
@@ -525,27 +507,23 @@ AI Chat Integration
   const handleFileUpload = (event: Event) => {
     const files = (event.target as HTMLInputElement).files
     if (!files || files.length === 0) return
-
     const file = files[0]
-    // replace with API later
     const reader = new FileReader()
-
     reader.onload = () => {
       const imageUrl = reader.result as string
       const newId = Date.now()
-
-      const newSlide = {
+      const newSlide: SlideItem = {
         id: newId,
+        index: 0,
         name: file.name,
-        url: imageUrl
+        type: 'image',
+        imageMeta: { id: newId, name: file.name, contentType: file.type }
       }
-
-      const targetGroup = store.slideGroups.find(g => g.id === selectedGroupId.value)
+      const targetGroup = store.slideGroups.find((g: any) => g.id === selectedGroupId.value)
       if (targetGroup && targetGroup.id !== 'None') {
         targetGroup.slideIds.push(newSlide.id)
       }
     }
-
     reader.readAsDataURL(file)
   }
 </script>

@@ -4,6 +4,8 @@ import { setupServer } from 'msw/node'
 import { setActivePinia } from 'pinia'
 import { createTestingPinia } from '@pinia/testing'
 import { handlers } from './mocks/handlers'
+import { mockSlides } from '@/data/mockSlides'
+import { mockSlideDecks } from '@/data/mockSlideDecks'
 
 // Create MSW server
 const server = setupServer(...handlers)
@@ -41,6 +43,106 @@ vi.stubGlobal('$fetch', async (url: string, options: any = {}) => {
 
   return await response.json()
 })
+
+// 全局 mock useAuthFetch（AIService 相关接口）
+vi.mock('@/composables/useAuthFetch', () => ({
+  useAuthFetch: () => ({
+    authFetch: vi.fn((url: string, _options?: any) => {
+      if (/\/slide-images\/\d+$/.test(url) && (!_options || _options.method === 'GET')) {
+        return new Blob(['mock image content'], { type: 'image/jpeg' })
+      }
+      if (url.endsWith('/slide-images') && (!_options?.method || _options.method === 'GET')) {
+        return [
+          { id: 1, name: 'img1', contentType: 'image/jpeg' },
+          { id: 2, name: 'img2', contentType: 'image/png' }
+        ]
+      }
+      if (url.includes('/slide-images') && _options && _options.method === 'POST') {
+        const formData = _options.body
+        if (formData && typeof formData.get === 'function') {
+          const file = formData.get('file')
+          return {
+            id: 99,
+            name: file?.name || 'mock.png',
+            contentType: file?.type || 'image/png'
+          }
+        }
+        return { id: 99, name: 'mock.png', contentType: 'image/png' }
+      }
+      if (typeof url === 'string' && url.includes('/suggestion')) {
+        const bodyObj = _options && _options.body ? JSON.parse(_options.body) : {}
+        if (bodyObj.text === 'error') {
+          return Promise.reject(new Error('Mocked error'))
+        }
+        return Promise.resolve({
+          suggestion: `${bodyObj.text || ''} - suggestion from ${bodyObj.service || 'openwebui'}`
+        })
+      }
+      if (typeof url === 'string' && url.includes('/health')) {
+        return Promise.resolve({ status: 'healthy', service: 'genai' })
+      }
+      if ((typeof url === 'string' && url.includes('/service-info')) || url.endsWith('/genai/')) {
+        return Promise.resolve({
+          name: 'GenAI Service',
+          version: '1.0.0',
+          status: 'running',
+          features: ['suggestion', 'health-check']
+        })
+      }
+      // mock 获取所有 slideDecks
+      if (url.endsWith('/slidedecks') && (!_options?.method || _options.method === 'GET')) {
+        return mockSlideDecks
+      }
+      // mock 获取单个 slideDeck
+      if (/\/slidedecks\/\d+$/.test(url) && (!_options?.method || _options.method === 'GET')) {
+        return mockSlideDecks[0]
+      }
+      // mock 创建/更新 slideDeck
+      if (url.endsWith('/slidedecks') && _options?.method === 'POST') {
+        return JSON.parse(_options.body)
+      }
+      if (/\/slidedecks\/\d+$/.test(url) && _options?.method === 'PUT') {
+        return JSON.parse(_options.body)
+      }
+      // mock addSlideToDeck, reorderSlides
+      if (
+        /\/slidedecks\/\d+\/slides$/.test(url) ||
+        /\/slidedecks\/\d+\/slides\/reorder$/.test(url)
+      ) {
+        return mockSlideDecks[0]
+      }
+      // mock 删除 slideDeck
+      if (/\/slidedecks\/\d+$/.test(url) && _options?.method === 'DELETE') {
+        return undefined
+      }
+      // mock 获取单个 slide 或移除 slide
+      if (/\/slidedecks\/\d+\/slides\/\d+$/.test(url)) {
+        const match = url.match(/slidedecks\/(\d+)\/slides\/(\d+)/)
+        if (match) {
+          const [, _deckId, slideId] = match
+          if (_options?.method === 'DELETE') {
+            // 返回 mockSlideDecks[0]
+            return mockSlideDecks[0]
+          }
+          // GET 返回单个 slide
+          const slide = mockSlides.find(s => String(s.id) === slideId)
+          return slide
+        }
+      }
+      return {}
+    })
+  })
+}))
+
+vi.mock('#app', () => ({
+  useNuxtApp: () => ({
+    $config: {
+      public: {
+        aiServiceUrl: 'http://mock-ai-service'
+      }
+    }
+  })
+}))
 
 // Start server before all tests
 beforeAll(() => server.listen())

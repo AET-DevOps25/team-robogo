@@ -1,6 +1,6 @@
 package de.fll.screen.service;
 
-import de.fll.core.dto.SlideImageMetaDTO;
+import de.fll.core.dto.ImageSlideMetaDTO;
 import de.fll.screen.assembler.ImageSlideMetaAssembler;
 import de.fll.screen.model.SlideImageContent;
 import de.fll.screen.model.SlideImageMeta;
@@ -24,13 +24,13 @@ public class SlideImageService {
     @Autowired
     private ImageSlideMetaAssembler imageSlideMetaAssembler;
 
-    public List<SlideImageMetaDTO> getAllImages() {
+    public List<ImageSlideMetaDTO> getAllImages() {
         return metaRepository.findAll().stream()
                 .map(imageSlideMetaAssembler::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public SlideImageMetaDTO uploadImage(MultipartFile file) throws IOException {
+    public ImageSlideMetaDTO uploadImage(MultipartFile file) throws IOException {
         SlideImageMeta meta = new SlideImageMeta();
         meta.setName(file.getOriginalFilename());
         meta.setContentType(file.getContentType());

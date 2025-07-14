@@ -1,11 +1,9 @@
 package de.fll.screen.assembler;
 
 import de.fll.core.dto.ImageSlideDTO;
-import de.fll.core.dto.SlideDTO;
-import de.fll.core.dto.SlideImageMetaDTO;
+import de.fll.core.dto.ImageSlideMetaDTO;
 import de.fll.screen.model.ImageSlide;
 import de.fll.screen.model.SlideImageMeta;
-import de.fll.screen.repository.SlideImageMetaRepository;
 import de.fll.screen.repository.SlideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,7 +25,7 @@ public class ImageSlideAssembler implements AbstractDTOAssembler<ImageSlide, Ima
         dto.setName(slide.getName());
         dto.setIndex(slide.getIndex());
         SlideImageMeta meta = slide.getImageMeta();
-        SlideImageMetaDTO metaDTO = imageSlideMetaAssembler.toDTO(meta);
+        ImageSlideMetaDTO metaDTO = imageSlideMetaAssembler.toDTO(meta);
         dto.setImageMeta(metaDTO);
         return dto;
     }

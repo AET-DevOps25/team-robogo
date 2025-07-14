@@ -1,6 +1,6 @@
 package de.fll.screen.assembler;
 
-import de.fll.core.dto.SlideImageMetaDTO;
+import de.fll.core.dto.ImageSlideMetaDTO;
 import de.fll.screen.model.SlideImageMeta;
 import de.fll.screen.repository.SlideImageMetaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ class ImageSlideMetaAssemblerTest {
         setId(meta, 1L);
         meta.setName("meta");
         meta.setContentType("image/png");
-        SlideImageMetaDTO dto = assembler.toDTO(meta);
+        ImageSlideMetaDTO dto = assembler.toDTO(meta);
         assertNotNull(dto);
         assertEquals(1L, dto.getId());
         assertEquals("meta", dto.getName());
@@ -41,7 +41,7 @@ class ImageSlideMetaAssemblerTest {
 
     @Test
     void testFromDTO_Basic() {
-        SlideImageMetaDTO dto = new SlideImageMetaDTO();
+        ImageSlideMetaDTO dto = new ImageSlideMetaDTO();
         dto.setId(2L);
         SlideImageMeta meta = new SlideImageMeta();
         when(slideImageMetaRepository.findById(2L)).thenReturn(java.util.Optional.of(meta));
