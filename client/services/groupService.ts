@@ -1,14 +1,19 @@
 /* ── src/services/groupService.ts ───────────────────────────── */
 import type { SlideGroup } from '@/interfaces/types'
-import { fakeSlideGroups } from '@/data/fakeSlideGroups' // 同一个 mock 文件也行
+import { mockSlideGroups } from '@/data/mockSlideGroups' // mock
 import { useScreenStore } from '@/stores/useScreenStore'
-
+import { useAuthFetch } from '@/composables/useAuthFetch'
 export async function fetchGroups(): Promise<SlideGroup[]> {
   try {
-    const res = await fetch('/api/groups', { cache: 'no-store' })
+    // TODO: fix fetch and api, remove mockgroups
+
+    const { authFetch } = useAuthFetch()
+    const res = await authFetch<any>('/api/proxy/slidedecks', {
+      cache: 'no-store'
+    })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
-    // 后端返回的结构里没有 lastResetAt —— 统一补上
+    // add lastResetAt for all groups - which is not stored in database
     const now = Date.now()
     const groups = ((await res.json()) as SlideGroup[]).map(g => ({
       ...g,
@@ -19,37 +24,73 @@ export async function fetchGroups(): Promise<SlideGroup[]> {
   } catch (err) {
     console.warn('[groupService] /api/groups failed, use mock groups:', err)
 
-    // mock 同样直接覆盖
+    // mock
     const now = Date.now()
-    return fakeSlideGroups.map(g => ({ ...g, lastResetAt: now }))
+    return mockSlideGroups.map(g => ({ ...g, lastResetAt: now }))
   }
 }
 
-/** 保存分组；成功后自动合并 version、保留 lastResetAt */
+/** save group; merge version if successfully saved; keep lastResetAt */
 export async function saveGroup(local: SlideGroup): Promise<SlideGroup> {
-  // 1) 去掉 lastResetAt，只发后端需要的结构字段
+  // 1) put group info w/o lastResetAt - which is not in database
   const { lastResetAt, ...payload } = local
-
-  const res = await fetch(`/api/groups/${payload.id}`, {
+  const { authFetch } = useAuthFetch()
+  const res = await authFetch<any>(`/api/proxy/slidedecks/${payload.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   })
-
+  console.log(res)
   if (!res.ok) {
-    // 409＝版本冲突，其他 status 自行处理
+    // 409 version conflict
     throw new Error(String(res.status))
   }
 
-  // 2) 后端返回的新 version / 结构
+  // 2) get new group info including new group version
   const saved: SlideGroup = await res.json()
 
-  // 3) 合并回本地：保留原 lastResetAt
+  // 3) replace local group with new group：keep lastResetAt
   const merged: SlideGroup = { ...saved, lastResetAt }
 
-  // 根据需要写回 store
+  // write back to store
   const store = useScreenStore()
-  store.replaceGroup(merged) // 第二个参数可选：是否重播
+  store.replaceGroup(merged) //
 
   return merged
+}
+
+interface CreateDeckDTO {
+  name: string
+}
+interface DeckDTO {
+  id: number
+  name: string
+  transitionTime: number
+  version: number
+}
+
+function dtoToGroup(dto: DeckDTO): SlideGroup {
+  return {
+    id: String(dto.id),
+    slideIds: [],
+    speed: dto.transitionTime,
+    version: dto.version,
+    lastResetAt: Date.now()
+  }
+}
+
+/** POST /slidedecks  - create new group (blank) */
+export async function createGroup(name: string): Promise<SlideGroup> {
+  const { authFetch } = useAuthFetch()
+
+  const res = await authFetch('/api/proxy/slidedecks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(<CreateDeckDTO>{ name })
+  })
+
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+  const dto = (await res.json()) as DeckDTO
+  return dtoToGroup(dto)
 }

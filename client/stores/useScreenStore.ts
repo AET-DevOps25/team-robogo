@@ -27,6 +27,7 @@ export const useScreenStore = defineStore(
       }
     }
 
+    // replace a group and automatically replay from the first slide
     function replaceGroup(g: SlideGroup) {
       const idx = slideGroups.value.findIndex(x => x.id === g.id)
       if (idx !== -1)
@@ -35,15 +36,15 @@ export const useScreenStore = defineStore(
           lastResetAt: Date.now()
         }
     }
-
+    // calculate current slide index of a group
     function calcIndex(g: SlideGroup) {
       if (!g.slideIds.length) return 0
       const elapsed = Date.now() - g.lastResetAt
       return Math.floor(elapsed / (g.speed * 1000)) % g.slideIds.length
     }
-
+    // set _timer and allocate current slide for each group
     const startSlideTimer = () => {
-      if (_timer) return // ← 已有计时器就别再建
+      if (_timer) return // do not setup a _timer twice
       _timer = setInterval(() => {
         screens.value.forEach(screen => {
           const g = slideGroups.value.find(x => x.id === screen.groupId)
@@ -57,11 +58,11 @@ export const useScreenStore = defineStore(
       }, 1000)
     }
 
-    /** ▶ Play 按钮或保存成功时 */
+    /** play from the first slide of the group */
     function resetGroup(g: SlideGroup) {
       g.lastResetAt = Date.now()
-      // 如需全端同步 → PUT /groups/{id}
     }
+    // create a new screen, default: black screen, no group allocation
     const addScreen = (name: string, url: string) => {
       const id = uuidv4()
       screens.value.push({
@@ -74,7 +75,7 @@ export const useScreenStore = defineStore(
         urlPath: `/screen/${id}`
       })
     }
-
+    // create a new group, play from first slide immediately
     const addGroup = (name: string) => {
       if (!name || slideGroups.value.find(g => g.id === name)) return
       slideGroups.value.push({
@@ -85,26 +86,26 @@ export const useScreenStore = defineStore(
         lastResetAt: Date.now()
       })
     }
-
+    // update the group allocation of a screen
     const updateScreenGroup = (screenId: string, groupId: string) => {
       const screen = screens.value.find(s => s.id === screenId)
       if (screen) screen.groupId = groupId
     }
 
-    /** 播放指定分组（从第一张开始） */
+    /** play a group from the first slide */
     const playGroup = (groupId: string) => {
       const g = slideGroups.value.find(g => g.id === groupId)
       if (!g || !g.slideIds.length) return
 
       g.lastResetAt = Date.now()
 
-      // 把所有绑定这个分组的屏幕立即切到首张
+      // change current slide to the first slide, for all screens playing this group
       screens.value
         .filter(s => s.groupId === groupId)
         .forEach(s => (s.currentContent = g.slideIds[0].toString()))
     }
 
-    /** 播放全部分组 */
+    /** play from the first slide, all groups */
     const playAllGroups = () => {
       slideGroups.value.forEach(g => playGroup(g.id))
     }

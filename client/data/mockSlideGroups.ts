@@ -5,7 +5,7 @@ export interface SlideGroup {
   version: number // ★ 单调递增
 }
 
-export const fakeSlideGroups: SlideGroup[] = [
+export const mockSlideGroups: SlideGroup[] = [
   { id: 'Group-A', slideIds: [1, 2, 3], speed: 5, version: 0 },
   { id: 'Group-B', slideIds: [4, 5], speed: 7, version: 0 }
 ]

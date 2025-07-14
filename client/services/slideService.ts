@@ -1,11 +1,18 @@
 import type { SlideItem } from '@/interfaces/types'
 import { mockSlides } from '@/data/mockSlides'
+import { useAuthFetch } from '@/composables/useAuthFetch'
+
 export async function fetchAvailableSlides(): Promise<SlideItem[]> {
   try {
-    const res = await fetch('/api/slides', { cache: 'no-store' })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    // TODO: fix fetch and api, remove mockSlides
 
-    return (await res.json()) as SlideItem[]
+    const { authFetch } = useAuthFetch()
+    const data = await authFetch<any>('/api/proxy/slide-images', {
+      cache: 'no-store'
+    })
+    console.log(data)
+    // return data
+    return mockSlides
   } catch (err) {
     console.warn('[slideService] /api/slides failed，use mock slides: ', err)
     return mockSlides

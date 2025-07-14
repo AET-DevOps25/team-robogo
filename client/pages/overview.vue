@@ -338,7 +338,7 @@
   import { AIService } from '@/services/aiService'
   import type { Screen, SlideItem, ChatMessage, SlideGroup } from '@/interfaces/types'
   import type { SuggestionRequestDTO } from '@/interfaces/dto'
-  import { fetchGroups } from '@/services/groupService'
+  import { fetchGroups, createGroup } from '@/services/groupService'
   import { useSlides } from '@/composables/useSlides'
   const { slides, refresh } = useSlides()
   onMounted(async () => {
@@ -358,7 +358,7 @@
   const testResponse = ref('') // display Returned Text from API
 
   const store = useScreenStore()
-
+  const adding = ref(false)
   // Submit score function
   const submitScore = () => {
     if (!scoreTarget.value || !scoreValue.value) return
@@ -498,11 +498,25 @@ AI Chat Integration
   const newGroupName = ref('')
 
   // 添加新分组
-  const addGroup = () => {
-    store.addGroup(newGroupName.value)
-    selectedGroupId.value = newGroupName.value
-    newGroupName.value = ''
-    showAddGroupDialog.value = false
+  const addGroup = async () => {
+    const name = newGroupName.value.trim()
+    if (!name) return
+    adding.value = true
+
+    try {
+      const g = await createGroup(name) // ① 调后端
+      store.slideGroups.push(g) // ② 成功才落地
+      selectedGroupId.value = g.id
+      showAddGroupDialog.value = false
+      newGroupName.value = ''
+    } catch (err: any) {
+      //
+      console.error('addGroup failed:', err)
+      // 你可以用 naive-ui / vue-toast 等提示
+      alert(err.message ?? 'Create group failed')
+    } finally {
+      adding.value = false
+    }
   }
 
   // delete screen
