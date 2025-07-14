@@ -59,6 +59,12 @@ export interface ScreenContent {
   urlPath?: string
 }
 
+// LoginRequest
+export interface LoginRequest {
+  username: string
+  password: string
+}
+
 // AI服务相关接口
 export interface SuggestionRequest {
   text: string

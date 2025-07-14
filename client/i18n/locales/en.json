@@ -72,5 +72,14 @@
   "aiServiceFailed": "AI service response failed",
   "addNewGroup": "Add New Group",
   "groupName": "Group Name",
-  "test": "Test"
+  "test": "Test",
+  "scoreUnit": "pts",
+  "category": "Category",
+  "notScoreType": "Not a score type",
+  "loading": "Loading...",
+  "slideDeckDemo": "Slide Deck Demo",
+  "id": "ID",
+  "name": "Name",
+  "slides": "Slides",
+  "fetchFailed": "Failed to fetch data"
 }

@@ -15,7 +15,7 @@ export async function fetchAllImageMetas(): Promise<ImageSlideMeta[]> {
  * 获取图片二进制内容（可用于 <img :src="..." />）
  * 返回 Blob，可用 URL.createObjectURL(blob) 转为图片 src
  */
-export async function fetchImageBlobById(id: string | number): Promise<Blob> {
+export async function fetchImageBlobById(id: number): Promise<Blob> {
   const { authFetch } = useAuthFetch()
   return await authFetch<Blob>(`${BASE_URL}/${id}`)
 }

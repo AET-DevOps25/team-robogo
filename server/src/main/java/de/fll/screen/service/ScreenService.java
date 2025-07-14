@@ -7,10 +7,7 @@ import de.fll.screen.repository.ScreenRepository;
 import de.fll.screen.repository.SlideDeckRepository;
 import de.fll.core.dto.ScreenContentDTO;
 import de.fll.screen.repository.CompetitionRepository;
-import de.fll.core.dto.SlideDTO;
-import de.fll.screen.assembler.SlideAssembler;
 import de.fll.screen.assembler.SlideDeckAssembler;
-import de.fll.screen.model.Slide;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

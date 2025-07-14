@@ -67,13 +67,15 @@
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
   import { useAuth, definePageMeta, navigateTo } from '#imports'
-  import type { LoginRequestDTO } from '~/interfaces/dto'
+  import type { LoginRequest } from '@/interfaces/types'
+
+  const LOGIN_SUCCESS_REDIRECT_PATH = '/slide-deck-demo'
 
   definePageMeta({
     auth: false
   })
 
-  const form = ref<LoginRequestDTO>({
+  const form = ref<LoginRequest>({
     username: '',
     password: ''
   })
@@ -82,7 +84,7 @@
 
   onMounted(async () => {
     if (status.value === 'authenticated') {
-      await navigateTo('/dashboard')
+      await navigateTo(LOGIN_SUCCESS_REDIRECT_PATH)
     }
   })
 
@@ -113,7 +115,7 @@
         throw new Error('Login failed, please try again.')
       }
 
-      await navigateTo('/dashboard')
+      await navigateTo(LOGIN_SUCCESS_REDIRECT_PATH)
     } catch (err: any) {
       error.value = err.message || 'An unexpected error occurred.'
     }

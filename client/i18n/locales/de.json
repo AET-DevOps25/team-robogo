@@ -72,5 +72,14 @@
   "aiServiceFailed": "KI-Service-Antwort fehlgeschlagen",
   "addNewGroup": "Neue Gruppe hinzufügen",
   "groupName": "Gruppenname",
-  "test": "Test"
+  "test": "Test",
+  "scoreUnit": "Pkt.",
+  "category": "Kategorie",
+  "notScoreType": "Kein Score-Typ",
+  "loading": "Lädt...",
+  "slideDeckDemo": "Foliensatz-Demo",
+  "id": "ID",
+  "name": "Name",
+  "slides": "Folien",
+  "fetchFailed": "Daten konnten nicht geladen werden"
 }

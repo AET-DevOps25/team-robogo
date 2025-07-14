@@ -28,7 +28,9 @@ public class FLLRobotGameComparator extends AbstractFLLComparator {
 	}
 
 	protected List<Score> getRelevantScores(Team team) {
-		return team.getScores().subList(0, 3);
+		List<Score> scores = team.getScores();
+		int toIndex = Math.min(scores.size(), 3);
+		return scores.subList(0, toIndex);
 	}
 
 	@Override
