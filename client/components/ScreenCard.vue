@@ -25,14 +25,17 @@
       <p class="text-gray-700 dark:text-gray-300 text-base">
         Current Group: {{ screen.groupId || 'None' }}
       </p>
-      <p class="text-gray-500 dark:text-gray-400 text-sm">URL: <a
-    :href="screen.urlPath"
-    class="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    {{ screen.urlPath }}
-  </a></p>
+      <p class="text-gray-500 dark:text-gray-400 text-sm">
+        URL:
+        <a
+          :href="screen.urlPath"
+          class="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {{ screen.urlPath }}
+        </a>
+      </p>
     </div>
     <div class="px-6 pt-4 pb-2">
       <USelectMenu

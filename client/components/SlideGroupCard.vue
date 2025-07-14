@@ -118,7 +118,6 @@
     url: string
   }
   const slideIds = defineModel<number[]>('slide-ids', { required: true })
-  const speed = defineModel<number>('speed', { required: true })
   const props = defineProps<{ group: SlideGroup; selectedContent?: SlideItem }>()
   const editingGroup = reactive<SlideGroup>(structuredClone(toRaw(props.group)))
   const store = useScreenStore()
