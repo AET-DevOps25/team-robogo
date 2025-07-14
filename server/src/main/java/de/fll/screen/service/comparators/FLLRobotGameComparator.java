@@ -42,7 +42,8 @@ public class FLLRobotGameComparator extends AbstractFLLComparator {
 		}
 		// Highlight first occurrence of best score
 		for (int i = 0; i < scores.size(); i++) {
-			if (scores.get(i).getPoints() == bestScore) {
+			Score score = scores.get(i);
+			if (score != null && Objects.equals(score.getPoints(), bestScore)) {
 				return Set.of(i);
 			}
 		}
@@ -57,6 +58,12 @@ public class FLLRobotGameComparator extends AbstractFLLComparator {
 	}
 
 	private double getBestScore(Team team) {
-		return getRelevantScores(team).stream().mapToDouble(Score::getPoints).max().orElse(-1);
+		return getRelevantScores(team).stream()
+			.filter(Objects::nonNull)
+			.map(Score::getPoints)
+			.filter(Objects::nonNull)
+			.mapToDouble(Double::doubleValue)
+			.max()
+			.orElse(-1);
 	}
 }

@@ -80,10 +80,12 @@ public class ScoreService {
         List<Score> scores = team.getScores();
         for (int i = 0; i < scores.size(); i++) {
             Score s = scores.get(i);
+            if (s == null) continue;
             dtos.add(ScoreDTO.builder()
                 .points(s.getPoints())
                 .time(s.getTime())
                 .highlight(highlightIndices.contains(i))
+                .teamId(team.getId())
                 .build());
         }
         return dtos;
@@ -102,8 +104,8 @@ public class ScoreService {
         ScoreSlide slide = new ScoreSlide();
         slide.setName(dto.getName());
         slide.setIndex(dto.getIndex());
-        if (dto.getCategoryId() != null) {
-            Category category = categoryRepository.findById(dto.getCategoryId()).orElse(null);
+        if (dto.getCategory() != null) {
+            Category category = categoryRepository.findById(dto.getCategory().getId()).orElse(null);
             slide.setCategory(category);
         }
         List<Score> scores = new ArrayList<>();

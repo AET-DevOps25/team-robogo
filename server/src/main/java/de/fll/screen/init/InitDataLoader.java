@@ -5,6 +5,8 @@ import de.fll.screen.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -14,6 +16,7 @@ import java.util.UUID;
 
 @Component
 public class InitDataLoader implements CommandLineRunner {
+    private static final Logger logger = LoggerFactory.getLogger(InitDataLoader.class);
     @Autowired private CompetitionRepository competitionRepository;
     @Autowired private CategoryRepository categoryRepository;
     @Autowired private SlideDeckRepository slideDeckRepository;
@@ -39,7 +42,7 @@ public class InitDataLoader implements CommandLineRunner {
             wro.setName("WRO Competition");
             wro.setInternalId(UUID.randomUUID());
             competitionRepository.save(wro);
-            System.out.println("[InitDataLoader] Inserted Competitions");
+            logger.info("[InitDataLoader] Inserted Competitions");
         }
         List<Competition> competitions = competitionRepository.findAll();
         Competition fll = competitions.get(0);
@@ -72,7 +75,7 @@ public class InitDataLoader implements CommandLineRunner {
             c5.setCompetition(wro);
             c5.setCategoryScoring(CategoryScoring.WRO_ROBOMISSION_2025);
             categoryRepository.save(c5);
-            System.out.println("[InitDataLoader] Inserted Categories");
+            logger.info("[InitDataLoader] Inserted Categories");
         }
         List<Category> categories = categoryRepository.findAll();
 
@@ -80,7 +83,7 @@ public class InitDataLoader implements CommandLineRunner {
         if (slideDeckRepository.count() == 0) {
             SlideDeck deck = new SlideDeck("Demo Deck", 10, new ArrayList<>(), fll);
             slideDeckRepository.save(deck);
-            System.out.println("[InitDataLoader] Inserted SlideDeck");
+            logger.info("[InitDataLoader] Inserted SlideDeck");
         }
         List<SlideDeck> decks = slideDeckRepository.findAll();
 
@@ -101,7 +104,7 @@ public class InitDataLoader implements CommandLineRunner {
                         imageContent.setContent(content);
                         imageContent.setMeta(savedMeta);
                         slideImageContentRepository.save(imageContent);
-                        System.out.println("[InitDataLoader] Loaded image: " + file.getName());
+                        logger.info("[InitDataLoader] Loaded image: " + file.getName());
                     }
                 }
             }
@@ -128,7 +131,7 @@ public class InitDataLoader implements CommandLineRunner {
                 imageSlide.setIndex(1);
                 slideRepository.save(imageSlide);
             }
-            System.out.println("[InitDataLoader] Inserted Slides");
+            logger.info("[InitDataLoader] Inserted Slides");
         }
         List<Slide> slides = slideRepository.findAll();
         List<ScoreSlide> scoreSlides = new ArrayList<>();
@@ -149,24 +152,26 @@ public class InitDataLoader implements CommandLineRunner {
             teamRepository.save(team1);
             teamRepository.save(team2);
             teamRepository.save(team3);
-            System.out.println("[InitDataLoader] Inserted Teams");
+            logger.info("[InitDataLoader] Inserted Teams");
         }
         List<Team> teams = teamRepository.findAll();
 
         // 7. Score
+        // TODO: 后续根据实际业务完善分数与 ScoreSlide 的分配策略，目前每个 ScoreSlide 只包含同一轮的所有 team 的分数
+        // 应该按照轮次来分配分数，每个 ScoreSlide 包含同一轮的所有 team 的分数，不是team
         if (scoreRepository.count() == 0 && !teams.isEmpty() && !scoreSlides.isEmpty()) {
-            int slideIdx = 0;
-            for (Team team : teams) {
-                for (int i = 0; i < 3; i++) {
-                    Score s = new Score(100 - i * 10, 120 + i * 10);
-                    ScoreSlide scoreSlide = scoreSlides.get(slideIdx % scoreSlides.size());
+            int rounds = Math.min(scoreSlides.size(), 3);
+            for (int round = 0; round < rounds; round++) {
+                ScoreSlide scoreSlide = scoreSlides.get(round);
+                for (Team team : teams) {
+                    Score s = new Score(100 - round * 10, 120 + round * 10);
                     s.setScoreSlide(scoreSlide);
                     s.setTeam(team);
+                    s.setRound(round);
                     scoreRepository.save(s);
-                    slideIdx++;
                 }
             }
-            System.out.println("[InitDataLoader] Inserted Scores");
+            logger.info("[InitDataLoader] Inserted Scores");
         }
 
         // 8. Screen
@@ -183,7 +188,7 @@ public class InitDataLoader implements CommandLineRunner {
             screen2.setSlideDeck(deck2);
             screenRepository.save(screen1);
             screenRepository.save(screen2);
-            System.out.println("[InitDataLoader] Inserted Screens");
+            logger.info("[InitDataLoader] Inserted Screens");
         }
     }
 } 

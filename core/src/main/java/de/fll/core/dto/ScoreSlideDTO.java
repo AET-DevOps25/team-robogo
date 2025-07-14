@@ -8,5 +8,5 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class ScoreSlideDTO extends SlideDTO {
     private List<ScoreDTO> scores;
-    private Long categoryId;
+    private CategoryDTO category;
 } 
