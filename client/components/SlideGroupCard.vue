@@ -6,7 +6,7 @@
       <div class="flex items-center gap-2 mt-2" />
       <div class="flex items-center gap-2 mt-2">
         <span class="text-lg font-semibold text-gray-900 dark:text-white">Speed (s)</span>
-        <SpeedControl v-model="speed" />
+        <SpeedControl v-model="editingGroup.speed" />
         <button
           class="ml-2 px-2 py-1 bg-blue-600 dark:bg-blue-500 rounded text-white hover:bg-blue-700 dark:hover:bg-blue-600"
           title="If you want to record the speed change to the backend, please click Save"
@@ -190,10 +190,7 @@
 
   async function saveSpeed() {
     try {
-      const updatedGroup = await saveGroup({
-        ...toRaw(editingGroup),
-        speed: speed.value
-      })
+      const updatedGroup = await saveGroup(toRaw(editingGroup))
       Object.assign(editingGroup, updatedGroup)
       store.replaceGroup(updatedGroup)
       alert('Speed saved!')
