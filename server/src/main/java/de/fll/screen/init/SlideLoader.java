@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@Order(4)
+@Order(2)
 public class SlideLoader implements CommandLineRunner {
 
     @Autowired

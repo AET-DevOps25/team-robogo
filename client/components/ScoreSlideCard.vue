@@ -20,9 +20,9 @@
 
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n'
-  import type { SlideItem } from '@/interfaces/types'
-  function isScoreSlide(item: SlideItem): item is Extract<SlideItem, { type: 'score' }> {
-    return item.type === 'score' && 'scores' in item && 'categoryId' in item
+  import { SlideType, type SlideItem } from '@/interfaces/types'
+  function isScoreSlide(item: SlideItem): item is Extract<SlideItem, { type: SlideType.SCORE }> {
+    return item.type === SlideType.SCORE && 'scores' in item && 'categoryId' in item
   }
   defineProps<{ item: SlideItem }>()
   const { t } = useI18n()

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@Order(5)
+@Order(6)
 public class ScreenLoader implements CommandLineRunner {
 
     @Autowired

@@ -16,7 +16,7 @@
 <script setup lang="ts">
   import { ref, onMounted, watch } from 'vue'
   import { useI18n } from 'vue-i18n'
-  import type { SlideItem } from '@/interfaces/types'
+  import { SlideType, type SlideItem } from '@/interfaces/types'
   import { fetchImageBlobById } from '@/services/slideImageService'
 
   const props = defineProps<{ item: SlideItem }>()
@@ -24,7 +24,7 @@
   const { t } = useI18n()
 
   function getImageMetaId(item: SlideItem): number | undefined {
-    if (item.type === 'image' && 'imageMeta' in item && item.imageMeta) {
+    if (item.type === SlideType.IMAGE && 'imageMeta' in item && item.imageMeta) {
       return Number(item.imageMeta.id)
     }
     return undefined

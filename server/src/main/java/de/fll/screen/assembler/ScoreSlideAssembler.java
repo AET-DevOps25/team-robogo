@@ -28,6 +28,7 @@ public class ScoreSlideAssembler implements AbstractDTOAssembler<ScoreSlide, Sco
         dto.setId(slide.getId());
         dto.setName(slide.getName());
         dto.setIndex(slide.getIndex());
+        dto.setType(slide.getType().name());
         dto.setCategoryId(slide.getCategory().getId());
         List<ScoreDTO> scores = scoreService.getAllTeamsScoreDTOsWithHighlight(
                 slide.getCategory().getTeams().stream().toList());

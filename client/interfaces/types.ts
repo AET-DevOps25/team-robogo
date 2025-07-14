@@ -14,20 +14,26 @@ export interface Score {
   highlight: boolean
 }
 
+// Slide类型枚举，和后端保持一致
+export enum SlideType {
+  IMAGE = 'IMAGE',
+  SCORE = 'SCORE'
+}
+
 // SlideItem → 多态联合类型
 export type SlideItem =
   | {
       id: number
       index: number
       name: string
-      type: 'image'
+      type: SlideType.IMAGE
       imageMeta: ImageSlideMeta
     }
   | {
       id: number
       index: number
       name: string
-      type: 'score'
+      type: SlideType.SCORE
       scores: Score[]
       categoryId: number
     }
@@ -35,7 +41,7 @@ export type SlideItem =
       id: number
       index: number
       name: string
-      type: string // 其它类型
+      type: SlideType // 其它类型
     }
 
 // SlideDeck

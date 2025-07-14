@@ -81,5 +81,6 @@
   "id": "ID",
   "name": "Name",
   "slides": "Slides",
-  "fetchFailed": "Failed to fetch data"
+  "fetchFailed": "Failed to fetch data",
+  "unknownSlideType": "Unknown slide type: {type}"
 }

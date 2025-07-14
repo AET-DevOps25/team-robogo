@@ -81,5 +81,6 @@
   "id": "ID",
   "name": "Name",
   "slides": "Folien",
-  "fetchFailed": "Daten konnten nicht geladen werden"
+  "fetchFailed": "Daten konnten nicht geladen werden",
+  "unknownSlideType": "Unbekannter Folientyp: {type}"
 }
