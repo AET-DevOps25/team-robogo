@@ -5,12 +5,18 @@
   import { fetchScreens } from '@/services/screenService'
   import type { SlideDeck, ScreenContent } from '@/interfaces/types'
   import SlideCard from '@/components/SlideCard.vue'
+  import { uploadImage } from '@/services/slideImageService'
+  import type { ImageSlideMeta } from '@/interfaces/types'
 
   const { t } = useI18n()
   const slideDecks = ref<SlideDeck[]>([])
   const screens = ref<ScreenContent[]>([])
   const loading = ref(false)
   const error = ref('')
+
+  const previewUrl = ref<string | null>(null)
+  const uploadResult = ref<ImageSlideMeta | null>(null)
+  const uploadError = ref('')
 
   onMounted(async () => {
     loading.value = true
@@ -24,6 +30,19 @@
       loading.value = false
     }
   })
+
+  async function onImageChange(e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0]
+    if (file) {
+      previewUrl.value = URL.createObjectURL(file)
+      try {
+        uploadError.value = ''
+        uploadResult.value = await uploadImage(file)
+      } catch (err: any) {
+        uploadError.value = err?.message || '上传失败'
+      }
+    }
+  }
 </script>
 
 <template>
@@ -110,6 +129,17 @@
           </details>
         </li>
       </ul>
+    </div>
+    <div class="mt-16 border-t pt-8">
+      <h2 class="text-lg font-bold mb-2">图片上传测试</h2>
+      <input type="file" class="mb-4" accept="image/*" @change="onImageChange" />
+      <img v-if="previewUrl" :src="previewUrl" alt="Preview" class="max-w-xs mt-2 rounded shadow" />
+      <div v-if="uploadResult" class="text-green-600 mt-2">
+        {{ t('uploadSuccess') }}: {{ uploadResult.name }}
+      </div>
+      <div v-if="uploadError" class="text-red-600 mt-2">
+        {{ uploadError }}
+      </div>
     </div>
   </div>
 </template>
