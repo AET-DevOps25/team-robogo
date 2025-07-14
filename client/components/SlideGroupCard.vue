@@ -2,15 +2,23 @@
 <template>
   <div class="w-full rounded-xl shadow-lg p-4 bg-white dark:bg-gray-800 space-y-3">
     <div class="flex gap-2 justify-between items-center">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ group.id }}</h3>
       <div class="flex items-center gap-2 mt-2" />
       <div class="flex items-center gap-2 mt-2">
         <span class="text-lg font-semibold text-gray-900 dark:text-white">Speed (s)</span>
         <SpeedControl v-model="speed" />
+        <button
+          class="ml-2 px-2 py-1 bg-blue-600 dark:bg-blue-500 rounded text-white hover:bg-blue-700 dark:hover:bg-blue-600"
+          @click="saveSpeed"
+          title="If you want to record the speed change to the backend, please click Save"
+        >
+          Save 
+        </button>
         <!-- ▶ Play 按钮 -->
         <button
           class="ml-2 px-2 py-1 bg-green-600 dark:bg-green-500 rounded text-white hover:bg-green-700 dark:hover:bg-green-600"
           @click="play()"
+          title="Replay this group"
         >
           ▶
         </button>
@@ -19,11 +27,11 @@
 
     <div class="flex flex-wrap gap-4">
       <draggable
-        v-model="localSlideIds"
+        v-model="editingGroup.slideIds"
         group="slides"
         item-key="id"
         class="flex flex-wrap gap-4"
-        @end="$emit('update:slide-ids', localSlideIds)"
+        @end="onDragEnd"
       >
         <template #item="{ element }">
           <SlideCard
@@ -95,18 +103,14 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, watch } from 'vue'
+  import { ref, computed, watch, reactive, toRaw } from 'vue'
   import draggable from 'vuedraggable'
   import SlideCard from './SlideCard.vue'
   import SpeedControl from './SpeedControl.vue'
   import { useSlides } from '@/composables/useSlides'
-  import type { SlideItem } from '@/interfaces/types'
+  import type { SlideGroup, SlideItem } from '@/interfaces/types'
   import { useScreenStore } from '@/stores/useScreenStore'
-  const store = useScreenStore()
-
-  function play() {
-    store.playGroup(props.title) // title 就是 groupId
-  }
+  import { saveGroup } from '@/services/groupService'
   const { slides, refresh } = useSlides()
   interface Slide {
     id: number
@@ -115,7 +119,13 @@
   }
   const slideIds = defineModel<number[]>('slide-ids', { required: true })
   const speed = defineModel<number>('speed', { required: true })
-  const props = defineProps<{ title: string; selectedContent?: SlideItem }>()
+  const props = defineProps<{ group: SlideGroup; selectedContent?: SlideItem }>()
+  const editingGroup = reactive<SlideGroup>(structuredClone(toRaw(props.group)))
+  const store = useScreenStore()
+
+  function play() {
+    store.playGroup(props.group.id) // title 就是 groupId
+  }
 
   defineEmits<{
     (e: 'select', item: Slide): void
@@ -136,7 +146,12 @@
   watch(slideIds, ids => {
     localSlideIds.value = [...ids]
   })
-
+  watch(
+    () => props.group.version,
+    () => {
+      Object.assign(editingGroup, structuredClone(toRaw(props.group)))
+    }
+  )
   const id2Slide = computed<Record<number, Slide>>(() => {
     const map: Record<number, Slide> = {}
     slides.value.forEach(s => {
@@ -159,5 +174,31 @@
   function resetDialog() {
     showDialog.value = false
     selectedToAdd.value = null
+  }
+  async function onDragEnd() {
+    try {
+      // toRaw
+      const saved = await saveGroup(toRaw(editingGroup))
+      Object.assign(editingGroup, saved)
+      store.replaceGroup(saved)
+    } catch (err: any) {
+      const origin = store.slideGroups.find(g => g.id === editingGroup.id)!
+      Object.assign(editingGroup, structuredClone(toRaw(origin)))
+      alert(err.message ?? 'Save failed')
+    }
+  }
+
+  async function saveSpeed() {
+    try {
+      const updatedGroup = await saveGroup({
+        ...toRaw(editingGroup),
+        speed: speed.value
+      })
+      Object.assign(editingGroup, updatedGroup)
+      store.replaceGroup(updatedGroup)
+      alert('Speed saved!')
+    } catch (err: any) {
+      alert(err.message ?? 'Failed to save speed')
+    }
   }
 </script>
