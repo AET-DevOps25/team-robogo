@@ -155,6 +155,7 @@
             v-model:slide-ids="currentGroup.slideIds"
             v-model:speed="currentGroup.speed"
             :title="currentGroup.id"
+            :group="currentGroup"
             :selected-content="selectedContent"
             @select="selectContent"
           />
