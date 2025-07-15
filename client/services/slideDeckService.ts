@@ -10,7 +10,6 @@ const BASE_URL = '/api/proxy/slidedecks'
 export async function fetchSlideDecks(): Promise<SlideDeck[]> {
   const { authFetch } = useAuthFetch()
   const decks = await authFetch<SlideDeck[]>(BASE_URL)
-  console.log('decks: ', decks)
   return decks
 }
 

@@ -8,7 +8,6 @@ export function useAuthFetch() {
       ...(options.headers || {}),
       Authorization: token.value ? `${token.value}` : ''
     }
-    console.log(token.value)
     const res = await fetch(url, { ...options, headers })
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
     const contentType = res.headers.get('content-type')

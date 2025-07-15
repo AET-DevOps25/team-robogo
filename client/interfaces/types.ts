@@ -50,7 +50,7 @@ export type SlideItem =
       index: number
       name: string
       type: SlideType.SCORE
-      scores: ScoreDTO[]
+      scores: Score[]
       category: Category
     }
   | {
