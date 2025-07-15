@@ -21,15 +21,12 @@ public final class Score {
     @Column(name = "time", nullable = false)
     private int time;
 
-    @Column(name = "round")
-    private Integer round;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id", unique = true, nullable = false)
     private Team team;
     
-    @ManyToOne
-    @JoinColumn(name = "score_slide_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "score_slide_id", nullable = false)
     private ScoreSlide scoreSlide;
 
     public Score() {
@@ -58,7 +55,6 @@ public final class Score {
                 "id=" + id +
                 ", points=" + points +
                 ", time=" + time +
-                ", round=" + round +
                 ", team=" + (team != null ? team.getId() : null) +
                 ", scoreSlide=" + (scoreSlide != null ? scoreSlide.getId() : null) +
                 '}';
@@ -103,9 +99,6 @@ public final class Score {
     public int getTime() {
         return time;
     }
-
-    public Integer getRound() { return round; }
-    public void setRound(Integer round) { this.round = round; }
 
     public Team getTeam() {
         return team;

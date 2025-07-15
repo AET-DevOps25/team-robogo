@@ -28,11 +28,11 @@ public class FLLTestRoundComparator extends AbstractFLLComparator {
 
 	@Override
 	public List<ScoreDTO> assignRanks(Set<Team> teams) {
-		return assignRanks(teams, team -> team.getScores().isEmpty() ? null : team.getScores().get(0));
+		return assignRanks(teams, team -> team.getScore().getScoreSlide().getScores().isEmpty() ? null : team.getScore().getScoreSlide().getScores().get(0));
 	}
 
 	@Override
 	public int compare(Team o1, Team o2) {
-		return compareOneScore(o1, o2, 0);
+		return compareOneScore(o1, o2);
 	}
 }

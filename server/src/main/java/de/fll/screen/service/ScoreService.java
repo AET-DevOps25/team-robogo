@@ -46,7 +46,7 @@ public class ScoreService {
                 .orElseThrow(() -> new IllegalArgumentException("Team not found: " + teamId));
         Score score = new Score(points, time);
         score.setTeam(team);
-        team.getScores().add(score);
+        team.setScore(score);
         return scoreRepository.save(score);
     }
 

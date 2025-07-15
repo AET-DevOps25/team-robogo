@@ -8,8 +8,8 @@ import jakarta.persistence.*;
 @DiscriminatorValue("SCORE")
 public class ScoreSlide extends Slide {
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "category_id", nullable = true)
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "category_id", unique = true, nullable = true)
     private Category category;
 
     @OneToMany(mappedBy = "scoreSlide", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

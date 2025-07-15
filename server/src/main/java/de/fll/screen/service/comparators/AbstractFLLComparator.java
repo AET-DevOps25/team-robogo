@@ -35,7 +35,7 @@ abstract class AbstractFLLComparator implements CategoryComparator {
 				scoreDTOs.add(ScoreDTO.builder()
 					.points(s.getPoints())
 					.time(s.getTime())
-					.highlight(highlightIndices.contains(team.getScores().indexOf(s)))
+					.highlight(highlightIndices.contains(team.getScore().getScoreSlide().getIndex()))
 					.team(TeamDTO.builder().id(team.getId()).name(team.getName()).build())
 					.rank(rank)
 					.build());
@@ -47,9 +47,9 @@ abstract class AbstractFLLComparator implements CategoryComparator {
 		return scoreDTOs;
 	}
 
-	protected int compareOneScore(Team t1, Team t2, int roundIndex) {
-		var s1 = t1.getScoreForRound(roundIndex);
-		var s2 = t2.getScoreForRound(roundIndex);
+	protected int compareOneScore(Team t1, Team t2) {
+		var s1 = t1.getScore();
+		var s2 = t2.getScore();
 		if (s1 == null && s2 == null) {
 			return 0;
 		} else if (s1 == null) {

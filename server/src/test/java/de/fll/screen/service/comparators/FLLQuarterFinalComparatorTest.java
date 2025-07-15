@@ -2,6 +2,7 @@ package de.fll.screen.service.comparators;
 
 import de.fll.screen.model.Team;
 import de.fll.screen.model.Score;
+import de.fll.screen.model.ScoreSlide;
 import de.fll.core.dto.ScoreDTO;
 import org.junit.jupiter.api.Test;
 import java.util.List;
@@ -13,7 +14,12 @@ public class FLLQuarterFinalComparatorTest {
         Team team = new Team();
         team.setId(id);
         team.setName(name);
-        team.getScores().add(new Score(points, 100));
+        ScoreSlide slide = new ScoreSlide();
+        Score score = new Score(points, 100);
+        score.setTeam(team);
+        score.setScoreSlide(slide);
+        team.setScore(score);
+        slide.setScores(List.of(score));
         return team;
     }
 

@@ -24,12 +24,12 @@ abstract class AbstractWROComparator implements CategoryComparator {
 				// New rank
 				rank = i + 1;
 			}
-			if (rank != 1 && team.getScores().stream().noneMatch(score -> score.getPoints() > 0)) {
+			if (rank != 1 && team.getScore().getScoreSlide().getScores().stream().noneMatch(score -> score.getPoints() > 0)) {
 				// Skip teams with 0 points
 				// Except when everyone has 0 points (all rank 1)
 				continue;
 			}
-			List<Score> scores = team.getScores();
+			List<Score> scores = team.getScore().getScoreSlide().getScores();
 			for (int j = 0; j < scores.size(); j++) {
 				Score score = scores.get(j);
 				if (score == null) continue;

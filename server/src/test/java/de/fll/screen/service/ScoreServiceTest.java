@@ -6,6 +6,7 @@ import de.fll.core.dto.ScoreDTO;
 import de.fll.core.dto.ScoreSlideDTO;
 import de.fll.screen.model.*;
 import de.fll.screen.repository.*;
+import de.fll.screen.assembler.TeamAssembler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -14,9 +15,13 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
 
 class ScoreServiceTest {
 
+    @Mock
+    private TeamAssembler teamAssembler;
+    
     @InjectMocks
     private ScoreService scoreService;
 
@@ -32,6 +37,12 @@ class ScoreServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        // mock save 返回参数本身
+        when(scoreRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        // mock count 返回1
+        when(scoreRepository.count()).thenReturn(1L);
+        // 默认mock fromDTO返回新Team，防止空指针
+        when(teamAssembler.fromDTO(any(TeamDTO.class))).thenReturn(new Team());
     }
 
     @Test
@@ -56,6 +67,8 @@ class ScoreServiceTest {
 
         when(categoryRepository.findById(100L)).thenReturn(Optional.of(category));
         when(teamRepository.findById(200L)).thenReturn(Optional.of(team));
+        // mock fromDTO返回正确team
+        when(teamAssembler.fromDTO(scoreDTO.getTeam())).thenReturn(team);
 
         // 调用
         ScoreSlide slide = scoreService.createScoreSlideFromDTO(dto);

@@ -21,14 +21,14 @@ public final class Team {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "team", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderColumn(name = "round")
-    private final List<Score> scores;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     @JsonIgnore
     private Category category;
+
+    @OneToOne(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "score_id", unique = true, nullable = true)
+    private Score score;
 
     public Team() {
         this("");
@@ -44,7 +44,6 @@ public final class Team {
 
     public Team(String name, int rounds) {
         this.name = name;
-        this.scores = new ArrayList<>(rounds);
     }
 
     public String getName() {
@@ -53,19 +52,6 @@ public final class Team {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<Score> getScores() {
-        return scores;
-    }
-
-    @JsonIgnore
-    @Nullable
-    public Score getScoreForRound(int index) {
-        if (index < 0 || index >= scores.size()) {
-            return null;
-        }
-        return scores.get(index);
     }
 
     @Override
@@ -93,4 +79,11 @@ public final class Team {
         this.category = category;
     }
 
+    public Score getScore() {
+        return score;
+    }
+
+    public void setScore(Score score) {
+        this.score = score;
+    }
 }
