@@ -54,6 +54,8 @@ public class RankingService {
                 lastScore = team.getScore().getPoints();
             }
             builder.rank(rank);
+            // 第一名高亮
+            builder.highlight(rank == 1);
             result.add(builder.build());
         }
         return result;
