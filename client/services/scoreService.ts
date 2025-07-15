@@ -52,4 +52,4 @@ export async function createScoreSlide(scoreSlide: SlideItem): Promise<SlideItem
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(scoreSlide)
   })
-} 
+}

@@ -33,4 +33,4 @@ export async function uploadImage(file: File): Promise<ImageSlideMeta> {
     method: 'POST',
     body: formData
   })
-} 
+}

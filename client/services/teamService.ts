@@ -44,4 +44,4 @@ export async function createTeam(team: Omit<Team, 'id'>): Promise<Team> {
 export async function deleteTeam(teamId: string | number): Promise<void> {
   const { authFetch } = useAuthFetch()
   await authFetch<void>(`${BASE_URL}/${teamId}`, { method: 'DELETE' })
-} 
+}
