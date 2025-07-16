@@ -1,5 +1,5 @@
 import { mockSlideDecks } from './mockSlideDecks'
-import { type ScreenContent } from '@/interfaces/types'
+import type {  ScreenContent } from '@/interfaces/types'
 
 export const mockScreenContentList: ScreenContent[] = [
   {

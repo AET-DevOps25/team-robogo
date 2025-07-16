@@ -27,7 +27,7 @@ const factory = (override: Partial<typeof baseScreen> = {}) =>
   shallowMount(ScreenCard, {
     props: {
       screen: { ...baseScreen, ...override },
-      slideGroups: mockGroups,
+      slideDecks: mockGroups,
       allSlides: mockSlides
     },
     global: {

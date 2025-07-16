@@ -55,21 +55,28 @@ export type SlideItem =
 
 // SlideDeck
 export interface SlideDeck {
-  id: number
+  id: number    //for new deck: use -1 to post and get correct id from backend
   name: string
   competitionId: number
-  slides: SlideItem[]
+  slides: SlideItem[] | null
   transitionTime: number
   version: number
 }
+
+// only local 
+export interface LocalSlideDeck extends SlideDeck {
+  isLocalOnly?: boolean // only local
+  lastResetAt: number  // -1 means stopped/ not initialized
+}
+
 
 // ScreenContent
 export interface ScreenContent {
   id: number
   name: string
   status: string
-  slideDeck: SlideDeck
-  currentContent: string
+  slideDeck: SlideDeck | null //This is allowd by backend
+  currentContent: number  //slide.id
   thumbnailUrl?: string
   urlPath?: string
 }

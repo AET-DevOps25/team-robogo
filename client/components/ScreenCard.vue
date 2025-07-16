@@ -23,7 +23,7 @@
     <div class="px-6 py-4">
       <div class="font-bold text-xl mb-2 text-gray-900 dark:text-white">{{ screen.name }}</div>
       <p class="text-gray-700 dark:text-gray-300 text-base">
-        Current Group: {{ screen.groupId || 'None' }}
+        Current Deck: {{ screen.slideDeck?.id ?? 'None' }}
       </p>
       <p class="text-gray-500 dark:text-gray-400 text-sm">
         URL:
@@ -39,8 +39,8 @@
     </div>
     <div class="px-6 pt-4 pb-2">
       <USelectMenu
-        :model-value="screen.groupId"
-        :items="groupOptions"
+        :model-value="screen.slideDeck?.id ?? 'None'"
+        :items="deckOptions"
         class="w-full"
         @update:model-value="value => emit('updateGroup', { ...screen, groupId: value })"
       />
@@ -50,30 +50,29 @@
 
 <script setup lang="ts">
   import { computed } from 'vue'
-
+import type { ScreenContent, SlideDeck } from '@/interfaces/types'
   const props = defineProps<{
     screen: {
-      id: string
+      id: number
       name: string
       status: string
-      groupId: string
-      currentContent: string // SlideId
+      slideDeck: SlideDeck
+      currentContent: number // SlideId
       thumbnailUrl: string
       urlPath: string
     }
-    slideGroups: { id: string; slideIds: number[]; speed: number; lastResetAt: number }[]
+    slideDecks: { id: number; slideIds: number[]; speed: number; lastResetAt: number }[]
     allSlides: { id: number; name: string; url: string }[]
   }>()
 
   const emit = defineEmits(['updateGroup', 'requestDelete'])
-  /** 把当前屏幕所属 group 找出来 */
-  const group = computed(() => props.slideGroups.find(g => g.id === props.screen.groupId) ?? null)
+
 
   // 当前幻灯片对象
   const currentSlide = computed(() => {
-    if (!group.value || !group.value.slideIds.length) return null
-    const slideId = Number(props.screen.currentContent)
+    if (!props.screen.slideDeck || props.screen.slideDeck.slides===null) return null
+    const slideId = props.screen.currentContent
     return props.allSlides.find(s => s.id === slideId) ?? null
   })
-  const groupOptions = computed(() => props.slideGroups.map(g => g.id))
+  const deckOptions = computed(() => props.slideDecks?.map(g => g.id))
 </script>
