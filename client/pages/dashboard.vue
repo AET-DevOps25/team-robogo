@@ -5,11 +5,11 @@
       <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
         {{ t('screensMonitor') }}
       </h2>
-      <div
+      <!-- <div
         class="max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800 rounded p-2">
         <div class="flex flex-wrap gap-6 justify-start">
           <ScreenCard v-for="screen in screens" :key="screen.id" :screen="screen" :slide-groups="slideDecks"
-            :all-slides="slides" @update-group="onUpdateScreenDeck" @request-delete="
+            :all-slides="screen.slideDeck" @update-group="onUpdateScreenDeck" @request-delete="
               (screen: ScreenContent) => {
                 showDeleteConfirm = true
                 screenToDelete = screen
@@ -21,10 +21,11 @@
             +
           </div>
         </div>
-      </div>
+      </div> -->
     </section>
+    
     <!-- Add Screen Dialog -->
-    <div v-if="showAddScreenDialog"
+    <!-- <div v-if="showAddScreenDialog"
       class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center">
       <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg w-[400px] relative">
         <h3 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">
@@ -51,7 +52,8 @@
           ✕
         </button>
       </div>
-    </div>
+    </div> -->
+
     <!-- Confirm Delete Dialog  -->
     <div v-if="showDeleteConfirm"
       class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center">
@@ -109,7 +111,7 @@
             {{ t('addDeck') }}
           </UButton>
         </div>
-        <div
+        <!-- <div
           class="h-[400px] w-full overflow-y-auto border-gray-200 dark:border-gray-600 rounded p-2 flex flex-wrap gap-6 justify-start scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800">
 <SlideDeckCard 
   v-if="currentDeck" 
@@ -117,10 +119,9 @@
   :deck="currentDeck" 
   :all-slides-meta="allSlidesMeta"
   :selected-content="selectedContent"
-  @update:slides="val => currentDeck.slides = val" 
-  @update:speed="val => currentDeck.transitionTime = val"
   @select="selectContent" 
 />
+      </div> -->
       </div>
 
       <!-- Right: Groups -->
@@ -261,12 +262,13 @@ import { COMPETITIONS } from '@/data/competitions'
 const store = useScreenStore()
 // const { slides, refresh } = useSlides()
 const { t } = useI18n()
-const allSlidesMeta = ref<ImageSlideMeta[] | undefined>(undefined)
+const allSlidesMeta = ref<ImageSlideMeta[]>([])
 const selectedDeckId = ref<number>()
 //TODO: Ask the User to choose a competition or create one
 onMounted(async () => {
   //get decks and transform to a local type
   const backendDecks = await fetchSlideDecks()
+  console.log("backendDecks",backendDecks)
   //get screens
   const backendScreens = await fetchScreens()
   //get slides

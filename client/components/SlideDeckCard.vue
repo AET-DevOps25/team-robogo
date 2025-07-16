@@ -1,4 +1,3 @@
-<!-- File: src/components/SlideDeckCard.vue -->
 <template>
   <div class="w-full rounded-xl shadow-lg p-4 bg-white dark:bg-gray-800 space-y-3">
     <div class="flex gap-2 justify-between items-center">
@@ -28,20 +27,32 @@
 
     <div class="flex flex-wrap gap-4">
       <draggable
-        v-model="editingDeck.slides"
-        deck="slides"
+        v-model="editingDeck&&editingDeck.slides"
         item-key="id"
         class="flex flex-wrap gap-4"
         @end="onDragEnd"
       >
-      <template v-if="editingDeck.slides && editingDeck.slides.length > 0">
-        <template #item="{ element }">
-            <SlideCard
+        <template v-if="editingDeck.slides && editingDeck.slides.length > 0">
+          <template #item="{ element }">
+            <template v-if="element">   <!-- check null -->
+            <!-- 根据幻灯片类型使用不同的卡片组件 -->
+            <ImageSlideCard
+              v-if="element.type === SlideType.IMAGE"
               :item="element"
               :selected="selectedContent?.id === element.id"
               @click="$emit('select', element)"
             />
-        </template>
+            <ScoreSlideCard
+              v-else-if="element.type === SlideType.SCORE"
+              :item="element"
+              :selected="selectedContent?.id === element.id"
+              @click="$emit('select', element)"
+            />
+            <div v-else class="text-gray-400">
+              unknown slide type: {{ element.type }}
+            </div>
+          </template>
+          </template>
         </template>
       </draggable>
 
@@ -54,7 +65,7 @@
         +
       </div>
       <div 
-        v-if="editingDeck.slides && editingDeck.slides.length === 0"
+        v-if="!editingDeck?.slides || editingDeck.slides.length === 0"
         class="w-full text-center py-8 text-gray-500 dark:text-gray-400"
       >
         no slides in this deck
@@ -73,13 +84,22 @@
 
         <!-- Slide Selection -->
         <div class="flex flex-wrap gap-4 mb-6">
-          <SlideCard
-            v-for="meta in allSlidesMeta"
-            :key="meta.id"
+          <!-- 显示所有幻灯片元数据 -->
+          <div 
+            v-for="meta in allSlidesMeta" 
+            :key="meta.id" 
             class="cursor-pointer p-2 border rounded"
             :class="{ 'border-blue-500': selectedToAdd === meta.id }"
             @click="selectedToAdd = meta.id"
-          />
+          >
+            <div v-if="isImageLoaded(meta.id)" class="w-full h-40 flex items-center justify-center">
+              <img :src="getImageUrl(meta.id)" class="max-h-full max-w-full" />
+            </div>
+            <div v-else class="w-full h-40 flex items-center justify-center bg-gray-200">
+              <div class="animate-spin w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full"></div>
+            </div>
+            <div class="mt-2 text-center truncate">{{ meta.name }}</div>
+          </div>
         </div>
 
         <!-- Actions -->
@@ -110,91 +130,136 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
-  import { ref, computed, watch, reactive, toRaw } from 'vue'
+  import { ref, computed, watch, reactive, toRaw, onUnmounted } from 'vue'
   import draggable from 'vuedraggable'
-  import SlideCard from './SlideCard.vue'
   import SpeedControl from './SpeedControl.vue'
-  import { useSlides } from '@/composables/useSlides'
-  import type { LocalSlideDeck, SlideDeck, SlideItem } from '@/interfaces/types'
+  import ImageSlideCard from './ImageSlideCard.vue'
+  import ScoreSlideCard from './ScoreSlideCard.vue'
+  import { type LocalSlideDeck, type SlideItem, type ImageSlideMeta, SlideType } from '@/interfaces/types'
   import { useScreenStore } from '@/stores/useScreenStore'
   import { toLocalSlideDeck, updateSlideDeck } from '@/services/slideDeckService'
+  import { fetchImageBlobById } from '@/services/slideImageService'
 
-  interface Slide {
-    id: number
-    name: string
-    url: string
-  }
-  const slideIds = defineModel<number[]>('slide-ids', { required: true })
-  const props = defineProps<{ deck: LocalSlideDeck; selectedContent?: SlideItem }>()
-  const editingDeck = reactive<LocalSlideDeck>(structuredClone(toRaw(props.deck)))
-  const store = useScreenStore()
-  // const { slides } = useSlides(deck)
-  watch(
-  () => props.deck,
-  () => {
-    Object.assign(editingDeck, structuredClone(toRaw(props.deck)))
-    if (editingDeck.slides === null) editingDeck.slides = []
-  },
-  { immediate: true }
-)
-  function play() {
-    store.playDeck(props.deck.id) // title 就是 groupId
-  }
+  const props = defineProps<{ 
+    deck: LocalSlideDeck; 
+    selectedContent?: SlideItem;
+    allSlidesMeta: ImageSlideMeta[];
+  }>()
 
-
-  const speed = defineModel<number>('speed', { required: true })
-
-  defineEmits<{
+  const emit = defineEmits<{
     (e: 'select', item: SlideItem): void
     (e: 'update:slide-ids', ids: number[]): void
   }>()
 
-  /* 打开弹窗前刷新一次 */
-  const showDialog = ref(false)
-  function openDialog() {
-    showDialog.value = true
-  }
-  const selectedToAdd = ref<number | null>(null)
+  const editingDeck = reactive<LocalSlideDeck>(structuredClone(toRaw(props.deck)))
+  const store = useScreenStore()
+  
+  // 图片URL缓存
+  const imageUrls = ref<Record<number, string>>({})
+  const imageLoading = ref<Record<number, boolean>>({})
 
-  /* 拖拽时使用的临时数组 */
-  const localSlideIds = ref<number[]>([...slideIds.value])
-  watch(slideIds, ids => {
-    localSlideIds.value = [...ids]
-  })
+  // 获取图片URL
+const getImageUrl = (id: number): string => {
+  return imageUrls.value[id] || ''
+}
+
+  // 检查图片是否已加载
+  const isImageLoaded = (id: number): boolean => {
+    return !!imageUrls.value[id]
+  }
+
+  // 加载图片
+  const loadImage = async (id: number) => {
+    if (imageUrls.value[id]) return
+    
+    imageLoading.value[id] = true
+    try {
+      const blob = await fetchImageBlobById(id)
+      const url = URL.createObjectURL(blob)
+      imageUrls.value[id] = url
+    } catch (error) {
+      console.error('Error loading image:', error)
+    } finally {
+      imageLoading.value[id] = false
+    }
+  }
+
+  // 在对话框显示时加载所有图片
   watch(
-    () => props.deck.version,
-    () => {
-      Object.assign(editingDeck, structuredClone(toRaw(props.deck)))
+    () => showDialog.value,
+    (show) => {
+      if (show) {
+        props.allSlidesMeta.forEach(meta => {
+          loadImage(meta.id)
+        })
+      }
     }
   )
 
-  const id2Slide = computed<Record<number, SlideItem>>(() => {
-    const map: Record<number, SlideItem> = {}
-    props.deck.slides.forEach((s: SlideItem) => {
-      map[s.id] = s
-    })
-    return map
-  })
+  // 确保slides数组存在
+  watch(
+    () => props.deck,
+    () => {
+      Object.assign(editingDeck, structuredClone(toRaw(props.deck)))
+      if (editingDeck.slides === null) {
+        editingDeck.slides = []
+      }
+    },
+    { immediate: true, deep: true }
+  )
+
+  // 播放当前组
+  function play() {
+    store.playDeck(props.deck.id)
+  }
+
+  // 速度控制
+  const speed = defineModel<number>('speed', { required: true })
+
+  // 对话框相关
+  const showDialog = ref(false)
+  const selectedToAdd = ref<number | null>(null)
+
+  const openDialog = () => {
+    showDialog.value = true
+  }
 
   const confirmAdd = () => {
-    if (selectedToAdd.value && !slideIds.value.includes(selectedToAdd.value)) {
-      slideIds.value = [...slideIds.value, selectedToAdd.value]
-      localSlideIds.value = [...slideIds.value]
+    if (selectedToAdd.value) {
+      const meta = props.allSlidesMeta.find(m => m.id === selectedToAdd.value)
+            if (editingDeck.slides === null) {
+        editingDeck.slides = []
+      }
+      if (meta) {
+        const newSlide: SlideItem = {
+          id: meta.id,
+          index: editingDeck.slides.length,
+          name: meta.name,
+          type: SlideType.IMAGE,
+          imageMeta: meta
+        }
+        
+        editingDeck.slides.push(newSlide)
+        emit('update:slides', [...editingDeck.slides])
+      }
     }
     resetDialog()
   }
 
-  function cancelAdd() {
+  const cancelAdd = () => {
     resetDialog()
   }
-  function resetDialog() {
+
+  const resetDialog = () => {
     showDialog.value = false
     selectedToAdd.value = null
   }
+
+  // 拖拽结束处理
   async function onDragEnd() {
     try {
-      // toRaw
       const res = await updateSlideDeck(editingDeck.id, toRaw(editingDeck))
       const saved = toLocalSlideDeck(res)
       Object.assign(editingDeck, saved)
@@ -206,9 +271,9 @@
     }
   }
 
+  // 保存速度设置
   async function saveSpeed() {
     try {
-
       const res = await updateSlideDeck(editingDeck.id, toRaw(editingDeck))
       const saved = toLocalSlideDeck(res)
       Object.assign(editingDeck, saved)
@@ -217,4 +282,13 @@
       alert(err.message ?? 'Failed to save speed')
     }
   }
+
+  // 组件卸载时释放所有图片URL - 修复了此处的问题
+  onUnmounted(() => {
+    if (imageUrls.value) {
+      Object.values(imageUrls.value).forEach(url => {
+        URL.revokeObjectURL(url)
+      })
+    }
+  })
 </script>
