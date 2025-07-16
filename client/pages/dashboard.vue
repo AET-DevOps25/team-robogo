@@ -105,17 +105,22 @@
         </div>
         <div>
           <USelectMenu v-model="selectedDeckId" :items="slideDecks.map((g: any) => g.id)" class="w-48" />
-          <UButton color="neutral" variant="outline" @click="showaddDeckDialog = true">
+          <UButton color="neutral" variant="outline" @click="() => openAddDeckDialog()">
             {{ t('addDeck') }}
           </UButton>
         </div>
         <div
           class="h-[400px] w-full overflow-y-auto border-gray-200 dark:border-gray-600 rounded p-2 flex flex-wrap gap-6 justify-start scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800">
-          <SlideDeckCard v-if="currentDeck && currentDeck.id !== -1" :key="currentDeck.id" :slides="currentDeck.slides"
-            :speed="currentDeck.transitionTime" :title="currentDeck.name" :selected-content="selectedContent"
-            @update:slides="val => currentDeck.slides = val" @update:speed="val => currentDeck.transitionTime = val"
-            @select="selectContent" />
-        </div>
+<SlideDeckCard 
+  v-if="currentDeck" 
+  :key="currentDeck.id" 
+  :deck="currentDeck" 
+  :all-slides-meta="allSlidesMeta"
+  :selected-content="selectedContent"
+  @update:slides="val => currentDeck.slides = val" 
+  @update:speed="val => currentDeck.transitionTime = val"
+  @select="selectContent" 
+/>
       </div>
 
       <!-- Right: Groups -->
@@ -203,7 +208,7 @@
       </div>
     </section>
     <!-- Add Group Dialog -->
-    <div v-if="showaddDeckDialog"
+    <div v-if="addDeckDialog"
       class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center">
       <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
         <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
@@ -218,7 +223,7 @@
         <div class="flex justify-end gap-2">
           <button
             class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200"
-            @click="showaddDeckDialog = false">
+            @click="() => closeAddDeckDialog()">
             {{ t('cancel') }}
           </button>
           <button
@@ -230,7 +235,7 @@
 
         <button
           class="absolute top-2 right-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
-          @click="showaddDeckDialog = false">
+          @click="() => closeAddDeckDialog()">
           ✕
         </button>
       </div>
@@ -247,7 +252,8 @@ import ScreenCard from '../components/ScreenCard.vue'
 import SlideDeckCard from '../components/SlideDeckCard.vue'
 import { useScreenStore } from '@/stores/useScreenStore'
 import { checkHealth, getSuggestion, getServiceInfo } from '@/services/aiService'
-import type { ScreenContent, SlideItem, ChatMessage, SlideDeck, LocalSlideDeck } from '@/interfaces/types'
+import { fetchAllImageMetas } from '@/services/slideImageService'
+import type { ScreenContent, SlideItem, ChatMessage, SlideDeck, LocalSlideDeck, ImageSlideMeta } from '@/interfaces/types'
 import { fetchSlideDecks, createSlideDeck, toLocalSlideDeck, sanitizeDeckForBackend } from '@/services/slideDeckService'
 import { createScreen, updateScreen, deleteScreen, assignSlideDeck, fetchScreens } from '@/services/screenService'
 import { useSlides } from '@/composables/useSlides'
@@ -255,13 +261,17 @@ import { COMPETITIONS } from '@/data/competitions'
 const store = useScreenStore()
 // const { slides, refresh } = useSlides()
 const { t } = useI18n()
-
+const allSlidesMeta = ref<ImageSlideMeta[] | undefined>(undefined)
 const selectedDeckId = ref<number>()
 //TODO: Ask the User to choose a competition or create one
 onMounted(async () => {
   //get decks and transform to a local type
   const backendDecks = await fetchSlideDecks()
+  //get screens
   const backendScreens = await fetchScreens()
+  //get slides
+  allSlidesMeta.value = await fetchAllImageMetas()
+  console.log(allSlidesMeta.value)
   // no decks in backend: show init deck
   if (!backendDecks || backendDecks.length === 0) {
     // init
@@ -397,9 +407,18 @@ const sendMessage = async () => {
   }
 }
 
-const showaddDeckDialog = ref(false)
+const addDeckDialog = ref(false)
 const newDeckName = ref('')
-
+//show Add Deck Dialog
+const openAddDeckDialog =  () => {
+  addDeckDialog.value=true
+  console.log("should open dialog")
+}
+//close Add Deck Dialog
+const closeAddDeckDialog =  () => {
+  addDeckDialog.value=false
+  console.log("should close dialog")
+}
 // 添加新分组
 const addDeck = async () => {
   //add a api call
@@ -417,8 +436,9 @@ const addDeck = async () => {
   selectedDeckId.value = response.id
   //reset
   newDeckName.value = ''
-  showaddDeckDialog.value = false
+  addDeckDialog.value = false
 }
+
 
 // delete screen
 const showDeleteConfirm = ref<boolean>(false)

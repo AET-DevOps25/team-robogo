@@ -34,24 +34,30 @@
         class="flex flex-wrap gap-4"
         @end="onDragEnd"
       >
+      <template v-if="editingDeck.slides && editingDeck.slides.length > 0">
         <template #item="{ element }">
-          <SlideCard
-            v-if="typeof element === 'number' && id2Slide[element]"
-            :item="id2Slide[element]"
-            :selected="selectedContent?.id === element"
-            @click="$emit('select', id2Slide[element])"
-          />
+            <SlideCard
+              :item="element"
+              :selected="selectedContent?.id === element.id"
+              @click="$emit('select', element)"
+            />
+        </template>
         </template>
       </draggable>
 
       <!-- Add button -->
-
       <div
-      v-if="editingDeck.id !== -1"
+        v-if="editingDeck.id !== -1"
         class="w-[300px] h-[200px] rounded overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-5xl text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-        @click="openDialog"
+        @click="showDialog"
       >
         +
+      </div>
+      <div 
+        v-if="editingDeck.slides && editingDeck.slides.length === 0"
+        class="w-full text-center py-8 text-gray-500 dark:text-gray-400"
+      >
+        no slides in this deck
       </div>
     </div>
 
@@ -68,11 +74,11 @@
         <!-- Slide Selection -->
         <div class="flex flex-wrap gap-4 mb-6">
           <SlideCard
-            v-for="s in props.deck.slides"
-            :key="s.id"
-            :item="s"
-            :selected="s.id === selectedToAdd"
-            @click="selectedToAdd = s.id"
+            v-for="meta in allSlidesMeta"
+            :key="meta.id"
+            class="cursor-pointer p-2 border rounded"
+            :class="{ 'border-blue-500': selectedToAdd === meta.id }"
+            @click="selectedToAdd = meta.id"
           />
         </div>
 
@@ -113,7 +119,7 @@
   import type { LocalSlideDeck, SlideDeck, SlideItem } from '@/interfaces/types'
   import { useScreenStore } from '@/stores/useScreenStore'
   import { toLocalSlideDeck, updateSlideDeck } from '@/services/slideDeckService'
-  const { slides } = useSlides()
+
   interface Slide {
     id: number
     name: string
@@ -123,7 +129,7 @@
   const props = defineProps<{ deck: LocalSlideDeck; selectedContent?: SlideItem }>()
   const editingDeck = reactive<LocalSlideDeck>(structuredClone(toRaw(props.deck)))
   const store = useScreenStore()
-
+  // const { slides } = useSlides(deck)
   watch(
   () => props.deck,
   () => {
