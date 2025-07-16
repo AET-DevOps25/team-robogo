@@ -8,8 +8,8 @@ import jakarta.persistence.*;
 @DiscriminatorValue("SCORE")
 public class ScoreSlide extends Slide {
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "category_id", nullable = true)
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "category_id", unique = true, nullable = true)
     private Category category;
 
     @OneToMany(mappedBy = "scoreSlide", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -22,4 +22,14 @@ public class ScoreSlide extends Slide {
     public List<Score> getScores() { return scores; }
 
     public void setScores(List<Score> scores) { this.scores = scores; }
+
+    @Override
+    public String toString() {
+        return "ScoreSlide{" +
+                "id=" + getId() +
+                ", name='" + getName() + '\'' +
+                ", index=" + getIndex() +
+                ", category=" + (category != null ? category.getId() : null) +
+                '}';
+    }
 } 

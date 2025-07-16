@@ -11,13 +11,11 @@ import java.util.Set;
 
 abstract class AbstractWROComparator implements CategoryComparator {
 
-	// Use the comparator to assign ranks to the teams
-	// The same rank is only assigned if the comparator returns 0
-	public List<TeamDTO> assignRanks(Set<Team> teams) {
+	// assignRanks返回List<ScoreDTO>，每个ScoreDTO带rank
+	public List<ScoreDTO> assignRanks(Set<Team> teams) {
 		List<Team> sorted = new ArrayList<>(teams);
 		sorted.sort(this);
-		List<TeamDTO> teamDTOs = new ArrayList<>(teams.size());
-
+		List<ScoreDTO> scoreDTOs = new ArrayList<>();
 		int rank = 0;
 		for (int i = 0; i < sorted.size(); i++) {
 			Team team = sorted.get(i);
@@ -26,30 +24,24 @@ abstract class AbstractWROComparator implements CategoryComparator {
 				// New rank
 				rank = i + 1;
 			}
-			if (rank != 1 && team.getScores().stream().noneMatch(score -> score.getPoints() > 0)) {
+			if (rank != 1 && team.getScore().getScoreSlide().getScores().stream().noneMatch(score -> score.getPoints() > 0)) {
 				// Skip teams with 0 points
 				// Except when everyone has 0 points (all rank 1)
 				continue;
 			}
-
-			List<ScoreDTO> scores = new ArrayList<>(team.getScores().size());
-			for (int j = 0; j < team.getScores().size(); j++) {
-				Score score = team.getScores().get(j);
-				scores.add(ScoreDTO.builder()
+			List<Score> scores = team.getScore().getScoreSlide().getScores();
+			for (int j = 0; j < scores.size(); j++) {
+				Score score = scores.get(j);
+				if (score == null) continue;
+				scoreDTOs.add(ScoreDTO.builder()
 					.points(score.getPoints())
 					.time(score.getTime())
 					.highlight(highlightIndices.contains(j))
+					.team(TeamDTO.builder().id(team.getId()).name(team.getName()).build())
+					.rank(rank)
 					.build());
 			}
-
-			teamDTOs.add(TeamDTO.builder()
-				.id(team.getId())
-				.name(team.getName())
-				.rank(rank)
-				.scores(scores)
-				.build());
 		}
-
-		return teamDTOs;
+		return scoreDTOs;
 	}
 }

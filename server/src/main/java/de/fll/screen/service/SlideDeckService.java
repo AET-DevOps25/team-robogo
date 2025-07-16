@@ -18,6 +18,7 @@ public class SlideDeckService {
     @Autowired
     private SlideDeckRepository slideDeckRepository;
 
+
     public List<SlideDeck> getAllSlideDecks() {
         return slideDeckRepository.findAll();
     }
@@ -34,6 +35,7 @@ public class SlideDeckService {
         return slideDeckRepository.save(slideDeck);
     }
 
+    @Transactional
     public SlideDeck addSlideToDeck(Long deckId, Slide slide) {
         SlideDeck deck = slideDeckRepository.findById(deckId)
             .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
@@ -57,6 +59,7 @@ public class SlideDeckService {
         return slideDeckRepository.save(deck);
     }
 
+    @Transactional
     public SlideDeck removeSlideFromDeck(Long deckId, Long slideId) {
         SlideDeck deck = slideDeckRepository.findById(deckId)
             .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
@@ -74,5 +77,21 @@ public class SlideDeckService {
         // version is incremented to indicate that the slide deck has changed
         existing.setVersion(existing.getVersion() + 1);
         return slideDeckRepository.save(existing);
+    }
+
+    public SlideDeck updateSlideToDeck(Long deckId, Slide updatedSlide) {
+        SlideDeck deck = slideDeckRepository.findById(deckId)
+            .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
+        List<Slide> slides = deck.getSlides();
+        for (int i = 0; i < slides.size(); i++) {
+            Slide s = slides.get(i);
+            if (s.getId() == updatedSlide.getId()) {
+                updatedSlide.setSlidedeck(deck);
+                slides.set(i, updatedSlide);
+                break;
+            }
+        }
+        deck.setVersion(deck.getVersion() + 1);
+        return slideDeckRepository.save(deck);
     }
 } 

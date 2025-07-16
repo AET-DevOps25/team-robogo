@@ -60,4 +60,13 @@ public final class Competition {
     public Set<Category> getCategories() {
         return categories;
     }
+
+    @Override
+    public String toString() {
+        return "Competition{" +
+                "id=" + id +
+                ", internalId=" + internalId +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

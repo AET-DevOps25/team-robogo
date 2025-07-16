@@ -11,4 +11,14 @@ public class ImageSlide extends Slide {
 
     public SlideImageMeta getImageMeta() { return imageMeta; }
     public void setImageMeta(SlideImageMeta imageMeta) { this.imageMeta = imageMeta; }
+
+    @Override
+    public String toString() {
+        return "ImageSlide{" +
+                "id=" + getId() +
+                ", name='" + getName() + '\'' +
+                ", index=" + getIndex() +
+                ", imageMeta=" + (imageMeta != null ? imageMeta.getId() : null) +
+                '}';
+    }
 }

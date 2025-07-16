@@ -5,6 +5,7 @@
   import { fetchScreens } from '@/services/screenService'
   import type { SlideDeck, ScreenContent } from '@/interfaces/types'
   import SlideCard from '@/components/SlideCard.vue'
+  import { uploadImage } from '@/services/slideImageService'
 
   const { t } = useI18n()
   const slideDecks = ref<SlideDeck[]>([])
@@ -12,18 +13,69 @@
   const loading = ref(false)
   const error = ref('')
 
+  // 图片上传相关
+  const fileInput = ref<HTMLInputElement | null>(null)
+  const selectedFile = ref<File | null>(null)
+  const previewUrl = ref<string | null>(null)
+  const uploading = ref(false)
+  const uploadSuccess = ref(false)
+  const uploadError = ref('')
+
   onMounted(async () => {
     loading.value = true
     try {
       slideDecks.value = await fetchSlideDecks()
       screens.value = await fetchScreens()
-      console.log('fetchScreens result:', screens.value)
     } catch (e: any) {
       error.value = e?.message || t('fetchFailed')
     } finally {
       loading.value = false
     }
   })
+
+  function onFileChange(e: Event) {
+    const files = (e.target as HTMLInputElement).files
+    if (files && files[0]) {
+      setFile(files[0])
+    }
+  }
+
+  function onDrop(e: DragEvent) {
+    if (e.dataTransfer?.files && e.dataTransfer.files[0]) {
+      setFile(e.dataTransfer.files[0])
+    }
+  }
+
+  function setFile(file: File) {
+    selectedFile.value = file
+    previewUrl.value = URL.createObjectURL(file)
+    uploadSuccess.value = false
+    uploadError.value = ''
+  }
+
+  function removeImage() {
+    selectedFile.value = null
+    previewUrl.value = null
+    uploadSuccess.value = false
+    uploadError.value = ''
+    if (fileInput.value) fileInput.value.value = ''
+  }
+
+  async function upload() {
+    if (!selectedFile.value) return
+    uploading.value = true
+    uploadSuccess.value = false
+    uploadError.value = ''
+    try {
+      await uploadImage(selectedFile.value)
+      uploadSuccess.value = true
+      removeImage()
+    } catch (e: any) {
+      uploadError.value = e?.message || '上传失败'
+    } finally {
+      uploading.value = false
+    }
+  }
 </script>
 
 <template>
@@ -111,5 +163,111 @@
         </li>
       </ul>
     </div>
+    <div class="mt-16 border-t pt-8">
+      <h2 class="text-lg font-bold mb-2">图片上传测试</h2>
+      <div class="upload-container">
+        <label class="upload-dropzone" @dragover.prevent @drop.prevent="onDrop">
+          <input
+            ref="fileInput"
+            class="hidden"
+            type="file"
+            accept="image/*"
+            @change="onFileChange"
+          />
+          <div v-if="!previewUrl" class="upload-placeholder">
+            <span class="icon">📷</span>
+            <span>点击或拖拽图片到此处上传</span>
+          </div>
+          <div v-else class="upload-preview">
+            <img :src="previewUrl" alt="预览" />
+            <button class="remove-btn" @click.stop="removeImage">移除</button>
+          </div>
+        </label>
+        <button class="upload-btn" :disabled="!selectedFile || uploading" @click="upload">
+          {{ uploading ? '上传中...' : '上传图片' }}
+        </button>
+        <div v-if="uploadSuccess" class="upload-success">上传成功！</div>
+        <div v-if="uploadError" class="upload-error">{{ uploadError }}</div>
+      </div>
+    </div>
   </div>
 </template>
+
+<style scoped>
+  .upload-container {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .upload-dropzone {
+    border: 2px dashed #a0aec0;
+    border-radius: 8px;
+    padding: 2rem;
+    width: 320px;
+    text-align: center;
+    cursor: pointer;
+    background: #f9fafb;
+    transition: border-color 0.2s;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  .upload-dropzone:hover {
+    border-color: #3182ce;
+  }
+  .upload-placeholder {
+    color: #a0aec0;
+    font-size: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .upload-placeholder .icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .upload-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .upload-preview img {
+    max-width: 200px;
+    max-height: 120px;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 8px #0001;
+  }
+  .remove-btn {
+    background: #e53e3e;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.3rem 0.8rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .upload-btn {
+    background: #3182ce;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.2s;
+  }
+  .upload-btn:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+  }
+  .upload-success {
+    color: #38a169;
+    margin-top: 0.5rem;
+  }
+  .upload-error {
+    color: #e53e3e;
+    margin-top: 0.5rem;
+  }
+</style>

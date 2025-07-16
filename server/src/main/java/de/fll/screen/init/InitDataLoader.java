@@ -114,16 +114,18 @@ public class InitDataLoader implements CommandLineRunner {
 
         // 5. Slide (ImageSlide/ScoreSlide)
         if (slideRepository.count() == 0 && !decks.isEmpty() && meta != null && !categories.isEmpty()) {
-            Category category = categories.get(0);
-            for (SlideDeck deck : decks) {
-                for (int i = 0; i < 3; i++) {
+            for (Category category : categories) {
+                for (SlideDeck deck : decks) {
                     ScoreSlide scoreSlide = new ScoreSlide();
-                    scoreSlide.setName("Score Board " + (i + 1));
+                    scoreSlide.setName(category.getName() + " Score Board");
                     scoreSlide.setSlidedeck(deck);
-                    scoreSlide.setIndex(i);
+                    scoreSlide.setIndex(0);
                     scoreSlide.setCategory(category);
                     slideRepository.save(scoreSlide);
                 }
+            }
+            // 保持ImageSlide逻辑不变
+            for (SlideDeck deck : decks) {
                 ImageSlide imageSlide = new ImageSlide();
                 imageSlide.setName("Demo Image");
                 imageSlide.setImageMeta(meta);
@@ -143,35 +145,36 @@ public class InitDataLoader implements CommandLineRunner {
 
         // 6. Team
         if (teamRepository.count() == 0 && !categories.isEmpty()) {
-            Team team1 = new Team("Alpha Team");
-            team1.setCategory(categories.get(0));
-            Team team2 = new Team("Beta Team");
-            team2.setCategory(categories.get(1));
-            Team team3 = new Team("Gamma Team");
-            team3.setCategory(categories.get(2));
-            teamRepository.save(team1);
-            teamRepository.save(team2);
-            teamRepository.save(team3);
-            logger.info("[InitDataLoader] Inserted Teams");
+            List<Team> allTeams = new ArrayList<>();
+            for (Category category : categories) {
+                for (int i = 1; i <= 3; i++) { // 每个category 3个team
+                    Team team = new Team(category.getName() + " Team " + i);
+                    team.setCategory(category);
+                    teamRepository.save(team);
+                    allTeams.add(team);
+                }
+            }
+            logger.info("[InitDataLoader] Inserted Teams for each Category");
         }
         List<Team> teams = teamRepository.findAll();
 
         // 7. Score
-        // TODO: 后续根据实际业务完善分数与 ScoreSlide 的分配策略，目前每个 ScoreSlide 只包含同一轮的所有 team 的分数
-        // 应该按照轮次来分配分数，每个 ScoreSlide 包含同一轮的所有 team 的分数，不是team
+        // 每个team只插入一条score，scoreSlide为该team所属category的唯一ScoreSlide，分数和时间用随机数生成
         if (scoreRepository.count() == 0 && !teams.isEmpty() && !scoreSlides.isEmpty()) {
-            int rounds = Math.min(scoreSlides.size(), 3);
-            for (int round = 0; round < rounds; round++) {
-                ScoreSlide scoreSlide = scoreSlides.get(round);
-                for (Team team : teams) {
-                    Score s = new Score(100 - round * 10, 120 + round * 10);
-                    s.setScoreSlide(scoreSlide);
-                    s.setTeam(team);
-                    s.setRound(round);
-                    scoreRepository.save(s);
-                }
+            for (Team team : teams) {
+                // 找到该team对应category的唯一scoreSlide
+                ScoreSlide assignedSlide = scoreSlides.stream()
+                    .filter(slide -> slide.getCategory().getId() == team.getCategory().getId())
+                    .findFirst()
+                    .orElse(null);
+                int baseScore = 20 + (int)(Math.random() * 40); // 20~59
+                int baseTime = 40 + (int)(Math.random() * 60); // 40~99
+                Score s = new Score(baseScore, baseTime);
+                s.setTeam(team);
+                s.setScoreSlide(assignedSlide);
+                scoreRepository.save(s);
             }
-            logger.info("[InitDataLoader] Inserted Scores");
+            logger.info("[InitDataLoader] Inserted one Score per Team, each linked to its category's ScoreSlide");
         }
 
         // 8. Screen

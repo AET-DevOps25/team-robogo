@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
 
 @Service
 public class WRO2025Comparator extends AbstractWROComparator {
@@ -30,8 +31,12 @@ public class WRO2025Comparator extends AbstractWROComparator {
 	}
 
 	private Score getBestRoundMorning(Team team) {
-		var s1 = team.getScores().get(0);
-		var s2 = team.getScores().get(1);
+		List<Score> scores = team.getScore().getScoreSlide().getScores();
+		Score s1 = scores.size() > 0 ? scores.get(0) : null;
+		Score s2 = scores.size() > 1 ? scores.get(1) : null;
+		if (s1 == null && s2 == null) return null;
+		if (s1 == null) return s2;
+		if (s2 == null) return s1;
 		return getBetterRound(s1, s2);
 	}
 
@@ -46,7 +51,13 @@ public class WRO2025Comparator extends AbstractWROComparator {
 	}
 
 	private Score getBestRoundAfternoon(Team team) {
-		return getBetterRound(team.getScores().get(2), team.getScores().get(3));
+		List<Score> scores = team.getScore().getScoreSlide().getScores();
+		Score s3 = scores.size() > 2 ? scores.get(2) : null;
+		Score s4 = scores.size() > 3 ? scores.get(3) : null;
+		if (s3 == null && s4 == null) return null;
+		if (s3 == null) return s4;
+		if (s4 == null) return s3;
+		return getBetterRound(s3, s4);
 	}
 
 	@Override
@@ -55,8 +66,8 @@ public class WRO2025Comparator extends AbstractWROComparator {
 		Score bestAfternoon = getBestRoundAfternoon(team);
 
 		Set<Integer> highlightIndices = new HashSet<>();
-		for (int i = 0; i < team.getScores().size(); i++) {
-			var score = team.getScores().get(i);
+		for (int i = 0; i < team.getScore().getScoreSlide().getScores().size(); i++) {
+			var score = team.getScore().getScoreSlide().getScores().get(i);
 			if (score.equals(bestMorning) || score.equals(bestAfternoon)) {
 				highlightIndices.add(i);
 			}

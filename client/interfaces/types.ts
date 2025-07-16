@@ -15,12 +15,19 @@ export interface ImageSlideMeta {
   contentType: string
 }
 
-// Score
+// Team
+export interface Team {
+  id: number
+  name: string
+}
+
+// ScoreDTO
 export interface Score {
   points: number
   time: number
   highlight: boolean
-  teamId: number
+  team: Team
+  rank: number
 }
 
 // Slide类型枚举，和后端保持一致

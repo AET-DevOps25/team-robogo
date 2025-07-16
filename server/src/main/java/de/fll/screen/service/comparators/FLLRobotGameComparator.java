@@ -2,7 +2,8 @@ package de.fll.screen.service.comparators;
 
 import de.fll.screen.model.Score;
 import de.fll.screen.model.Team;
-import de.fll.core.dto.TeamDTO;
+import de.fll.core.dto.ScoreDTO;
+
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,7 +29,7 @@ public class FLLRobotGameComparator extends AbstractFLLComparator {
 	}
 
 	protected List<Score> getRelevantScores(Team team) {
-		List<Score> scores = team.getScores();
+		List<Score> scores = team.getScore().getScoreSlide().getScores();
 		int toIndex = Math.min(scores.size(), 3);
 		return scores.subList(0, toIndex);
 	}
@@ -51,7 +52,7 @@ public class FLLRobotGameComparator extends AbstractFLLComparator {
 	}
 
 	@Override
-	public List<TeamDTO> assignRanks(Set<Team> teams) {
+	public List<ScoreDTO> assignRanks(Set<Team> teams) {
 		// For the FLL, ranks are only determined by the best score
 		// We cannot use the comparator for this since it uses all scores, so this compares only the best score.
 		return assignRanks(teams, team -> getRelevantScores(team).stream().max(Comparator.comparing(Score::getPoints)).orElse(null));
