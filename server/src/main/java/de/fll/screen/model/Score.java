@@ -1,6 +1,5 @@
 package de.fll.screen.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
@@ -13,7 +12,6 @@ public final class Score {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
     @Column(name = "id")
     private long id;
 
@@ -23,10 +21,16 @@ public final class Score {
     @Column(name = "time", nullable = false)
     private int time;
 
+    @Column(name = "round")
+    private Integer round;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id", nullable = false)
-    @JsonIgnore
     private Team team;
+    
+    @ManyToOne
+    @JoinColumn(name = "score_slide_id")
+    private ScoreSlide scoreSlide;
 
     public Score() {
         this(-1, -1);
@@ -99,6 +103,9 @@ public final class Score {
         return time;
     }
 
+    public Integer getRound() { return round; }
+    public void setRound(Integer round) { this.round = round; }
+
     public Team getTeam() {
         return team;
     }
@@ -115,5 +122,7 @@ public final class Score {
         this.team = team;
     }
 
+    public ScoreSlide getScoreSlide() { return scoreSlide; }
+    public void setScoreSlide(ScoreSlide scoreSlide) { this.scoreSlide = scoreSlide; }
 
 }

@@ -13,4 +13,5 @@ public class ScoreDTO {
     private Double points;
     private Integer time;
     private Boolean highlight;
+    private Long teamId;
 } 

@@ -5,7 +5,11 @@ import SpeedControl from '@/components/SpeedControl.vue'
 
 const SliderStub = defineComponent({
   name: 'Slider',
-  props: ['modelValue', 'min', 'max'],
+  props: {
+    modelValue: { type: Number, required: true },
+    min: { type: Number, required: false, default: 0 },
+    max: { type: Number, required: false, default: 100 }
+  },
   emits: ['update:modelValue'],
   template: '<div />'
 })

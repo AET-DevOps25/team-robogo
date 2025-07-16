@@ -23,6 +23,8 @@ services:
       - SPRING_DATASOURCE_PASSWORD=robogo_pass
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=admin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     ports:
       - "8081:8081"
     depends_on:
@@ -62,14 +64,11 @@ services:
     build:
       context: ./genai
       dockerfile: Dockerfile
-    # environment:
-    #   - REDIS_HOST=redis
-    #   - REDIS_PORT=6379
-    #   - REDIS_DB=0
-    #   - REDIS_TTL=3600
-      # Don't set REDIS_PASSWORD for passwordless Redis
-    env_file:
-      - ./genai/.env
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - REDIS_TTL=3600
     ports:
       - "5000:5000"
     depends_on:
@@ -88,12 +87,25 @@ services:
     labels:
       - "logging.jobname=redis"
 
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.61.0
+    restart: always
+    environment:
+      - REDIS_ADDR=redis:6379
+    ports:
+      - "9121:9121"
+    depends_on:
+      - redis
+    labels:
+      - "logging.jobname=redis-exporter"
+
   prometheus:
     image: prom/prometheus:v2.45.0
     ports:
       - "9090:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/alert.rules.yml:/etc/prometheus-rules/alert.rules.yml
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -103,6 +115,7 @@ services:
       - '--web.enable-lifecycle'
     depends_on:
       - postgres-exporter
+      - redis-exporter
 
   postgres-exporter:
     image: quay.io/prometheuscommunity/postgres-exporter
@@ -119,13 +132,13 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - ./monitoring/loki-config.yaml:/etc/loki/local-config.yaml
+      - ./monitoring/loki-config.yml:/etc/loki/local-config.yml
 
   promtail:
     image: grafana/promtail:2.9.2
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./monitoring/promtail-config.yaml:/etc/promtail/config.yml
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
     command: -config.file=/etc/promtail/config.yml
 
   grafana:

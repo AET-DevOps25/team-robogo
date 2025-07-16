@@ -1,27 +1,96 @@
 // unified type definition file
 
-export interface Screen {
-  id: string
-  name: string
-  status: string
-  groupId: string
-  currentContent: string
-  thumbnailUrl: string
-  urlPath: string
-}
-
-export interface SlideItem {
+// Category
+export interface Category {
   id: number
   name: string
-  url: string
+  competitionId: number
+  categoryScoring: string
 }
 
-export interface SlideGroup {
-  id: string
-  slideIds: number[]
-  speed: number // s
-  lastResetAt: number // ms
+// ImageSlideMeta
+export interface ImageSlideMeta {
+  id: number
+  name: string
+  contentType: string
+}
+
+// Score
+export interface Score {
+  points: number
+  time: number
+  highlight: boolean
+  teamId: number
+}
+
+// Slide类型枚举，和后端保持一致
+export enum SlideType {
+  IMAGE = 'IMAGE',
+  SCORE = 'SCORE'
+}
+
+// SlideItem → 多态联合类型
+export type SlideItem =
+  | {
+      id: number
+      index: number
+      name: string
+      type: SlideType.IMAGE
+      imageMeta: ImageSlideMeta
+    }
+  | {
+      id: number
+      index: number
+      name: string
+      type: SlideType.SCORE
+      scores: Score[]
+      category: Category
+    }
+  | {
+      id: number
+      index: number
+      name: string
+      type: SlideType // 其它类型
+    }
+
+// SlideDeck
+export interface SlideDeck {
+  id: number
+  name: string
+  competitionId: number
+  slides: SlideItem[]
+  transitionTime: number
   version: number
+}
+
+// ScreenContent
+export interface ScreenContent {
+  id: number
+  name: string
+  status: string
+  slideDeck: SlideDeck
+  currentContent: string
+  thumbnailUrl?: string
+  urlPath?: string
+}
+
+// LoginRequest
+export interface LoginRequest {
+  username: string
+  password: string
+}
+
+// AI服务相关接口
+export interface SuggestionRequest {
+  text: string
+  service?: 'openwebui' | 'openai'
+}
+export interface SuggestionResponse {
+  suggestion: string
+}
+export interface HealthCheckResponse {
+  status: string
+  service: string
 }
 
 // chat related types
@@ -30,31 +99,6 @@ export interface ChatMessage {
   text: string
 }
 
-// API response type
-export interface ApiResponse<T = any> {
-  success: boolean
-  data?: T
-  message?: string
-}
-
 // common types
 export type ScreenStatus = 'online' | 'offline' | 'error'
 export type ContentType = 'BLACK_SCREEN' | string
-
-// create related DTO types
-export interface CreateScreenDTO {
-  name: string
-  url?: string
-}
-
-export interface CreateSlideGroupDTO {
-  name: string
-  slideIds?: number[]
-  speed?: number
-}
-
-export interface SlideImageMetaDTO {
-  id: number
-  name: string
-  contentType: string
-}

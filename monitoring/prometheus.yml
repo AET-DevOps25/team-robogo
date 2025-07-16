@@ -27,3 +27,10 @@ scrape_configs:
     metrics_path: '/metrics'
     static_configs:
       - targets: ['genai:5000'] 
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+rule_files:
+  - "/etc/prometheus-rules/alert.rules.yml"

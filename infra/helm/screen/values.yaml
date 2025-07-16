@@ -40,12 +40,13 @@ genai:
 ingress:
   enabled: true
   className: "nginx"
-  host: team-robogo.student.k8s.aet.cit.tum.de
+  # host: team-robogo.student.k8s.aet.cit.tum.de
   secretName: "team-robogo-tls"
-  tls: true
+  # tls: true
+  host: screen.local
+  tls: false
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
 
 promtail:
   image:
@@ -111,4 +112,16 @@ grafana:
 postgresExporter:
   port: 9187
 
-namespace: team-robogo
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: true
+    password: robogo_redis_pass
+  master:
+    persistence:
+      enabled: false
+  host: screen-redis-master
+  port: 6379
+  password: robogo_redis_pass
+

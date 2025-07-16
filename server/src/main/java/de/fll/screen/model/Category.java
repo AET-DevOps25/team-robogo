@@ -25,7 +25,7 @@ public final class Category {
     @JsonIgnore
     private Competition competition;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "scoring", nullable = false)
     @JsonIgnore
     private CategoryScoring categoryScoring;

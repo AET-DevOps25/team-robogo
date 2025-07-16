@@ -7,6 +7,8 @@ import java.util.List;
 public class SlideDeckDTO {
     private Long id;
     private String name;
+    private int transitionTime;
     private int version;
+    private Long competitionId;
     private List<SlideDTO> slides;
 } 

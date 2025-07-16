@@ -1,12 +1,13 @@
-<!-- File: src/components/SlideGroupCard.vue -->
+<!-- File: src/components/SlideDeckCard.vue -->
 <template>
   <div class="w-full rounded-xl shadow-lg p-4 bg-white dark:bg-gray-800 space-y-3">
     <div class="flex gap-2 justify-between items-center">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ group.id }}</h3>
       <div class="flex items-center gap-2 mt-2" />
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
       <div class="flex items-center gap-2 mt-2">
         <span class="text-lg font-semibold text-gray-900 dark:text-white">Speed (s)</span>
-        <SpeedControl v-model="editingGroup.speed" />
+        <SpeedControl v-model="editingGroup.transitionTime" />
         <button
           class="ml-2 px-2 py-1 bg-blue-600 dark:bg-blue-500 rounded text-white hover:bg-blue-700 dark:hover:bg-blue-600"
           title="If you want to record the speed change to the backend, please click Save"
@@ -27,7 +28,7 @@
 
     <div class="flex flex-wrap gap-4">
       <draggable
-        v-model="editingGroup.slideIds"
+        v-model="editingGroup.slides"
         group="slides"
         item-key="id"
         class="flex flex-wrap gap-4"
@@ -35,7 +36,7 @@
       >
         <template #item="{ element }">
           <SlideCard
-            v-if="id2Slide[element]"
+            v-if="typeof element === 'number' && id2Slide[element]"
             :item="id2Slide[element]"
             :selected="selectedContent?.id === element"
             @click="$emit('select', id2Slide[element])"
@@ -66,7 +67,7 @@
         <!-- Slide Selection -->
         <div class="flex flex-wrap gap-4 mb-6">
           <SlideCard
-            v-for="s in slides"
+            v-for="s in props.slides"
             :key="s.id"
             :item="s"
             :selected="s.id === selectedToAdd"
@@ -108,9 +109,10 @@
   import SlideCard from './SlideCard.vue'
   import SpeedControl from './SpeedControl.vue'
   import { useSlides } from '@/composables/useSlides'
-  import type { SlideGroup, SlideItem } from '@/interfaces/types'
+  import type { SlideDeck, SlideItem } from '@/interfaces/types'
   import { useScreenStore } from '@/stores/useScreenStore'
-  import { saveGroup } from '@/services/groupService'
+  import { updateSlideDeck } from '@/services/slideDeckService'
+
   const { slides, refresh } = useSlides()
   interface Slide {
     id: number
@@ -118,24 +120,29 @@
     url: string
   }
   const slideIds = defineModel<number[]>('slide-ids', { required: true })
-  const props = defineProps<{ group: SlideGroup; selectedContent?: SlideItem }>()
-  const editingGroup = reactive<SlideGroup>(structuredClone(toRaw(props.group)))
+  const props = defineProps<{ group: SlideDeck; selectedContent?: SlideItem }>()
+  const editingGroup = reactive<SlideDeck>(structuredClone(toRaw(props.group)))
   const store = useScreenStore()
 
   function play() {
     store.playGroup(props.group.id) // title 就是 groupId
   }
+  import type { SlideItem } from '@/interfaces/types'
+  // 只保留一次 defineProps
+  const props = defineProps<{ title: string; selectedContent?: SlideItem; slides: SlideItem[] }>()
+  // 移除未使用的 store 变量
+  // 修复 id 相关类型报错
+  const slideIds = defineModel<number[]>('slide-ids', { required: true })
+  const speed = defineModel<number>('speed', { required: true })
 
   defineEmits<{
-    (e: 'select', item: Slide): void
-    // (e: 'update:content', items: SlideItem[]): void
+    (e: 'select', item: SlideItem): void
     (e: 'update:slide-ids', ids: number[]): void
   }>()
 
   /* 打开弹窗前刷新一次 */
   const showDialog = ref(false)
-  async function openDialog() {
-    await refresh()
+  function openDialog() {
     showDialog.value = true
   }
   const selectedToAdd = ref<number | null>(null)
@@ -154,6 +161,10 @@
   const id2Slide = computed<Record<number, Slide>>(() => {
     const map: Record<number, Slide> = {}
     slides.value.forEach(s => {
+
+  const id2Slide = computed<Record<number, SlideItem>>(() => {
+    const map: Record<number, SlideItem> = {}
+    props.slides.forEach((s: SlideItem) => {
       map[s.id] = s
     })
     return map
@@ -181,7 +192,7 @@
       Object.assign(editingGroup, saved)
       store.replaceGroup(saved)
     } catch (err: any) {
-      const origin = store.slideGroups.find(g => g.id === editingGroup.id)!
+      const origin = store.slideDecks.find(g => g.id === editingGroup.id)!
       Object.assign(editingGroup, structuredClone(toRaw(origin)))
       alert(err.message ?? 'Save failed')
     }
@@ -189,7 +200,7 @@
 
   async function saveSpeed() {
     try {
-      const updatedGroup = await saveGroup(toRaw(editingGroup))
+      const updatedGroup = await saveDeck(toRaw(editingGroup))
       Object.assign(editingGroup, updatedGroup)
       store.replaceGroup(updatedGroup)
       alert('Speed saved!')

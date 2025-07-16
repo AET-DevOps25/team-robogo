@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
-import { AIService } from '@/services/aiService'
-import type { SuggestionRequestDTO } from '@/interfaces/dto'
+import { checkHealth, getSuggestion, getServiceInfo } from '@/services/aiService'
+import type { SuggestionRequest } from '@/interfaces/types'
 
 describe('AIService', () => {
   describe('checkHealth', () => {
     it('should successfully get health check information', async () => {
-      const result = await AIService.checkHealth()
+      const result = await checkHealth()
 
       expect(result).toBeDefined()
       expect(result.status).toBe('healthy')
@@ -15,12 +15,12 @@ describe('AIService', () => {
 
   describe('getSuggestion', () => {
     it('should successfully get AI suggestion', async () => {
-      const request: SuggestionRequestDTO = {
+      const request: SuggestionRequest = {
         text: 'How to improve code quality?',
         service: 'openwebui'
       }
 
-      const result = await AIService.getSuggestion(request)
+      const result = await getSuggestion(request)
 
       expect(result).toBeDefined()
       expect(result.suggestion).toContain('How to improve code quality?')
@@ -28,11 +28,11 @@ describe('AIService', () => {
     })
 
     it('should use default service when no service is specified', async () => {
-      const request: SuggestionRequestDTO = {
+      const request: SuggestionRequest = {
         text: 'Test default service'
       }
 
-      const result = await AIService.getSuggestion(request)
+      const result = await getSuggestion(request)
 
       expect(result).toBeDefined()
       expect(result.suggestion).toContain('Test default service')
@@ -40,17 +40,17 @@ describe('AIService', () => {
     })
 
     it('should handle error requests', async () => {
-      const request: SuggestionRequestDTO = {
+      const request: SuggestionRequest = {
         text: 'error' // This will trigger the error response we set in the handler
       }
 
-      await expect(AIService.getSuggestion(request)).rejects.toThrow()
+      await expect(getSuggestion(request)).rejects.toThrow()
     })
   })
 
   describe('getServiceInfo', () => {
     it('should successfully get service info', async () => {
-      const result = await AIService.getServiceInfo()
+      const result = await getServiceInfo()
 
       expect(result).toBeDefined()
       expect(result.name).toBe('GenAI Service')
@@ -64,11 +64,11 @@ describe('AIService', () => {
     it('should log error messages', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      const request: SuggestionRequestDTO = {
+      const request: SuggestionRequest = {
         text: 'error' // This will trigger the error response
       }
 
-      await expect(AIService.getSuggestion(request)).rejects.toThrow()
+      await expect(getSuggestion(request)).rejects.toThrow()
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get suggestion:', expect.any(Error))
 
       consoleSpy.mockRestore()

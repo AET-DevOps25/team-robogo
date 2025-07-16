@@ -23,15 +23,15 @@ spec:
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://{{ .Values.db.host }}:{{ .Values.db.port }}/{{ .Values.db.name }}
             - name: SPRING_DATASOURCE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: POSTGRES_USER
+              value: {{ .Values.db.user | quote }}
             - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: POSTGRES_PASSWORD
+              value: {{ .Values.db.password | quote }}
+            - name: SPRING_REDIS_HOST
+              value: {{ .Values.redis.host | quote }}
+            - name: SPRING_REDIS_PORT
+              value: {{ .Values.redis.port | quote }}
+            - name: SPRING_REDIS_PASSWORD
+              value: {{ .Values.redis.password | quote }}
             - name: ADMIN_USERNAME
               value: {{ .Values.server.adminUsername }}
             - name: ADMIN_PASSWORD
