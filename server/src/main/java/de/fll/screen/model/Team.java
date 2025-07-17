@@ -21,10 +21,6 @@ public final class Team {
     @JsonIgnore
     private Category category;
 
-    @OneToOne(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "score_id", unique = true, nullable = true)
-    private Score score;
-
     public Team() {
         this("");
     }
@@ -72,13 +68,5 @@ public final class Team {
 
     public void setCategory(Category category) {
         this.category = category;
-    }
-
-    public Score getScore() {
-        return score;
-    }
-
-    public void setScore(Score score) {
-        this.score = score;
     }
 }

@@ -10,6 +10,7 @@ import de.fll.screen.repository.ScoreRepository;
 import de.fll.screen.repository.TeamRepository;
 import de.fll.screen.repository.CategoryRepository;
 import de.fll.screen.repository.SlideRepository;
+import de.fll.screen.repository.SlideDeckRepository;
 import de.fll.screen.assembler.TeamAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class ScoreService {
     private final TeamRepository teamRepository;
     private final CategoryRepository categoryRepository;
     private final SlideRepository slideRepository;
+    private final SlideDeckRepository slideDeckRepository;
     private final TeamAssembler teamAssembler;
     private final RankingService rankingService;
 
@@ -30,6 +32,7 @@ public class ScoreService {
         TeamRepository teamRepository,
         CategoryRepository categoryRepository,
         SlideRepository slideRepository,
+        SlideDeckRepository slideDeckRepository,
         TeamAssembler teamAssembler,
         RankingService rankingService
     ) {
@@ -37,6 +40,7 @@ public class ScoreService {
         this.teamRepository = teamRepository;
         this.categoryRepository = categoryRepository;
         this.slideRepository = slideRepository;
+        this.slideDeckRepository = slideDeckRepository;
         this.teamAssembler = teamAssembler;
         this.rankingService = rankingService;
     }
@@ -53,9 +57,14 @@ public class ScoreService {
             Team team = teamRepository.findById(teamId)
                     .orElseThrow(() -> new IllegalArgumentException("Team not found: " + teamId));
             score.setTeam(team);
-            team.setScore(score);
         }
-        return scoreRepository.save(score);
+        
+        Score savedScore = scoreRepository.save(score);
+        
+        // 更新相关的SlideDeck版本
+        updateSlideDeckVersionsForScore(savedScore);
+        
+        return savedScore;
     }
 
     public Score updateScore(Long scoreId, Long teamId, double points, int time) {
@@ -67,21 +76,46 @@ public class ScoreService {
         score.setPoints(points);
         score.setTime(time);
         score.setTeam(team);
-        team.setScore(score);
         
-        return scoreRepository.save(score);
+        Score savedScore = scoreRepository.save(score);
+        
+        // 更新相关的SlideDeck版本
+        updateSlideDeckVersionsForScore(savedScore);
+        
+        return savedScore;
     }
 
     public void deleteScore(Long scoreId) {
         Score score = scoreRepository.findById(scoreId)
                 .orElseThrow(() -> new IllegalArgumentException("Score not found: " + scoreId));
         
-        // 清除team对score的引用
-        if (score.getTeam() != null) {
-            score.getTeam().setScore(null);
-        }
+        // 在删除前更新相关的SlideDeck版本
+        updateSlideDeckVersionsForScore(score);
         
         scoreRepository.delete(score);
+    }
+
+    /**
+     * 更新包含特定Score的SlideDeck版本
+     * 当Score发生变化时，需要更新显示该Score的SlideDeck版本
+     */
+    private void updateSlideDeckVersionsForScore(Score score) {
+        if (score == null || score.getTeam() == null || score.getTeam().getCategory() == null) {
+            return;
+        }
+        
+        Long categoryId = score.getTeam().getCategory().getId();
+        Long scoreId = score.getId();
+        
+        // 查找包含该Score的SlideDeck
+        List<de.fll.screen.model.SlideDeck> affectedSlideDecks = 
+            slideDeckRepository.findSlideDecksByScore(scoreId, categoryId);
+        
+        // 更新每个受影响SlideDeck的版本
+        for (de.fll.screen.model.SlideDeck slideDeck : affectedSlideDecks) {
+            slideDeck.setVersion(slideDeck.getVersion() + 1);
+            slideDeckRepository.save(slideDeck);
+        }
     }
 
     public List<Score> getScoresForAllTeams() {
