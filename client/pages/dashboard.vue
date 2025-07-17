@@ -109,13 +109,20 @@
             {{ t('addDeck') }}
           </UButton>
         </div>
-        <div
+        <!-- <div
           class="h-[400px] w-full overflow-y-auto border-gray-200 dark:border-gray-600 rounded p-2 flex flex-wrap gap-6 justify-start scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800">
-          <SlideDeckCard v-if="currentDeck && currentDeck.id !== -1" :key="currentDeck.id" :slides="currentDeck.slides"
-            :speed="currentDeck.transitionTime" :title="currentDeck.name" :selected-content="selectedContent"
+          <SlideDeckCard v-if="currentDeck && currentDeck.id !== -1" :key="currentDeck.id" :deck-id="currentDeck.id" :title="currentDeck.name" :slides?="currentDeck.slides"
+            :speed="currentDeck.transitionTime" :selected-content="selectedContent"
             @update:slides="val => currentDeck.slides = val" @update:speed="val => currentDeck.transitionTime = val"
             @select="selectContent" />
-        </div>
+        </div> -->
+    <div v-for="slide in allSlides" :key="slide.id" class="slide-item">
+      <img v-if="slide.url" :src="slide.url" :alt="slide.name" />
+      <div v-else class="error-placeholder">
+        failed: {{ slide.name }}
+      </div>
+      <!-- <button @click="handleRemoveSlide(slide.id)">删除</button> -->
+    </div>
       </div>
 
       <!-- Right: Groups -->
@@ -247,12 +254,15 @@ import ScreenCard from '../components/ScreenCard.vue'
 import SlideDeckCard from '../components/SlideDeckCard.vue'
 import { useScreenStore } from '@/stores/useScreenStore'
 import { checkHealth, getSuggestion, getServiceInfo } from '@/services/aiService'
-import type { ScreenContent, SlideItem, ChatMessage, SlideDeck, LocalSlideDeck } from '@/interfaces/types'
+import type { ScreenContent, SlideItem, ChatMessage, SlideDeck, LocalSlideDeck, LocalImageSlideUrl } from '@/interfaces/types'
 import { fetchSlideDecks, createSlideDeck, toLocalSlideDeck, sanitizeDeckForBackend } from '@/services/slideDeckService'
+import { fetchImageBlobById, fetchAllImageMetas } from '@/services/slideImageService'
 import { createScreen, updateScreen, deleteScreen, assignSlideDeck, fetchScreens } from '@/services/screenService'
 import { useSlides } from '@/composables/useSlides'
 import { COMPETITIONS } from '@/data/competitions'
+import { currentScale } from 'happy-dom/lib/PropertySymbol.js'
 const store = useScreenStore()
+const { allSlides, getAllSlidesUrl, add, remove } = useSlides()
 // const { slides, refresh } = useSlides()
 const { t } = useI18n()
 
@@ -261,11 +271,20 @@ const selectedDeckId = ref<number>()
 onMounted(async () => {
   //get decks and transform to a local type
   const backendDecks = await fetchSlideDecks()
+  console.log("backendDecks",backendDecks)
   const backendScreens = await fetchScreens()
+  console.log("backendScreens",backendScreens)
+getAllSlidesUrl()
+console.log("allSlides",allSlides)
+  //test
+  //   const allSlides = await fetchAllImageMetas()
+  // console.log("allSlides",allSlides)
+  // const Slide_1 = await fetchImageBlobById(allSlides[0].id)
+  // console.log("Slide_1",Slide_1)
   // no decks in backend: show init deck
   if (!backendDecks || backendDecks.length === 0) {
     // init
-    store.initStore()
+    store.initStore() //make sure we always have at least one deck - even a mock one for layout
   } else {
     store.slideDecks = backendDecks.map(toLocalSlideDeck)
 
@@ -436,27 +455,6 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const triggerFileInput = () => {
   fileInput.value?.click()
 }
-// leave upload logic 
-const handleFileUpload = (event: Event) => {
-  const files = (event.target as HTMLInputElement).files
-  if (!files || files.length === 0) return
-  const file = files[0]
-  const reader = new FileReader()
-  reader.onload = () => {
-    const imageUrl = reader.result as string
-    const newId = Date.now()
-    const newSlide: SlideItem = {
-      id: newId,
-      index: 0,
-      name: file.name,
-      type: 'image',
-      imageMeta: { id: newId, name: file.name, contentType: file.type }
-    }
-    const targetDeck = store.slideDecks.find((g: any) => g.id === selectedDeckId.value)
-    if (targetDeck && targetDeck.id !== 'None') {
-      targetDeck.slideIds.push(newSlide.id)
-    }
-  }
-  reader.readAsDataURL(file)
-}
+// upload logic 
+
 </script>
