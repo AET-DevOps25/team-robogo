@@ -5,7 +5,7 @@
   import { fetchScreens } from '@/services/screenService'
   import type { SlideDeck, ScreenContent } from '@/interfaces/types'
   import SlideCard from '@/components/SlideCard.vue'
-  import { uploadImage } from '@/services/slideImageService'
+  import { uploadImage, fetchImageBlobById } from '@/services/slideImageService'
 
   const { t } = useI18n()
   const slideDecks = ref<SlideDeck[]>([])
