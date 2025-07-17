@@ -70,18 +70,6 @@ export interface SlideDeck {
   version: number
 }
 
-// only local 
-export interface LocalSlideDeck extends SlideDeck {
-  isLocalOnly?: boolean // only local
-  lastResetAt: number  // -1 means stopped/ not initialized
-}
-export interface LocalImageSlideUrl {
-  id: number
-  name: string
-  url: string
-}
-
-
 // ScreenContent
 export interface ScreenContent {
   id: number

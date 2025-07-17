@@ -21,6 +21,8 @@ public class SlideImageService {
     private SlideImageMetaRepository metaRepository;
     @Autowired
     private SlideImageContentRepository contentRepository;
+
+    
     @Autowired
     private ImageSlideMetaAssembler imageSlideMetaAssembler;
 

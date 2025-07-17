@@ -1,232 +1,77 @@
-<!-- File: src/components/SlideDeckCard.vue -->
 <template>
-  <div class="w-full rounded-xl shadow-lg p-4 bg-white dark:bg-gray-800 space-y-3">
-    <div class="flex gap-2 justify-between items-center">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ deckId }}</h3>
-      <div class="flex items-center gap-2 mt-2" />
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
-      <div class="flex items-center gap-2 mt-2">
-        <span class="text-lg font-semibold text-gray-900 dark:text-white">Speed (s)</span>
-        <SpeedControl v-model="editingDeck.transitionTime" />
-        <button
-          class="ml-2 px-2 py-1 bg-blue-600 dark:bg-blue-500 rounded text-white hover:bg-blue-700 dark:hover:bg-blue-600"
-          title="If you want to record the speed change to the backend, please click Save" @click="saveSpeed">
-          Save
-        </button>
-        <!-- ▶ Play 按钮 -->
-        <button
-          class="ml-2 px-2 py-1 bg-green-600 dark:bg-green-500 rounded text-white hover:bg-green-700 dark:hover:bg-green-600"
-          title="Replay this group" @click="play()">
-          ▶
-        </button>
-      </div>
+  <div>
+    <!-- 播放速度调整 -->
+    <div>
+      <label>播放速度(ms):</label>
+      <input v-model="interval" type="number" min="1000" step="500" @change="updateInterval" />
     </div>
-
-    <div class="flex flex-wrap gap-4">
-      <draggable v-model="editingDeck.slides" deck="slides" item-key="id" class="flex flex-wrap gap-4" @end="onDragEnd">
-        <template #item="{ element }">
-          <SlideCard v-if="typeof element === 'number' && id2Slide[element]" :item="id2Slide[element]"
-            :selected="selectedContent?.id === element" @click="$emit('select', id2Slide[element])" />
-        </template>
-      </draggable>
-
-      <!-- Add button -->
-
-      <div v-if="editingDeck.id !== -1"
-        class="w-[300px] h-[200px] rounded overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-5xl text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-        @click="openDialog">
-        +
-      </div>
+    <!-- 当前 deck slides -->
+    <div>
+      <h3>当前幻灯片</h3>
+      <ul>
+        <li v-for="slide in deckSlides" :key="slide.id">{{ slide.name }}</li>
+      </ul>
     </div>
-
-    <!-- Dialog -->
-    <div v-if="showDialog"
-      class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-[600px] max-h-[80vh] overflow-y-auto shadow-lg relative">
-        <h4 class="text-lg font-bold mb-4 text-gray-900 dark:text-white">Select Slides</h4>
-
-        <!-- Slide Selection -->
-        <div class="flex flex-wrap gap-4 mb-6">
-          <SlideCard v-for="s in props.deck.slides" :key="s.id" :item="s" :selected="s.id === selectedToAdd"
-            @click="selectedToAdd = s.id" />
-        </div>
-
-        <!-- Actions -->
-        <div class="flex justify-end gap-4">
-          <button
-            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-400 dark:hover:bg-gray-500"
-            @click="cancelAdd">
-            Cancel
-          </button>
-          <button
-            class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-gray-400 dark:disabled:bg-gray-600"
-            :disabled="!selectedToAdd" @click="confirmAdd">
-            Confirm
-          </button>
-        </div>
-
-        <button
-          class="absolute top-2 right-2 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-          @click="cancelAdd">
-          ✕
-        </button>
-      </div>
+    <!-- 添加 slide 区域 -->
+    <div>
+      <h3>添加幻灯片</h3>
+      <select v-model="selectedSlideId">
+        <option v-for="slide in slidesStore.allSlides" :key="slide.id" :value="slide.id">
+          {{ slide.name }}
+        </option>
+      </select>
+      <button @click="addSlide">添加到当前Deck</button>
     </div>
-  </div>
-  <div v-if="false" style="position: fixed; top: 0; left: 0; z-index: 9999; background: white; padding: 10px;">
-    <h3>调试信息</h3>
-    <pre>Group ID: {{ deckId }}</pre>
-    <pre>Group Name: {{ title }}</pre>
-    <pre>Slide IDs: {{ slides?.join(', ') }}</pre>
-    <pre>Speed: {{ speed }}</pre>
-    <pre>Selected: {{ selectedContent?.id || '无' }}</pre>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, reactive, toRaw, onMounted } from 'vue'
-import type { PropType } from 'vue';
-import draggable from 'vuedraggable'
-import SlideCard from './SlideCard.vue'
-import SpeedControl from './SpeedControl.vue'
-import { useSlides } from '@/composables/useSlides'
-import type { LocalSlideDeck, SlideDeck, SlideItem } from '@/interfaces/types'
-import { useScreenStore } from '@/stores/useScreenStore'
-import { toLocalSlideDeck, updateSlideDeck } from '@/services/slideDeckService'
-const { slides } = useSlides()
-interface Slide {
-  id: number
-  name: string
-  url: string
-}
-// 定义 props
-const props = defineProps({
-  // 幻灯片组的唯一标识符
-  deckId: {
-    type: Number,
-    required: true,
-    validator: (value: any) => value !== -1 // 确保不是无效ID
-  },
+  import { ref, onMounted } from 'vue'
+  import { useDeckStore } from '@/stores/useDeckStore'
+  import { useSlidesStore } from '@/stores/useSlidesStore'
+  import { fetchSlideDeckById, addSlideToDeck, updateSlideDeck } from '@/services/slideDeckService'
+  import type { SlideItem, SlideDeck } from '@/interfaces/types'
 
-  // 幻灯片组的标题
-  title: {
-    type: String,
-    required: true,
-    default: 'Untitled Deck'
-  },
-
-  // 幻灯片数组
-  slides: {
-    type: Array as PropType<SlideItem[]>,
-    required: true,
-    default: () => [] // 默认空数组
-  },
-
-  // 幻灯片切换速度（秒）
-  speed: {
-    type: Number,
-    required: true,
-    default: 5, // 默认5秒
-    validator: (value: number) => value > 0 // 确保正值
-  },
-
-  // 当前选中的内容项
-  selectedContent: {
-    type: Object as PropType<SlideItem | null>,
-    default: null
+  interface SlideDeckCardProps {
+    deckId: number
   }
-});
-const slideIds = defineModel<number[]>('slide-ids', { required: true })
-// c
 
-const editingDeck = reactive<LocalSlideDeck>(structuredClone(toRaw(props.deck)))
-const store = useScreenStore()
+  const props = defineProps<SlideDeckCardProps>()
+  const deckStore = useDeckStore()
+  const slidesStore = useSlidesStore()
 
-watch(
-  () => props.deck,
-  () => {
-    Object.assign(editingDeck, structuredClone(toRaw(props.deck)))
-    if (editingDeck.slides === null) editingDeck.slides = []
-  },
-  { immediate: true }
-)
-function play() {
-  store.playDeck(props.deckId) // title 就是 groupId
-}
+  const interval = ref(deckStore.interval)
+  const deckSlides = ref<SlideItem[]>([])
+  const selectedSlideId = ref<number | null>(null)
 
-
-const speed = defineModel<number>('speed', { required: true })
-
-defineEmits<{
-  (e: 'select', item: SlideItem): void
-  (e: 'update:slide-ids', ids: number[]): void
-}>()
-
-/* 打开弹窗前刷新一次 */
-const showDialog = ref(false)
-function openDialog() {
-  showDialog.value = true
-}
-const selectedToAdd = ref<number | null>(null)
-
-/* 拖拽时使用的临时数组 */
-const localSlideIds = ref<number[]>([...slideIds.value])
-watch(slideIds, ids => {
-  localSlideIds.value = [...ids]
-})
-watch(
-  () => props.deck.version,
-  () => {
-    Object.assign(editingDeck, structuredClone(toRaw(props.deck)))
-  }
-)
-
-const id2Slide = computed<Record<number, SlideItem>>(() => {
-  const map: Record<number, SlideItem> = {}
-  props.deck.slides.forEach((s: SlideItem) => {
-    map[s.id] = s
+  onMounted(async () => {
+    await slidesStore.refresh()
+    await loadDeckSlides()
   })
-  return map
-})
 
-const confirmAdd = () => {
-  if (selectedToAdd.value && !slideIds.value.includes(selectedToAdd.value)) {
-    slideIds.value = [...slideIds.value, selectedToAdd.value]
-    localSlideIds.value = [...slideIds.value]
+  async function loadDeckSlides() {
+    const deck: SlideDeck = await fetchSlideDeckById(props.deckId)
+    deckSlides.value = deck.slides ?? []
+    // 同步 transitionTime 到 interval（假设 transitionTime 单位为秒）
+    if (deck.transitionTime) {
+      interval.value = deck.transitionTime * 1000
+    }
   }
-  resetDialog()
-}
 
-function cancelAdd() {
-  resetDialog()
-}
-function resetDialog() {
-  showDialog.value = false
-  selectedToAdd.value = null
-}
-async function onDragEnd() {
-  try {
-    // toRaw
-    const res = await updateSlideDeck(editingDeck.id, toRaw(editingDeck))
-    const saved = toLocalSlideDeck(res)
-    Object.assign(editingDeck, saved)
-    store.replaceGroup(saved)
-  } catch (err: any) {
-    const origin = store.slideDecks.find(g => g.id === editingDeck.id)!
-    Object.assign(editingDeck, structuredClone(toRaw(origin)))
-    alert(err.message ?? 'Save failed')
+  // updateSlideDeck 只需要传递部分字段，类型断言为 Partial<SlideDeck>
+  async function updateInterval() {
+    deckStore.setIntervalMs(interval.value)
+    // 同步到后端
+    await updateSlideDeck(props.deckId, {
+      transitionTime: interval.value / 1000
+    } as Partial<SlideDeck>)
   }
-}
 
-async function saveSpeed() {
-  try {
-
-    const res = await updateSlideDeck(editingDeck.id, toRaw(editingDeck))
-    const saved = toLocalSlideDeck(res)
-    Object.assign(editingDeck, saved)
-    alert('Speed saved!')
-  } catch (err: any) {
-    alert(err.message ?? 'Failed to save speed')
+  async function addSlide() {
+    if (!selectedSlideId.value) return
+    const slide = slidesStore.allSlides.find(s => s.id === selectedSlideId.value)
+    if (!slide) return
+    await addSlideToDeck(props.deckId, slide)
+    await loadDeckSlides()
   }
-}
 </script>

@@ -1,5 +1,5 @@
 import { useAuthFetch } from '@/composables/useAuthFetch'
-import type { LocalSlideDeck, SlideDeck, SlideItem } from '@/interfaces/types'
+import type { SlideDeck, SlideItem } from '@/interfaces/types'
 
 const BASE_URL = '/api/proxy/slidedecks'
 
@@ -45,7 +45,7 @@ export async function createSlideDeck(deck: SlideDeck): Promise<SlideDeck> {
  */
 export async function updateSlideDeck(
   deckId: string | number,
-  deck: SlideDeck
+  deck: Partial<SlideDeck>
 ): Promise<SlideDeck> {
   const { authFetch } = useAuthFetch()
   return await authFetch<SlideDeck>(`${BASE_URL}/${deckId}`, {
@@ -131,16 +131,3 @@ export async function fetchSlideById(
   return await authFetch<SlideItem>(`${BASE_URL}/${deckId}/slides/${slideId}`)
 }
 
-
-export function toLocalSlideDeck(deck: SlideDeck): LocalSlideDeck {
-  return {
-    ...deck,
-    isLocalOnly: false,
-    lastResetAt: -1
-  }
-}
-
-export function sanitizeDeckForBackend(deck: LocalSlideDeck): SlideDeck {
-  const { isLocalOnly, lastResetAt, ...cleanDeck } = deck
-  return cleanDeck
-}
