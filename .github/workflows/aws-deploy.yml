@@ -58,11 +58,12 @@ jobs:
         run: |
           ansible-playbook -i infra/inventory.ini infra/ansible/playbooks/install-kubernetes.yml -v
 
-      - name: Fetch kubeconfig from EC2
+      - name: Fetch and adapt kubeconfig from EC2
         run: |
           ssh -i ./infra/pk.pem -o StrictHostKeyChecking=no ubuntu@${{ github.event.inputs.EC2_HOST }} "cat /home/ubuntu/.kube/config" > ./kubeconfig
           sed -i "s|127.0.0.1|${{ github.event.inputs.EC2_HOST }}|" ./kubeconfig
           sed -i "s|localhost|${{ github.event.inputs.EC2_HOST }}|" ./kubeconfig
+          sed -i "/certificate-authority/d" ./kubeconfig
           sed -i "/server:/a \ \ \ \ insecure-skip-tls-verify: true" ./kubeconfig
 
       - name: Set KUBECONFIG
