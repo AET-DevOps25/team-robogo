@@ -96,12 +96,12 @@
             @click="store.playAllDecks()">
             ▶ Play&nbsp;All
           </button>
-          <!-- <button
+          <button
             class="text-sm px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
             @click="triggerFileInput">
             {{ t('uploadSlide') }}
           </button>
-          <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileUpload" /> -->
+          <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
         </div>
         <div>
           <USelectMenu v-model="selectedDeckId" :items="slideDecks.map((g: any) => g.id)" class="w-48" />
@@ -116,25 +116,25 @@
             @update:slides="val => currentDeck.slides = val" @update:speed="val => currentDeck.transitionTime = val"
             @select="selectContent" />
         </div> -->
-    <div v-for="slide in allSlides" :key="slide.id" class="slide-item">
-      <img v-if="slide.url" :src="slide.url" :alt="slide.name" />
-      <div v-else class="error-placeholder">
-        failed: {{ slide.name }}
-      </div>
-      <!-- <button @click="handleRemoveSlide(slide.id)">删除</button> -->
-    </div>
+        <div v-for="slide in allSlides" :key="slide.id" class="slide-item">
+          <img v-if="slide.url" :src="slide.url" :alt="slide.name" />
+          <div v-else class="error-placeholder">
+            failed: {{ slide.name }}
+          </div>
+          <!-- <button @click="handleRemoveSlide(slide.id)">删除</button> -->
+        </div>
       </div>
 
       <!-- Right: Groups -->
       <div class="flex flex-col gap-4">
         <!-- Scores Update -->
         <div class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4">
-         <USelectMenu v-model="selectedTeamId" :items="TEAMS.map((t:any) => t.id)"/>
+          <USelectMenu v-model="selectedTeamId" :items="TEAMS.map((t: any) => t.id)" />
           <input v-model="newScorePoints" :placeholder="t('score')"
             class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-2 rounded w-full sm:w-auto" />
-            <input v-model="newScoreTime" :placeholder="t('time')"
+          <input v-model="newScoreTime" :placeholder="t('time')"
             class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-2 rounded w-full sm:w-auto" />
-          
+
           <button
             class="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded hover:bg-green-700 dark:hover:bg-green-600"
             @click="submitScore">
@@ -173,7 +173,7 @@
                     ">
                     {{ msg.role === 'You' ? '👤' : '🤖' }} {{ msg.role }}
                   </strong>
-                </div>
+                </div>slideIds
                 <div class="whitespace-pre-wrap">{{ msg.text }}</div>
               </div>
             </div>
@@ -275,11 +275,11 @@ const selectedDeckId = ref<number>()
 onMounted(async () => {
   //get decks and transform to a local type
   const backendDecks = await fetchSlideDecks()
-  console.log("backendDecks",backendDecks)
+  console.log("backendDecks", backendDecks)
   const backendScreens = await fetchScreens()
-  console.log("backendScreens",backendScreens)
-getAllSlidesUrl()
-console.log("allSlides",allSlides)
+  console.log("backendScreens", backendScreens)
+  getAllSlidesUrl()
+  console.log("allSlides", allSlides)
   //test
   //   const allSlides = await fetchAllImageMetas()
   // console.log("allSlides",allSlides)
@@ -297,7 +297,7 @@ console.log("allSlides",allSlides)
 
   }
   if (!backendScreens || backendScreens.length === 0) {
-    
+
   }
   //set default displaying deck: first deck 
   selectedDeckId.value = store.slideDecks[0].id
@@ -460,11 +460,49 @@ const confirmDeleteScreen = () => {
 
 //TODO: replace image upload
 
- 
+const fileInput = ref<HTMLInputElement | null>(null)
+const uploading = ref(false)
+const uploadError = ref('')
+
+const triggerFileInput = () => {
+  fileInput.value?.click()
+}
+
+const handleFileUpload = async (event: Event) => {
+  const files = (event.target as HTMLInputElement).files
+  if (!files || files.length === 0) return
+
+  const file = files[0]
+  uploading.value = true
+  uploadError.value = ''
+
+  try {
+    // 调用API上传图片
+    const response = await uploadImage(file)
+    
+    const newSlide = {
+      id: response.id,        // 使用API返回的ID
+      name: file.name,
+      url: response.url      // 使用API返回的URL
+    }
+
+    const targetGroup = store.slideGroups.find(g => g.id === selectedGroupId.value)
+    if (targetGroup && targetGroup.id !== 'None') {
+      targetGroup.slideIds.push(newSlide.id)
+    }
+
+  } catch (error: any) {
+    uploadError.value = error?.message || '上传失败'
+  } finally {
+    uploading.value = false
+    // 重置input以允许重复上传相同文件
+    if (fileInput.value) fileInput.value.value = ''
+  }
+}
 
 
-  //Score related
-  const newScorePoints = ref('')
+//Score related
+const newScorePoints = ref('')
 const newScoreTime = ref('')
-  const selectedTeamId = ref(TEAMS[0].id)
+const selectedTeamId = ref(TEAMS[0].id)
 </script>
