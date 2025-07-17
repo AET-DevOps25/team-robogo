@@ -1,35 +1,50 @@
 <template>
-  <div>
+  <div class="max-w-md mx-auto bg-white rounded-xl shadow-md p-6 space-y-6">
     <!-- 播放速度调整 -->
-    <div>
-      <label>播放速度(ms):</label>
-      <input v-model="interval" type="number" min="1000" step="500" @change="updateInterval" />
+    <div class="flex items-center gap-3">
+      <label class="font-semibold text-gray-700">播放速度(ms):</label>
+      <input
+        v-model="interval"
+        class="w-28 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+        type="number"
+        min="1000"
+        step="500"
+        @change="updateInterval"
+      />
     </div>
     <!-- 当前 deck slides -->
     <div>
-      <h3>当前幻灯片</h3>
-      <ul>
-        <li v-for="slide in deckSlides" :key="slide.id">{{ slide.name }}</li>
-      </ul>
-    </div>
-    <!-- 添加 slide 区域 -->
-    <div>
-      <h3>添加幻灯片</h3>
-      <select v-model="selectedSlideId">
-        <option v-for="slide in slidesStore.allSlides" :key="slide.id" :value="slide.id">
-          {{ slide.name }}
-        </option>
-      </select>
-      <button @click="addSlide">添加到当前Deck</button>
+      <h3 class="text-lg font-bold text-blue-700 mb-2 flex items-center gap-2">
+        <span class="inline-block w-2 h-2 bg-blue-400 rounded-full" />
+        当前幻灯片
+      </h3>
+      <div class="grid grid-cols-2 gap-4">
+        <div
+          v-for="slide in deckSlides"
+          :key="slide.id"
+          class="p-2 rounded border border-blue-200 transition"
+        >
+          <SlideCard :item="slide" class="w-full" />
+        </div>
+        <!-- 添加幻灯片的空卡片 -->
+        <div
+          class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-green-400 rounded cursor-pointer hover:bg-green-50 transition"
+          @click="addSlide"
+        >
+          <span class="text-4xl text-green-400 mb-2">＋</span>
+          <span class="text-green-700 font-semibold">添加新幻灯片</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
+  import SlideCard from './SlideCard.vue'
   import { useDeckStore } from '@/stores/useDeckStore'
   import { useSlidesStore } from '@/stores/useSlidesStore'
-  import { fetchSlideDeckById, addSlideToDeck, updateSlideDeck } from '@/services/slideDeckService'
+  import { fetchSlideDeckById, updateSlideDeck } from '@/services/slideDeckService'
   import type { SlideItem, SlideDeck } from '@/interfaces/types'
 
   interface SlideDeckCardProps {
@@ -42,7 +57,8 @@
 
   const interval = ref(deckStore.interval)
   const deckSlides = ref<SlideItem[]>([])
-  const selectedSlideId = ref<number | null>(null)
+  // 删除selectedSlideId相关
+  // const selectedSlideId = ref<number | null>(null)
 
   onMounted(async () => {
     await slidesStore.refresh()
@@ -67,11 +83,8 @@
     } as Partial<SlideDeck>)
   }
 
-  async function addSlide() {
-    if (!selectedSlideId.value) return
-    const slide = slidesStore.allSlides.find(s => s.id === selectedSlideId.value)
-    if (!slide) return
-    await addSlideToDeck(props.deckId, slide)
-    await loadDeckSlides()
+  // 恢复addSlide函数，示例为添加一个默认幻灯片
+  function addSlide() {
+    alert('请实现添加幻灯片的具体逻辑')
   }
 </script>

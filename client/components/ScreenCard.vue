@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
   import { computed } from 'vue'
-import type { ScreenContent, SlideDeck } from '@/interfaces/types'
+import type { SlideDeck } from '@/interfaces/types'
   const props = defineProps<{
     screen: {
       id: number
