@@ -13,5 +13,4 @@ public class CategoryDTO {
     private Long id;
     private String name;
     private Long competitionId;
-    private String categoryScoring;
 } 

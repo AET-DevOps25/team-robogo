@@ -25,11 +25,6 @@ public final class Category {
     @JsonIgnore
     private Competition competition;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "scoring", nullable = false)
-    @JsonIgnore
-    private CategoryScoring categoryScoring;
-
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Team> teams = new HashSet<>();
 
@@ -65,13 +60,6 @@ public final class Category {
         this.teams = teams;
     }
 
-    public CategoryScoring getCategoryScoring() {
-        return categoryScoring;
-    }
-
-    public void setCategoryScoring(CategoryScoring categoryScoring) {
-        this.categoryScoring = categoryScoring;
-    }
 
     @Override
     public String toString() {
@@ -79,7 +67,6 @@ public final class Category {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", competition=" + (competition != null ? competition.getId() : null) +
-                ", categoryScoring=" + categoryScoring +
                 '}';
     }
 }

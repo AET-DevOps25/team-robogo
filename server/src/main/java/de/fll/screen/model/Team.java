@@ -3,13 +3,8 @@ package de.fll.screen.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
-import org.springframework.lang.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.ALWAYS)
 @Entity
 public final class Team {
 

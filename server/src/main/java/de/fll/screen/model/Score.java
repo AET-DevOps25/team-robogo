@@ -24,10 +24,6 @@ public final class Score {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id", unique = true, nullable = false)
     private Team team;
-    
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "score_slide_id", nullable = false)
-    private ScoreSlide scoreSlide;
 
     public Score() {
         this(-1, -1);
@@ -56,7 +52,6 @@ public final class Score {
                 ", points=" + points +
                 ", time=" + time +
                 ", team=" + (team != null ? team.getId() : null) +
-                ", scoreSlide=" + (scoreSlide != null ? scoreSlide.getId() : null) +
                 '}';
     }
 
@@ -115,8 +110,5 @@ public final class Score {
     public void setTeam(Team team) {
         this.team = team;
     }
-
-    public ScoreSlide getScoreSlide() { return scoreSlide; }
-    public void setScoreSlide(ScoreSlide scoreSlide) { this.scoreSlide = scoreSlide; }
 
 }

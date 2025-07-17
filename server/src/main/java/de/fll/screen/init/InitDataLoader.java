@@ -53,27 +53,22 @@ public class InitDataLoader implements CommandLineRunner {
             Category c1 = new Category();
             c1.setName("FLL Robot Game");
             c1.setCompetition(fll);
-            c1.setCategoryScoring(CategoryScoring.FLL_ROBOT_GAME);
             categoryRepository.save(c1);
             Category c2 = new Category();
             c2.setName("FLL Quarter Final");
             c2.setCompetition(fll);
-            c2.setCategoryScoring(CategoryScoring.FLL_QUARTER_FINAL);
             categoryRepository.save(c2);
             Category c3 = new Category();
             c3.setName("FLL Test Round");
             c3.setCompetition(fll);
-            c3.setCategoryScoring(CategoryScoring.FLL_TESTROUND);
             categoryRepository.save(c3);
             Category c4 = new Category();
             c4.setName("WRO Starter");
             c4.setCompetition(wro);
-            c4.setCategoryScoring(CategoryScoring.WRO_STARTER);
             categoryRepository.save(c4);
             Category c5 = new Category();
             c5.setName("WRO RoboMission 2025");
             c5.setCompetition(wro);
-            c5.setCategoryScoring(CategoryScoring.WRO_ROBOMISSION_2025);
             categoryRepository.save(c5);
             logger.info("[InitDataLoader] Inserted Categories");
         }
@@ -135,13 +130,6 @@ public class InitDataLoader implements CommandLineRunner {
             }
             logger.info("[InitDataLoader] Inserted Slides");
         }
-        List<Slide> slides = slideRepository.findAll();
-        List<ScoreSlide> scoreSlides = new ArrayList<>();
-        for (Slide slide : slides) {
-            if (slide instanceof ScoreSlide) {
-                scoreSlides.add((ScoreSlide) slide);
-            }
-        }
 
         // 6. Team
         if (teamRepository.count() == 0 && !categories.isEmpty()) {
@@ -149,6 +137,7 @@ public class InitDataLoader implements CommandLineRunner {
             for (Category category : categories) {
                 for (int i = 1; i <= 3; i++) { // 每个category 3个team
                     Team team = new Team(category.getName() + " Team " + i);
+                    // 设置competitionId
                     team.setCategory(category);
                     teamRepository.save(team);
                     allTeams.add(team);
@@ -159,22 +148,16 @@ public class InitDataLoader implements CommandLineRunner {
         List<Team> teams = teamRepository.findAll();
 
         // 7. Score
-        // 每个team只插入一条score，scoreSlide为该team所属category的唯一ScoreSlide，分数和时间用随机数生成
-        if (scoreRepository.count() == 0 && !teams.isEmpty() && !scoreSlides.isEmpty()) {
+        // 每个team只插入一条score，不再关联ScoreSlide
+        if (scoreRepository.count() == 0 && !teams.isEmpty()) {
             for (Team team : teams) {
-                // 找到该team对应category的唯一scoreSlide
-                ScoreSlide assignedSlide = scoreSlides.stream()
-                    .filter(slide -> slide.getCategory().getId() == team.getCategory().getId())
-                    .findFirst()
-                    .orElse(null);
                 int baseScore = 20 + (int)(Math.random() * 40); // 20~59
                 int baseTime = 40 + (int)(Math.random() * 60); // 40~99
                 Score s = new Score(baseScore, baseTime);
                 s.setTeam(team);
-                s.setScoreSlide(assignedSlide);
                 scoreRepository.save(s);
             }
-            logger.info("[InitDataLoader] Inserted one Score per Team, each linked to its category's ScoreSlide");
+            logger.info("[InitDataLoader] Inserted one Score per Team");
         }
 
         // 8. Screen

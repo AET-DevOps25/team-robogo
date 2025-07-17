@@ -42,25 +42,72 @@ public class ScoreService {
     }
 
     public Score addScore(Long teamId, double points, int time) {
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new IllegalArgumentException("Team not found: " + teamId));
-        Score score = new Score(points, time);
-        score.setTeam(team);
-        team.setScore(score);
+        Optional<Score> existingScore = scoreRepository.findByTeam_Id(teamId);
+        Score score;
+        if (existingScore.isPresent()) {
+            score = existingScore.get();
+            score.setPoints(points);
+            score.setTime(time);
+        } else {
+            score = new Score(points, time);
+            Team team = teamRepository.findById(teamId)
+                    .orElseThrow(() -> new IllegalArgumentException("Team not found: " + teamId));
+            score.setTeam(team);
+            team.setScore(score);
+        }
         return scoreRepository.save(score);
     }
 
-    public List<Score> getScoresForTeam(Team team) {
-        return scoreRepository.findByTeam(team);
+    public Score updateScore(Long scoreId, Long teamId, double points, int time) {
+        Score score = scoreRepository.findById(scoreId)
+                .orElseThrow(() -> new IllegalArgumentException("Score not found: " + scoreId));
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new IllegalArgumentException("Team not found: " + teamId));
+        
+        score.setPoints(points);
+        score.setTime(time);
+        score.setTeam(team);
+        team.setScore(score);
+        
+        return scoreRepository.save(score);
+    }
+
+    public void deleteScore(Long scoreId) {
+        Score score = scoreRepository.findById(scoreId)
+                .orElseThrow(() -> new IllegalArgumentException("Score not found: " + scoreId));
+        
+        // 清除team对score的引用
+        if (score.getTeam() != null) {
+            score.getTeam().setScore(null);
+        }
+        
+        scoreRepository.delete(score);
     }
 
     public List<Score> getScoresForAllTeams() {
         return scoreRepository.findAll();
     }
 
+    public List<Score> getScoresByCategoryId(Long categoryId) {
+        return categoryRepository.findScoresByCategoryId(categoryId);
+    }
+
+    public List<Score> getScoresByScoreSlide(ScoreSlide scoreSlide) {
+        if (scoreSlide == null || scoreSlide.getCategory() == null) {
+            return new ArrayList<>();
+        }
+        return slideRepository.findScoresByScoreSlideCategory(scoreSlide.getCategory().getId());
+    }
+
     public List<ScoreDTO> getScoreDTOsWithHighlight(Category category) {
         if (category == null) return List.of();
         return rankingService.getRankedTeams(category, categoryRepository.findTeamsByCategoryId(category.getId()));
+    }
+
+    public List<ScoreDTO> getScoreDTOsWithHighlight(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId).orElse(null);
+        if (category == null) return List.of();
+        return rankingService.getRankedTeams(category, categoryRepository.findTeamsByCategoryId(categoryId));
     }
 
     public List<ScoreDTO> getAllTeamsScoreDTOsWithHighlight(List<Category> categories) {
@@ -80,8 +127,16 @@ public class ScoreService {
             Category category = categoryRepository.findById(dto.getCategory().getId()).orElse(null);
             slide.setCategory(category);
         }
+        
+        // 先保存slide，然后通过slide直接查询相关的scores
+        slideRepository.save(slide);
+        
         List<Score> scores = new ArrayList<>();
-        if (dto.getScores() != null) {
+        if (slide.getCategory() != null) {
+            // 使用新的方法直接从ScoreSlide查询相关的scores
+            scores = getScoresByScoreSlide(slide);
+        } else if (dto.getScores() != null) {
+            // 如果没有category，则使用DTO中的scores
             for (ScoreDTO scoreDTO : dto.getScores()) {
                 Team team = teamAssembler.fromDTO(scoreDTO.getTeam());
                 if (team != null) {
@@ -93,8 +148,7 @@ public class ScoreService {
                 }
             }
         }
-        slide.setScores(scores);
-        slideRepository.save(slide);
+        
         for (Score score : scores) {
             scoreRepository.save(score);
         }

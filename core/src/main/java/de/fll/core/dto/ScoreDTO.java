@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScoreDTO {
+    private Long id;
     private Double points;
     private Integer time;
     private Boolean highlight;

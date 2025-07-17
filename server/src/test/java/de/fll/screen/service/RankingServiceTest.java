@@ -1,21 +1,16 @@
 package de.fll.screen.service;
 
 import de.fll.core.dto.ScoreDTO;
-import de.fll.core.dto.TeamDTO;
-import de.fll.screen.model.*;
-import de.fll.screen.service.comparators.FLLRobotGameComparator;
-import de.fll.screen.service.comparators.FLLQuarterFinalComparator;
-import de.fll.screen.service.comparators.FLLTestRoundComparator;
-import de.fll.screen.service.comparators.WROStarterComparator;
-import de.fll.screen.service.comparators.WRO2025Comparator;
+import de.fll.screen.model.Category;
+import de.fll.screen.model.Score;
+import de.fll.screen.model.Team;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RankingServiceTest {
     private RankingService rankingService;
@@ -24,7 +19,6 @@ public class RankingServiceTest {
 
     @BeforeEach
     void setUp() {
-        rankingService = new RankingService(null, null, null, null, null);
         category = new Category();
         team1 = new Team("T1");
         team2 = new Team("T2");
