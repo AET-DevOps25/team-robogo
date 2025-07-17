@@ -4,9 +4,7 @@
   import { computed } from 'vue'
   import { useScreenStore } from '@/stores/useScreenStore'
   import { useSlides } from '@/composables/useSlides'
-
-  const { slides, refresh } = useSlides()
-  await refresh()
+import { fetchAllImageMetas } from '~/services/slideImageService'
 
   const store = useScreenStore()
   const screenId = useRoute().params.id as string

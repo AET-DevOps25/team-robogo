@@ -96,12 +96,12 @@
             @click="store.playAllDecks()">
             ▶ Play&nbsp;All
           </button>
-          <button
+          <!-- <button
             class="text-sm px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
             @click="triggerFileInput">
             {{ t('uploadSlide') }}
           </button>
-          <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
+          <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileUpload" /> -->
         </div>
         <div>
           <USelectMenu v-model="selectedDeckId" :items="slideDecks.map((g: any) => g.id)" class="w-48" />
@@ -129,10 +129,12 @@
       <div class="flex flex-col gap-4">
         <!-- Scores Update -->
         <div class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-md flex flex-col sm:flex-row items-center gap-4">
-          <input v-model="scoreTarget" :placeholder="t('teamId')"
+         <USelectMenu v-model="selectedTeamId" :items="TEAMS.map((t:any) => t.id)"/>
+          <input v-model="newScorePoints" :placeholder="t('score')"
             class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-2 rounded w-full sm:w-auto" />
-          <input v-model="scoreValue" :placeholder="t('score')"
+            <input v-model="newScoreTime" :placeholder="t('time')"
             class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-2 rounded w-full sm:w-auto" />
+          
           <button
             class="px-4 py-2 bg-green-600 dark:bg-green-500 text-white rounded hover:bg-green-700 dark:hover:bg-green-600"
             @click="submitScore">
@@ -219,7 +221,7 @@
 
         <input v-model="newDeckName" :placeholder="t('groupName')"
           class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded mb-4" />
-        <USelectMenu v-model="selectedCompetition" :items="COMPETITIONS" item-value="id" item-text="name"
+        <USelectMenu v-model="selectedCompetitionDeck" :items="TEAMS" item-value="id" item-text="name"
           class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded mb-4" />
 
         <div class="flex justify-end gap-2">
@@ -243,6 +245,7 @@
       </div>
     </div>
 
+
   </div>
 </template>
 
@@ -254,13 +257,14 @@ import ScreenCard from '../components/ScreenCard.vue'
 import SlideDeckCard from '../components/SlideDeckCard.vue'
 import { useScreenStore } from '@/stores/useScreenStore'
 import { checkHealth, getSuggestion, getServiceInfo } from '@/services/aiService'
-import type { ScreenContent, SlideItem, ChatMessage, SlideDeck, LocalSlideDeck, LocalImageSlideUrl } from '@/interfaces/types'
+import type { ScreenContent, SlideItem, ChatMessage, SlideDeck, LocalSlideDeck, LocalImageSlideUrl, Score } from '@/interfaces/types'
 import { fetchSlideDecks, createSlideDeck, toLocalSlideDeck, sanitizeDeckForBackend } from '@/services/slideDeckService'
-import { fetchImageBlobById, fetchAllImageMetas } from '@/services/slideImageService'
+import { fetchImageBlobById, fetchAllImageMetas, uploadImage } from '@/services/slideImageService'
 import { createScreen, updateScreen, deleteScreen, assignSlideDeck, fetchScreens } from '@/services/screenService'
 import { useSlides } from '@/composables/useSlides'
-import { COMPETITIONS } from '@/data/competitions'
-import { currentScale } from 'happy-dom/lib/PropertySymbol.js'
+import { COMPETITIONS, TEAMS } from '@/data/competitions'
+import { currentScale, id, name } from 'happy-dom/lib/PropertySymbol.js'
+
 const store = useScreenStore()
 const { allSlides, getAllSlidesUrl, add, remove } = useSlides()
 // const { slides, refresh } = useSlides()
@@ -301,13 +305,15 @@ console.log("allSlides",allSlides)
 })
 
 
-const scoreTarget = ref('')
-const scoreValue = ref('')
 
 
-const selectedCompetition = ref(COMPETITIONS[0])
+//competition id of a new score
+const selectedCompetitionScore = ref(COMPETITIONS[0])
+//competition id of a new deck
+const selectedCompetitionDeck = ref(COMPETITIONS[0])
 
 // Submit score function
+const newScore = ref<Score>()
 const submitScore = () => {
   if (!scoreTarget.value || !scoreValue.value) return
 
@@ -374,6 +380,8 @@ const addNewScreen = () => {
   newScreenName.value = ''
   newScreenUrl.value = ''
 }
+//control image upload dialog
+const openUploadImage = ref(false)
 
 /*
 AI Chat Integration
@@ -425,7 +433,7 @@ const addDeck = async () => {
   const newDeck: SlideDeck = {
     id: null,
     name: newDeckName.value,
-    competitionId: selectedCompetition.value,
+    competitionId: selectedCompetition.value.id,
     slides: null,
     transitionTime: 5,
     version: 0
@@ -450,11 +458,13 @@ const confirmDeleteScreen = () => {
   screenToDelete.value = null
 }
 
-const fileInput = ref<HTMLInputElement | null>(null)
+//TODO: replace image upload
 
-const triggerFileInput = () => {
-  fileInput.value?.click()
-}
-// upload logic 
+ 
 
+
+  //Score related
+  const newScorePoints = ref('')
+const newScoreTime = ref('')
+  const selectedTeamId = ref(TEAMS[0].id)
 </script>
