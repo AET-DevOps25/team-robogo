@@ -62,7 +62,7 @@ export type SlideItem =
 
 // SlideDeck
 export interface SlideDeck {
-  id: number    //for new deck: use -1 to post and get correct id from backend
+  id: number
   name: string
   competitionId: number
   slides: SlideItem[] | null
@@ -75,10 +75,7 @@ export interface ScreenContent {
   id: number
   name: string
   status: string
-  slideDeck: SlideDeck | null //This is allowd by backend
-  currentContent: number  //slide.id
-  thumbnailUrl?: string
-  urlPath?: string
+  slideDeck: SlideDeck | null
 }
 
 // LoginRequest
@@ -107,5 +104,5 @@ export interface ChatMessage {
 }
 
 // common types
-export type ScreenStatus = 'online' | 'offline' | 'error'
+export type ScreenStatus = 'ONLINE' | 'OFFLINE' | 'ERROR'
 export type ContentType = 'BLACK_SCREEN' | string

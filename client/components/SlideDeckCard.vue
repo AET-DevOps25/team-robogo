@@ -72,17 +72,12 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, onUnmounted, watch } from 'vue'
   import draggable from 'vuedraggable'
   import SlideCard from './SlideCard.vue'
   import { useDeckStore } from '@/stores/useDeckStore'
   import { useSlidesStore } from '@/stores/useSlidesStore'
-  import {
-    fetchSlideDeckById,
-    addSlideToDeck,
-    updateSlideDeck,
-    reorderSlides
-  } from '@/services/slideDeckService'
+  import { addSlideToDeck, updateSlideDeck, reorderSlides } from '@/services/slideDeckService'
   import type { SlideItem, SlideDeck } from '@/interfaces/types'
 
   interface SlideDeckCardProps {
@@ -97,20 +92,35 @@
   const deckSlides = ref<SlideItem[]>([])
   const showAddDialog = ref(false)
   const isOrderChanged = ref(false)
+  const currentDeck = ref<SlideDeck | null>(null)
 
   onMounted(async () => {
     await slidesStore.refresh()
-    await loadDeckSlides()
+    deckStore.currentDeckId = props.deckId
+    await deckStore.checkAndRefreshDeck()
+
+    // 如果这个 deck 是当前播放的，设置到 store
+    if (currentDeck.value && deckStore.currentDeckId === props.deckId) {
+      deckStore.setCurrentDeck(currentDeck.value)
+    }
   })
 
-  async function loadDeckSlides() {
-    const deck: SlideDeck = await fetchSlideDeckById(props.deckId)
-    deckSlides.value = deck.slides ?? []
-    // 同步 transitionTime 到 interval（假设 transitionTime 单位为秒）
-    if (deck.transitionTime) {
-      interval.value = deck.transitionTime * 1000
-    }
-  }
+  // 监听 store 中的 deck 数据变化
+  watch(
+    () => deckStore.currentDeck,
+    newDeck => {
+      if (newDeck && newDeck.id === props.deckId) {
+        // 如果 store 中的 deck 数据更新了，同步到本地
+        currentDeck.value = newDeck
+        deckSlides.value = newDeck.slides ?? []
+
+        if (newDeck.transitionTime) {
+          interval.value = newDeck.transitionTime * 1000
+        }
+      }
+    },
+    { deep: true }
+  )
 
   // updateSlideDeck 只需要传递部分字段，类型断言为 Partial<SlideDeck>
   async function updateInterval() {
@@ -130,7 +140,7 @@
 
   async function handleAddSlide(slide: SlideItem) {
     await addSlideToDeck(props.deckId, slide)
-    await loadDeckSlides()
+    await deckStore.checkAndRefreshDeck()
     closeAddDialog()
   }
 
@@ -142,6 +152,13 @@
     const newOrder = deckSlides.value.map(s => s.id)
     await reorderSlides(props.deckId, newOrder)
     isOrderChanged.value = false
-    await loadDeckSlides()
+    await deckStore.checkAndRefreshDeck()
   }
+
+  // 当组件卸载时，如果这个 deck 是当前播放的，停止监听
+  onUnmounted(() => {
+    if (deckStore.currentDeckId === props.deckId) {
+      deckStore.stopVersionCheck()
+    }
+  })
 </script>
