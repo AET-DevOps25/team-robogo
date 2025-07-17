@@ -4,12 +4,13 @@ import type { Score, Category, SlideItem } from '@/interfaces/types'
 const BASE_URL = '/api/proxy/scores'
 
 /**
- * 获取所有分数
+ * 根据分类获取分数
+ * @param categoryId 分类ID
  * @returns Promise<Score[]>
  */
-export async function fetchAllScores(): Promise<Score[]> {
+export async function fetchScoresByCategory(categoryId: number): Promise<Score[]> {
   const { authFetch } = useAuthFetch()
-  return await authFetch<Score[]>(BASE_URL)
+  return await authFetch<Score[]>(`${BASE_URL}/category/${categoryId}`)
 }
 
 /**
@@ -38,6 +39,31 @@ export async function addScore(score: Score): Promise<Score> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(score)
   })
+}
+
+/**
+ * 更新分数
+ * @param scoreId 分数ID
+ * @param score Score对象
+ * @returns Promise<Score>
+ */
+export async function updateScore(scoreId: number, score: Partial<Score>): Promise<Score> {
+  const { authFetch } = useAuthFetch()
+  return await authFetch<Score>(`${BASE_URL}/${scoreId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(score)
+  })
+}
+
+/**
+ * 删除分数
+ * @param scoreId 分数ID
+ * @returns Promise<void>
+ */
+export async function deleteScore(scoreId: number): Promise<void> {
+  const { authFetch } = useAuthFetch()
+  await authFetch<void>(`${BASE_URL}/${scoreId}`, { method: 'DELETE' })
 }
 
 /**

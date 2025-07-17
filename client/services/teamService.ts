@@ -37,6 +37,21 @@ export async function createTeam(team: Omit<Team, 'id'>): Promise<Team> {
 }
 
 /**
+ * 更新团队分类
+ * @param teamId 团队ID
+ * @param categoryId 分类ID
+ * @returns Promise<Team>
+ */
+export async function updateTeamCategory(teamId: number, categoryId: number): Promise<Team> {
+  const { authFetch } = useAuthFetch()
+  return await authFetch<Team>(`${BASE_URL}/${teamId}/category`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(categoryId)
+  })
+}
+
+/**
  * 删除团队
  * @param teamId 团队id
  * @returns Promise<void>

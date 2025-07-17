@@ -1,5 +1,18 @@
 <template>
   <div class="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <!-- 导航栏 -->
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">控制面板</h1>
+      <div class="flex gap-4">
+        <NuxtLink
+          to="/scores"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+        >
+          分数管理
+        </NuxtLink>
+      </div>
+    </div>
+
     <div
       v-if="showDeleteConfirm"
       class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"

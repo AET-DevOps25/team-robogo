@@ -2,7 +2,6 @@ package de.fll.screen.assembler;
 
 import de.fll.core.dto.CategoryDTO;
 import de.fll.screen.model.Category;
-import de.fll.screen.model.CategoryScoring;
 import de.fll.screen.repository.CategoryRepository;
 import de.fll.screen.repository.CompetitionRepository;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -5,7 +5,6 @@ export interface Category {
   id: number
   name: string
   competitionId: number
-  categoryScoring: string
 }
 
 // ImageSlideMeta
@@ -23,6 +22,7 @@ export interface Team {
 
 // ScoreDTO
 export interface Score {
+  id?: number
   points: number
   time: number
   highlight: boolean
