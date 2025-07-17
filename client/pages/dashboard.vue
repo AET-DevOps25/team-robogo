@@ -1,180 +1,172 @@
 <template>
-  <div class="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-    <!-- 导航栏 -->
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">控制面板</h1>
-      <div class="flex gap-4">
-        <NuxtLink
-          to="/scores"
-          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-        >
-          分数管理
-        </NuxtLink>
-      </div>
-    </div>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- 使用AppHeader -->
+    <AppHeader />
 
-    <div
-      v-if="showDeleteConfirm"
-      class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
-    >
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-          {{ t('confirmDelete') }}
-        </h3>
-        <p class="text-gray-700 dark:text-gray-300">
-          {{ t('areYouSureDelete') }}
-          <strong>{{ screenToDelete?.name }}</strong>
-          ?
-        </p>
-        <div class="flex justify-end gap-2 mt-4">
+    <div class="p-6 space-y-6">
+      <div
+        v-if="showDeleteConfirm"
+        class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
+      >
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            {{ t('confirmDelete') }}
+          </h3>
+          <p class="text-gray-700 dark:text-gray-300">
+            {{ t('areYouSureDelete') }}
+            <strong>{{ screenToDelete?.name }}</strong>
+            ?
+          </p>
+          <div class="flex justify-end gap-2 mt-4">
+            <button
+              class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded text-gray-800 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-500"
+              @click="showDeleteConfirm = false"
+            >
+              {{ t('cancel') }}
+            </button>
+            <button
+              class="px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded hover:bg-red-700 dark:hover:bg-red-600"
+              @click="confirmDeleteScreen"
+            >
+              {{ t('delete') }}
+            </button>
+          </div>
           <button
-            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded text-gray-800 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-500"
+            class="absolute top-2 right-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
             @click="showDeleteConfirm = false"
           >
-            {{ t('cancel') }}
-          </button>
-          <button
-            class="px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded hover:bg-red-700 dark:hover:bg-red-600"
-            @click="confirmDeleteScreen"
-          >
-            {{ t('delete') }}
+            ✕
           </button>
         </div>
-        <button
-          class="absolute top-2 right-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
-          @click="showDeleteConfirm = false"
-        >
-          ✕
-        </button>
-      </div>
-    </div>
-
-    <section
-      class="grid grid-cols-[2fr_1fr] gap-6 bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow"
-    >
-      <!-- Left: Slide Group -->
-      <div>
-        <SlideDeckCard v-if="selectedDeckId" :deck-id="selectedDeckId" />
       </div>
 
-      <!-- Right: Screens Management -->
-      <div class="flex flex-col gap-4">
-        <!-- Screens Section -->
-        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow">
-          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-            {{ t('screensMonitor') }}
-          </h3>
+      <section
+        class="grid grid-cols-[2fr_1fr] gap-6 bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow"
+      >
+        <!-- Left: Slide Group -->
+        <div>
+          <SlideDeckCard v-if="selectedDeckId" :deck-id="selectedDeckId" />
+        </div>
 
-          <!-- Screens List -->
-          <div class="space-y-4 max-h-96 overflow-y-auto">
-            <ScreenCard
-              v-for="screen in screens"
-              :key="screen.id"
-              :screen="screen"
-              :slide-decks="slideDecks"
-              @deck-assigned="handleDeckAssigned"
-              @request-delete="handleRequestDelete"
-            />
+        <!-- Right: Screens Management -->
+        <div class="flex flex-col gap-4">
+          <!-- Screens Section -->
+          <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              {{ t('screensMonitor') }}
+            </h3>
+
+            <!-- Screens List -->
+            <div class="space-y-4 max-h-96 overflow-y-auto">
+              <ScreenCard
+                v-for="screen in screens"
+                :key="screen.id"
+                :screen="screen"
+                :slide-decks="slideDecks"
+                @deck-assigned="handleDeckAssigned"
+                @request-delete="handleRequestDelete"
+              />
+            </div>
+
+            <!-- Add Screen Button -->
+            <button
+              class="mt-4 w-full px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition"
+              @click="showAddScreenDialog = true"
+            >
+              {{ t('addNewScreen') }}
+            </button>
           </div>
 
-          <!-- Add Screen Button -->
-          <button
-            class="mt-4 w-full px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 transition"
-            @click="showAddScreenDialog = true"
-          >
-            {{ t('addNewScreen') }}
-          </button>
+          <!-- AI Chat Box -->
+          <AIChatBox />
         </div>
+      </section>
 
-        <!-- AI Chat Box -->
-        <AIChatBox />
-      </div>
-    </section>
+      <!-- Add Screen Dialog -->
+      <div
+        v-if="showAddScreenDialog"
+        class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
+      >
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            {{ t('addNewScreen') }}
+          </h3>
 
-    <!-- Add Screen Dialog -->
-    <div
-      v-if="showAddScreenDialog"
-      class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
-    >
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-          {{ t('addNewScreen') }}
-        </h3>
+          <input
+            v-model="newScreenName"
+            :placeholder="t('screenName')"
+            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded mb-4"
+          />
 
-        <input
-          v-model="newScreenName"
-          :placeholder="t('screenName')"
-          class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded mb-4"
-        />
+          <div class="flex justify-end gap-2">
+            <button
+              class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200"
+              @click="showAddScreenDialog = false"
+            >
+              {{ t('cancel') }}
+            </button>
+            <button
+              class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600"
+              @click="addScreen"
+            >
+              {{ t('add') }}
+            </button>
+          </div>
 
-        <div class="flex justify-end gap-2">
           <button
-            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200"
+            class="absolute top-2 right-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
             @click="showAddScreenDialog = false"
           >
-            {{ t('cancel') }}
-          </button>
-          <button
-            class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600"
-            @click="addScreen"
-          >
-            {{ t('add') }}
+            ✕
           </button>
         </div>
-
-        <button
-          class="absolute top-2 right-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
-          @click="showAddScreenDialog = false"
-        >
-          ✕
-        </button>
       </div>
-    </div>
 
-    <!-- Add Group Dialog -->
-    <div
-      v-if="showaddDeckDialog"
-      class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
-    >
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
-        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-          {{ t('addNewGroup') }}
-        </h3>
+      <!-- Add Group Dialog -->
+      <div
+        v-if="showaddDeckDialog"
+        class="fixed inset-0 bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60 z-50 flex items-center justify-center"
+      >
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-[400px] relative">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            {{ t('addNewGroup') }}
+          </h3>
 
-        <input
-          v-model="newDeckName"
-          :placeholder="t('groupName')"
-          class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded mb-4"
-        />
-        <USelectMenu
-          v-model="selectedCompetitionDeck"
-          :items="TEAMS"
-          item-value="id"
-          item-text="name"
-          class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded mb-4"
-        />
+          <input
+            v-model="newDeckName"
+            :placeholder="t('groupName')"
+            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded mb-4"
+          />
+          <USelectMenu
+            v-model="selectedCompetitionDeck"
+            :items="TEAMS"
+            item-value="id"
+            item-text="name"
+            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-2 rounded mb-4"
+          />
 
-        <div class="flex justify-end gap-2">
+          <div class="flex justify-end gap-2">
+            <button
+              class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200"
+              @click="showaddDeckDialog = false"
+            >
+              {{ t('cancel') }}
+            </button>
+            <button
+              class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600"
+              @click="addDeck"
+            >
+              {{ t('add') }}
+            </button>
+          </div>
+
           <button
-            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200"
+            class="absolute top-2 right-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
             @click="showaddDeckDialog = false"
           >
-            {{ t('cancel') }}
-          </button>
-          <button
-            class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600"
-            @click="addDeck"
-          >
-            {{ t('add') }}
+            ✕
           </button>
         </div>
-
-        <button
-          class="absolute top-2 right-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
-          @click="showaddDeckDialog = false"
-        >
-          ✕
-        </button>
       </div>
     </div>
   </div>
@@ -183,6 +175,7 @@
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
   import { useI18n } from 'vue-i18n'
+  import AppHeader from '@/components/AppHeader.vue'
   import SlideDeckCard from '@/components/SlideDeckCard.vue'
   import ScreenCard from '@/components/ScreenCard.vue'
   import AIChatBox from '@/components/AIChatBox.vue'

@@ -22,7 +22,7 @@ export interface Team {
 
 // ScoreDTO
 export interface Score {
-  id?: number
+  id: number
   points: number
   time: number
   highlight: boolean

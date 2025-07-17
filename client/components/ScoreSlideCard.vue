@@ -2,9 +2,6 @@
   <div class="score-slide-card">
     <template v-if="item.type === 'SCORE' && 'scores' in item">
       <div class="font-semibold text-gray-900 dark:text-white mb-2">{{ item.name }}</div>
-      <div v-if="item.category?.categoryScoring" class="text-base font-bold mb-2">
-        {{ t('categoryScoring.' + item.category.categoryScoring) }}
-      </div>
       <div class="overflow-x-auto w-full">
         <table class="w-full text-sm border-separate border-spacing-0 rounded-lg shadow">
           <thead>
@@ -30,14 +27,9 @@
                 {{ t('category') }}
               </th>
               <th
-                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-4 py-2 border-b"
-              >
-                {{ t('rank') }}
-              </th>
-              <th
                 class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-4 py-2 last:rounded-tr-lg border-b"
               >
-                {{ t('categoryScoring') }}
+                {{ t('rank') }}
               </th>
             </tr>
           </thead>
@@ -58,11 +50,6 @@
               <td class="px-4 py-2 border-b">{{ score.time }}</td>
               <td class="px-4 py-2 border-b">{{ item.category?.name }}</td>
               <td class="px-4 py-2 border-b">{{ score.rank }}</td>
-              <td class="px-4 py-2 border-b">
-                <span v-if="item.category?.categoryScoring">
-                  {{ t('categoryScoring.' + item.category.categoryScoring) }}
-                </span>
-              </td>
             </tr>
           </tbody>
         </table>
