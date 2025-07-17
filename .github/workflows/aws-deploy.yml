@@ -58,17 +58,36 @@ jobs:
         run: |
           ansible-playbook -i infra/inventory.ini infra/ansible/playbooks/install-kubernetes.yml -v
 
-      - name: Copy Helm chart to EC2
+      - name: Fetch kubeconfig from EC2
         run: |
-          scp -o StrictHostKeyChecking=no -i infra/pk.pem -r ./infra/helm/screen ubuntu@${{ github.event.inputs.EC2_HOST }}:/home/ubuntu/screen-chart
+          ssh -i ./infra/pk.pem -o StrictHostKeyChecking=no ubuntu@${{ github.event.inputs.EC2_HOST }} "cat /home/ubuntu/.kube/config" > ./kubeconfig
+          sed -i "s/127.0.0.1/${{ github.event.inputs.EC2_HOST }}/" ./kubeconfig
 
-
-      - name: Deploy using Helm
+      - name: Set KUBECONFIG
         run: |
-          ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o StrictHostKeyChecking=no -i infra/pk.pem ubuntu@${{ github.event.inputs.EC2_HOST }} << 'EOF'
+          echo "KUBECONFIG=$GITHUB_WORKSPACE/kubeconfig" >> $GITHUB_ENV
+
+      - name: Test kubectl access
+        run: kubectl get nodes
+
+      - name: Deploy Helm chart
+        run: |
           kubectl delete namespace team-robogo --ignore-not-found
-          export KUBECONFIG=/home/ubuntu/.kube/config
-          helm dependency build /home/ubuntu/screen-chart
-          helm upgrade --install team-robogo /home/ubuntu/screen-chart --namespace team-robogo --create-namespace
-          rm -rf /home/ubuntu/screen-chart
-          EOF
+          helm dependency build ./infra/helm/screen
+          helm upgrade --install screen ./infra/helm/screen --namespace team-robogo --create-namespace
+
+     # - name: Copy Helm chart to EC2
+     #   run: |
+     #    scp -o StrictHostKeyChecking=no -i infra/pk.pem -r ./infra/helm/screen ubuntu@${{ github.event.inputs.EC2_HOST }}:/home/ubuntu/screen-chart
+
+
+     # - name: Deploy using Helm
+     #   run: |
+     #     ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o StrictHostKeyChecking=no -i infra/pk.pem ubuntu@${{ github.event.inputs.EC2_HOST }} << 'EOF'
+     #     kubectl delete namespace team-robogo --ignore-not-found
+     #     export KUBECONFIG=/home/ubuntu/.kube/config
+     #     helm dependency build /home/ubuntu/screen-chart
+     #     helm upgrade --install team-robogo /home/ubuntu/screen-chart --namespace team-robogo --create-namespace
+     #     rm -rf /home/ubuntu/screen-chart
+     #     EOF
+
