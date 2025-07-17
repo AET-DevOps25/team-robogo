@@ -68,6 +68,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i infra/pk.pem ubuntu@${{ github.event.inputs.EC2_HOST }} << 'EOF'
           kubectl delete namespace team-robogo --ignore-not-found
           export KUBECONFIG=/home/ubuntu/.kube/config
+          helm dependency build /home/ubuntu/screen-chart
           helm upgrade --install team-robogo /home/ubuntu/screen-chart --namespace team-robogo --create-namespace
           rm -rf /home/ubuntu/screen-chart
           EOF
