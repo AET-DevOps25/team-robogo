@@ -109,13 +109,12 @@
             {{ t('addDeck') }}
           </UButton>
         </div>
-        <!-- <div
+        <div
           class="h-[400px] w-full overflow-y-auto border-gray-200 dark:border-gray-600 rounded p-2 flex flex-wrap gap-6 justify-start scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800">
-          <SlideDeckCard v-if="currentDeck && currentDeck.id !== -1" :key="currentDeck.id" :deck-id="currentDeck.id" :title="currentDeck.name" :slides?="currentDeck.slides"
+          <SlideDeckCard v-if="currentDeck && currentDeck.id !== -1" :key="currentDeck.id" :deck-id="currentDeck.id" :title="currentDeck.name" :all-slides?="allSlides"
             :speed="currentDeck.transitionTime" :selected-content="selectedContent"
-            @update:slides="val => currentDeck.slides = val" @update:speed="val => currentDeck.transitionTime = val"
             @select="selectContent" />
-        </div> -->
+        </div>
         <div v-for="slide in allSlides" :key="slide.id" class="slide-item">
           <img v-if="slide.url" :src="slide.url" :alt="slide.name" />
           <div v-else class="error-placeholder">

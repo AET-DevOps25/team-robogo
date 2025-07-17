@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 import type { ImageSlideMeta, LocalImageSlideUrl } from '@/interfaces/types'
 import { fetchAllImageMetas, fetchImageBlobById } from '@/services/slideImageService'
 export function useSlides() {
-  // 本地 slides 响应式副本
+  // all uploaded slides -local
   const allSlides = ref<LocalImageSlideUrl[]>([])
   // convert blob to url
   async function getAllSlidesUrl() {

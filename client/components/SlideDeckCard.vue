@@ -76,7 +76,12 @@
   <div v-if="false" style="position: fixed; top: 0; left: 0; z-index: 9999; background: white; padding: 10px;">
     <h3>调试信息</h3>
     <pre>Group ID: {{ deckId }}</pre>
-    <pre>Group Name: {{ title }}</pre>
+    <pre>Group Name: {{ title }}</pre> <button
+            class="text-sm px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
+            @click="triggerFileInput">
+            {{ t('uploadSlide') }}
+          </button>
+          <inp
     <pre>Slide IDs: {{ slides?.join(', ') }}</pre>
     <pre>Speed: {{ speed }}</pre>
     <pre>Selected: {{ selectedContent?.id || '无' }}</pre>
