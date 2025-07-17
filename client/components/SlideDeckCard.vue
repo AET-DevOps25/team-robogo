@@ -18,23 +18,29 @@
         <span class="inline-block w-2 h-2 bg-blue-400 rounded-full" />
         当前幻灯片
       </h3>
-      <div class="grid grid-cols-2 gap-4">
-        <div
-          v-for="slide in deckSlides"
-          :key="slide.id"
-          class="p-2 rounded border border-blue-200 transition"
-        >
-          <SlideCard :item="slide" class="w-full" />
-        </div>
-        <!-- 添加幻灯片的空卡片 -->
-        <div
-          class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-green-400 rounded cursor-pointer hover:bg-green-50 transition"
-          @click="openAddDialog"
-        >
-          <span class="text-4xl text-green-400 mb-2">＋</span>
-          <span class="text-green-700 font-semibold">添加新幻灯片</span>
-        </div>
-      </div>
+      <draggable v-model="deckSlides" item-key="id" class="grid grid-cols-2 gap-4" @end="onDragEnd">
+        <template #item="{ element }">
+          <div class="p-2 rounded border border-blue-200 transition">
+            <SlideCard :item="element" class="w-full" />
+          </div>
+        </template>
+        <template #footer>
+          <div
+            class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-green-400 rounded cursor-pointer hover:bg-green-50 transition"
+            @click="openAddDialog"
+          >
+            <span class="text-4xl text-green-400 mb-2">＋</span>
+            <span class="text-green-700 font-semibold">添加新幻灯片</span>
+          </div>
+        </template>
+      </draggable>
+      <button
+        v-if="isOrderChanged"
+        class="mt-4 px-4 py-1 bg-blue-500 text-white rounded shadow hover:bg-blue-600 transition"
+        @click="saveOrder"
+      >
+        保存顺序
+      </button>
     </div>
   </div>
   <teleport to="body">
@@ -67,10 +73,16 @@
 
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
+  import draggable from 'vuedraggable'
   import SlideCard from './SlideCard.vue'
   import { useDeckStore } from '@/stores/useDeckStore'
   import { useSlidesStore } from '@/stores/useSlidesStore'
-  import { fetchSlideDeckById, addSlideToDeck, updateSlideDeck } from '@/services/slideDeckService'
+  import {
+    fetchSlideDeckById,
+    addSlideToDeck,
+    updateSlideDeck,
+    reorderSlides
+  } from '@/services/slideDeckService'
   import type { SlideItem, SlideDeck } from '@/interfaces/types'
 
   interface SlideDeckCardProps {
@@ -83,9 +95,8 @@
 
   const interval = ref(deckStore.interval)
   const deckSlides = ref<SlideItem[]>([])
-  // 删除selectedSlideId相关
-  // const selectedSlideId = ref<number | null>(null)
   const showAddDialog = ref(false)
+  const isOrderChanged = ref(false)
 
   onMounted(async () => {
     await slidesStore.refresh()
@@ -110,7 +121,6 @@
     } as Partial<SlideDeck>)
   }
 
-  // 恢复addSlide函数，示例为添加一个默认幻灯片
   function openAddDialog() {
     showAddDialog.value = true
   }
@@ -122,5 +132,16 @@
     await addSlideToDeck(props.deckId, slide)
     await loadDeckSlides()
     closeAddDialog()
+  }
+
+  function onDragEnd() {
+    isOrderChanged.value = true
+  }
+
+  async function saveOrder() {
+    const newOrder = deckSlides.value.map(s => s.id)
+    await reorderSlides(props.deckId, newOrder)
+    isOrderChanged.value = false
+    await loadDeckSlides()
   }
 </script>

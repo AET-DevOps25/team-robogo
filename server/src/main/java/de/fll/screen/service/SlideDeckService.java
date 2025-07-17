@@ -70,15 +70,16 @@ public class SlideDeckService {
     }
 
     public SlideDeck reorderSlides(Long deckId, List<Long> newOrder) {
+        // 第一步：全部设为负数，避免唯一约束冲突
+        slideDeckRepository.setSlidesIndexNegative(deckId);
+
+        // 第二步：按新顺序批量赋值
+        for (int i = 0; i < newOrder.size(); i++) {
+            slideDeckRepository.updateSlideIndexById(newOrder.get(i), i);
+        }
+
         SlideDeck deck = slideDeckRepository.findById(deckId)
             .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
-        List<Slide> slides = deck.getSlides();
-        List<Slide> reordered = new ArrayList<>();
-        for (Long id : newOrder) {
-            slides.stream().filter(s -> s.getId() == id).findFirst().ifPresent(reordered::add);
-        }
-        slides.clear();
-        slides.addAll(reordered);
         deck.setVersion(deck.getVersion() + 1);
         return slideDeckRepository.save(deck);
     }
