@@ -114,23 +114,23 @@ public class InitDataLoader implements CommandLineRunner {
 
         // 5. Slide (ImageSlide/ScoreSlide)
         if (slideRepository.count() == 0 && !decks.isEmpty() && meta != null && !categories.isEmpty()) {
-            for (Category category : categories) {
-                for (SlideDeck deck : decks) {
+            for (SlideDeck deck : decks) {
+                int slideIndex = 0;
+                // 先为每个category插入一个ScoreSlide，index递增
+                for (Category category : categories) {
                     ScoreSlide scoreSlide = new ScoreSlide();
                     scoreSlide.setName(category.getName() + " Score Board");
                     scoreSlide.setSlidedeck(deck);
-                    scoreSlide.setIndex(0);
+                    scoreSlide.setIndex(slideIndex++);
                     scoreSlide.setCategory(category);
                     slideRepository.save(scoreSlide);
                 }
-            }
-            // 保持ImageSlide逻辑不变
-            for (SlideDeck deck : decks) {
+                // 再插入一个ImageSlide，index为下一个
                 ImageSlide imageSlide = new ImageSlide();
                 imageSlide.setName("Demo Image");
                 imageSlide.setImageMeta(meta);
                 imageSlide.setSlidedeck(deck);
-                imageSlide.setIndex(1);
+                imageSlide.setIndex(slideIndex);
                 slideRepository.save(imageSlide);
             }
             logger.info("[InitDataLoader] Inserted Slides");

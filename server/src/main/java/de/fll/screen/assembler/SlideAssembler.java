@@ -50,6 +50,7 @@ public class SlideAssembler implements AbstractDTOAssembler<Slide, SlideDTO> {
                 }
             case SCORE:
                 if (dto instanceof ScoreSlideDTO) {
+
                     return scoreSlideAssembler.fromDTO((ScoreSlideDTO) dto);
                 } else {
                     throw new IllegalArgumentException("ScoreSlideDTO required for SCORE type");

@@ -7,28 +7,31 @@ import jakarta.persistence.*;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
-@Table(name = "slide")
+@Table(
+    name = "slide",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"slidedeck_id", "index"})
+)
 public abstract class Slide {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
 
 	@Column(name = "name", nullable = false)
 	private String name;
 
 	@Column(name = "index", nullable = false)
-	private int index;
+	private Integer index;
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "slidedeck_id", nullable = false)
 	private SlideDeck slidedeck;
 
-	public long getId() { return id; }
+	public Long getId() { return id; }
 	public String getName() { return name; }
 	public void setName(String name) { this.name = name; }
-	public int getIndex() { return index; }
-	public void setIndex(int index) { this.index = index; }
+	public Integer getIndex() { return index; }
+	public void setIndex(Integer index) { this.index = index; }
 	public SlideDeck getSlidedeck() { return slidedeck; }
 	public void setSlidedeck(SlideDeck slidedeck) { this.slidedeck = slidedeck; }
 

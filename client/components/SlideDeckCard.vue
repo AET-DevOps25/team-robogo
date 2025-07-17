@@ -29,7 +29,7 @@
         <!-- 添加幻灯片的空卡片 -->
         <div
           class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-green-400 rounded cursor-pointer hover:bg-green-50 transition"
-          @click="addSlide"
+          @click="openAddDialog"
         >
           <span class="text-4xl text-green-400 mb-2">＋</span>
           <span class="text-green-700 font-semibold">添加新幻灯片</span>
@@ -37,6 +37,32 @@
       </div>
     </div>
   </div>
+  <teleport to="body">
+    <div
+      v-if="showAddDialog"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+    >
+      <div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full relative">
+        <button
+          class="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xl"
+          @click="closeAddDialog"
+        >
+          ×
+        </button>
+        <h2 class="text-lg font-bold mb-4 text-green-700">选择要添加的幻灯片</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <div
+            v-for="slide in slidesStore.allSlides"
+            :key="slide.id"
+            class="p-2 rounded border border-gray-200 transition cursor-pointer hover:border-green-400"
+            @click="handleAddSlide(slide)"
+          >
+            <SlideCard :item="slide" class="w-full" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </teleport>
 </template>
 
 <script setup lang="ts">
@@ -44,7 +70,7 @@
   import SlideCard from './SlideCard.vue'
   import { useDeckStore } from '@/stores/useDeckStore'
   import { useSlidesStore } from '@/stores/useSlidesStore'
-  import { fetchSlideDeckById, updateSlideDeck } from '@/services/slideDeckService'
+  import { fetchSlideDeckById, addSlideToDeck, updateSlideDeck } from '@/services/slideDeckService'
   import type { SlideItem, SlideDeck } from '@/interfaces/types'
 
   interface SlideDeckCardProps {
@@ -59,6 +85,7 @@
   const deckSlides = ref<SlideItem[]>([])
   // 删除selectedSlideId相关
   // const selectedSlideId = ref<number | null>(null)
+  const showAddDialog = ref(false)
 
   onMounted(async () => {
     await slidesStore.refresh()
@@ -84,7 +111,16 @@
   }
 
   // 恢复addSlide函数，示例为添加一个默认幻灯片
-  function addSlide() {
-    alert('请实现添加幻灯片的具体逻辑')
+  function openAddDialog() {
+    showAddDialog.value = true
+  }
+  function closeAddDialog() {
+    showAddDialog.value = false
+  }
+
+  async function handleAddSlide(slide: SlideItem) {
+    await addSlideToDeck(props.deckId, slide)
+    await loadDeckSlides()
+    closeAddDialog()
   }
 </script>

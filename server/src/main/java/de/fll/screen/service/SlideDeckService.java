@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import de.fll.screen.model.Slide;
 import java.util.ArrayList;
+import de.fll.screen.model.ScoreSlide;
+import de.fll.screen.model.ImageSlide;
 
 @Service
 @Transactional
@@ -39,8 +41,30 @@ public class SlideDeckService {
     public SlideDeck addSlideToDeck(Long deckId, Slide slide) {
         SlideDeck deck = slideDeckRepository.findById(deckId)
             .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
-        slide.setSlidedeck(deck);
-        deck.getSlides().add(slide);
+        Slide newSlide;
+        if (slide instanceof ScoreSlide) {
+            ScoreSlide s = (ScoreSlide) slide;
+            ScoreSlide scoreSlide = new ScoreSlide();
+            scoreSlide.setName(s.getName());
+            scoreSlide.setCategory(s.getCategory());
+            newSlide = scoreSlide;
+        } else if (slide instanceof ImageSlide) {
+            ImageSlide s = (ImageSlide) slide;
+            ImageSlide imageSlide = new ImageSlide();
+            imageSlide.setName(s.getName());
+            imageSlide.setImageMeta(s.getImageMeta());
+            newSlide = imageSlide;
+        } else {
+            // 其他slide类型
+            Slide generic = new Slide() {
+                // 匿名子类实现抽象类
+            };
+            generic.setName(slide.getName());
+            newSlide = generic;
+        }
+        newSlide.setSlidedeck(deck);
+        newSlide.setIndex(deck.getSlides().size());
+        deck.getSlides().add(newSlide);
         deck.setVersion(deck.getVersion() + 1);
         return slideDeckRepository.save(deck);
     }
