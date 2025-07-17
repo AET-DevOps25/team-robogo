@@ -68,8 +68,12 @@ export const useDeckStore = defineStore('deck', () => {
     try {
       const freshDeck = await fetchSlideDeckById(currentDeckId.value)
 
-      // 如果 currentDeck 为空，或者 version 发生变化，更新数据
-      if (!currentDeck.value || freshDeck.version !== currentDeckVersion.value) {
+      // 只有当新版本号大于当前版本号时才更新
+      // 处理版本号溢出和回绕的情况
+      const shouldUpdate =
+        !currentDeck.value || isVersionNewer(freshDeck.version, currentDeckVersion.value)
+
+      if (shouldUpdate) {
         console.log(
           `Deck version changed from ${currentDeckVersion.value} to ${freshDeck.version}, refreshing...`
         )
@@ -92,6 +96,22 @@ export const useDeckStore = defineStore('deck', () => {
     } catch (error) {
       console.error('Failed to check deck version:', error)
     }
+  }
+
+  // 检查版本号是否更新，处理溢出和回绕
+  function isVersionNewer(newVersion: number, currentVersion: number): boolean {
+    // 处理版本号溢出：如果新版本号是负数且当前版本号是正数，说明发生了溢出
+    if (newVersion < 0 && currentVersion > 0) {
+      return true // 新版本号溢出，认为是更新
+    }
+
+    // 处理版本号回绕：如果当前版本号是负数且新版本号是正数，说明发生了回绕
+    if (currentVersion < 0 && newVersion > 0) {
+      return newVersion > currentVersion + 2147483647 // 考虑回绕后的差值
+    }
+
+    // 正常情况：新版本号大于当前版本号
+    return newVersion > currentVersion
   }
 
   // 监听 version 变化，定期检查

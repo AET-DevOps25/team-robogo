@@ -113,9 +113,21 @@ public class ScoreService {
         
         // 更新每个受影响SlideDeck的版本
         for (de.fll.screen.model.SlideDeck slideDeck : affectedSlideDecks) {
-            slideDeck.setVersion(slideDeck.getVersion() + 1);
+            slideDeck.setVersion(incrementVersion(slideDeck.getVersion()));
             slideDeckRepository.save(slideDeck);
         }
+    }
+
+    /**
+     * 安全地递增版本号，处理溢出问题
+     * 当版本号接近最大值时，重置为1
+     */
+    private int incrementVersion(int currentVersion) {
+        // 当版本号达到 2,000,000,000 时重置为 1，避免溢出
+        if (currentVersion >= 2000000000) {
+            return 1;
+        }
+        return currentVersion + 1;
     }
 
     public List<Score> getScoresForAllTeams() {

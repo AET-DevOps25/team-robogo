@@ -65,7 +65,7 @@ public class SlideDeckService {
         newSlide.setSlidedeck(deck);
         newSlide.setIndex(deck.getSlides().size());
         deck.getSlides().add(newSlide);
-        deck.setVersion(deck.getVersion() + 1);
+        deck.setVersion(incrementVersion(deck.getVersion()));
         return slideDeckRepository.save(deck);
     }
 
@@ -80,7 +80,7 @@ public class SlideDeckService {
 
         SlideDeck deck = slideDeckRepository.findById(deckId)
             .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
-        deck.setVersion(deck.getVersion() + 1);
+        deck.setVersion(incrementVersion(deck.getVersion()));
         return slideDeckRepository.save(deck);
     }
 
@@ -89,7 +89,7 @@ public class SlideDeckService {
         SlideDeck deck = slideDeckRepository.findById(deckId)
             .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
         deck.getSlides().removeIf(s -> s.getId() == slideId);
-        deck.setVersion(deck.getVersion() + 1);
+        deck.setVersion(incrementVersion(deck.getVersion()));
         return slideDeckRepository.save(deck);
     }
 
@@ -100,7 +100,7 @@ public class SlideDeckService {
         existing.setTransitionTime(updateData.getTransitionTime());
         existing.setCompetition(updateData.getCompetition());
         // version is incremented to indicate that the slide deck has changed
-        existing.setVersion(existing.getVersion() + 1);
+        existing.setVersion(incrementVersion(existing.getVersion()));
         return slideDeckRepository.save(existing);
     }
 
@@ -116,7 +116,19 @@ public class SlideDeckService {
                 break;
             }
         }
-        deck.setVersion(deck.getVersion() + 1);
+        deck.setVersion(incrementVersion(deck.getVersion()));
         return slideDeckRepository.save(deck);
+    }
+
+    /**
+     * 安全地递增版本号，处理溢出问题
+     * 当版本号接近最大值时，重置为1
+     */
+    private int incrementVersion(int currentVersion) {
+        // 当版本号达到 2,000,000,000 时重置为 1，避免溢出
+        if (currentVersion >= 2000000000) {
+            return 1;
+        }
+        return currentVersion + 1;
     }
 } 
