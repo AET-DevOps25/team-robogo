@@ -65,7 +65,7 @@ jobs:
 
       - name: Deploy using Helm
         run: |
-          ssh -o StrictHostKeyChecking=no -i infra/pk.pem ubuntu@${{ github.event.inputs.EC2_HOST }} << 'EOF'
+          ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o StrictHostKeyChecking=no -i infra/pk.pem ubuntu@${{ github.event.inputs.EC2_HOST }} << 'EOF'
           kubectl delete namespace team-robogo --ignore-not-found
           export KUBECONFIG=/home/ubuntu/.kube/config
           helm dependency build /home/ubuntu/screen-chart
