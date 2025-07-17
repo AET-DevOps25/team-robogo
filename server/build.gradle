@@ -75,3 +75,7 @@ bootJar {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+bootRun {
+    environment "SLIDES_PATH", "${rootDir}/data/slides"
+}
