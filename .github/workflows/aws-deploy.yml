@@ -61,7 +61,8 @@ jobs:
       - name: Fetch kubeconfig from EC2
         run: |
           ssh -i ./infra/pk.pem -o StrictHostKeyChecking=no ubuntu@${{ github.event.inputs.EC2_HOST }} "cat /home/ubuntu/.kube/config" > ./kubeconfig
-          sed -i "s/127.0.0.1/${{ github.event.inputs.EC2_HOST }}/" ./kubeconfig
+          sed -i "s|127.0.0.1|${{ github.event.inputs.EC2_HOST }}|" ./kubeconfig
+          sed -i "s|localhost|${{ github.event.inputs.EC2_HOST }}|" ./kubeconfig
 
       - name: Set KUBECONFIG
         run: |
