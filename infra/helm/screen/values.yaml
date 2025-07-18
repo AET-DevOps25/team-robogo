@@ -40,11 +40,11 @@ genai:
 ingress:
   enabled: true
   className: "nginx"
-  # host: team-robogo.student.k8s.aet.cit.tum.de
+  host: team-robogo.student.k8s.aet.cit.tum.de
   secretName: "team-robogo-tls"
   tls: true
-  host: screen.local
-  tls: false
+  # host: screen.local
+  # tls: false
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 
