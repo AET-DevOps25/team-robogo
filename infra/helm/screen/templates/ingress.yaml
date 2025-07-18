@@ -17,7 +17,6 @@ spec:
   tls:
     - hosts:
         - "{{ .Values.ingress.host }}"
-        - "{{ .Values.ingress.grafanaHost }}"
       secretName: "{{ .Values.ingress.secretName }}"
   {{- end }}
   rules:
