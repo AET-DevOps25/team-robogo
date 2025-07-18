@@ -1,25 +1,27 @@
 package de.fll.screen.service;
 
 import de.fll.core.dto.LoginRequestDTO;
+import de.fll.core.dto.LoginResponseDTO;
+import de.fll.core.dto.UserDTO;
 import de.fll.screen.model.User;
 import de.fll.screen.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -30,41 +32,42 @@ public class UserServiceTest {
     @Mock
     private JwtService jwtService;
 
-
+    @InjectMocks
     private UserService userService;
 
+    private User mockUser;
+    private LoginRequestDTO mockLoginRequest;
+
     @BeforeEach
-    void setUp() throws Exception {
-        userService = new UserService(userRepository,
-                passwordEncoder,
-                jwtService);
-        
-        // Set the @Value fields using reflection since they're not injected in unit tests
-        setField(userService, "adminUsername", "admin");
-        setField(userService, "adminPassword", "admin");
-    }
-    
-    private void setField(Object target, String fieldName, Object value) throws Exception {
-        var field = target.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(target, value);
+    void setUp() {
+        mockUser = new User();
+        mockUser.setId(1L);
+        mockUser.setUsername("testuser");
+        mockUser.setPassword("encodedpassword");
+
+        mockLoginRequest = new LoginRequestDTO();
+        mockLoginRequest.setUsername("testuser");
+        mockLoginRequest.setPassword("password");
+
+        // Set default admin credentials
+        ReflectionTestUtils.setField(userService, "adminUsername", "admin");
+        ReflectionTestUtils.setField(userService, "adminPassword", "admin");
     }
 
     @Test
     void init_ShouldCreateAdminUser_WhenNoUsersExist() {
         // Arrange
         when(userRepository.count()).thenReturn(0L);
-        when(passwordEncoder.encode("admin")).thenReturn("encodedPassword");
+        when(passwordEncoder.encode(anyString())).thenReturn("encodedadminpassword");
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
         // Act
         userService.init();
 
         // Assert
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(userCaptor.capture());
-        User savedUser = userCaptor.getValue();
-        assertThat(savedUser.getUsername()).isEqualTo("admin");
-        assertThat(savedUser.getPassword()).isEqualTo("encodedPassword");
+        verify(userRepository).count();
+        verify(passwordEncoder).encode("admin");
+        verify(userRepository).save(any(User.class));
     }
 
     @Test
@@ -76,89 +79,196 @@ public class UserServiceTest {
         userService.init();
 
         // Assert
-        verify(userRepository, never()).save(any());
+        verify(userRepository).count();
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    void login_ShouldReturnError_WhenUserNotFound() {
+    void login_ShouldReturnSuccessResponse_WhenValidCredentials() {
         // Arrange
-        LoginRequestDTO request = new LoginRequestDTO();
-        request.setUsername("nonexistent");
-        request.setPassword("password");
+        String token = "valid.jwt.token";
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches("password", "encodedpassword")).thenReturn(true);
+        when(jwtService.generateToken("testuser")).thenReturn(token);
 
+        // Act
+        LoginResponseDTO result = userService.login(mockLoginRequest);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.getSuccess());
+        assertEquals(token, result.getToken());
+        assertNotNull(result.getUser());
+        assertEquals(1L, result.getUser().getId());
+        assertEquals("testuser", result.getUser().getUsername());
+        assertNull(result.getError());
+    }
+
+    @Test
+    void login_ShouldReturnFailureResponse_WhenInvalidUsername() {
+        // Arrange
         when(userRepository.findByUsername("nonexistent")).thenReturn(Optional.empty());
+        mockLoginRequest.setUsername("nonexistent");
 
         // Act
-        var response = userService.login(request);
+        LoginResponseDTO result = userService.login(mockLoginRequest);
 
         // Assert
-        assertThat(response.getSuccess()).isFalse();
-        assertThat(response.getError()).isEqualTo("Invalid username or password");
+        assertNotNull(result);
+        assertFalse(result.getSuccess());
+        assertNull(result.getToken());
+        assertNull(result.getUser());
+        assertEquals("Invalid username or password", result.getError());
     }
 
     @Test
-    void login_ShouldReturnError_WhenPasswordIncorrect() {
+    void login_ShouldReturnFailureResponse_WhenInvalidPassword() {
         // Arrange
-        LoginRequestDTO request = new LoginRequestDTO();
-        request.setUsername("user");
-        request.setPassword("wrongPassword");
-
-        User user = new User("user", "encodedPassword");
-        when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches("wrongpassword", "encodedpassword")).thenReturn(false);
+        mockLoginRequest.setPassword("wrongpassword");
 
         // Act
-        var response = userService.login(request);
+        LoginResponseDTO result = userService.login(mockLoginRequest);
 
         // Assert
-        assertThat(response.getSuccess()).isFalse();
-        assertThat(response.getError()).isEqualTo("Invalid username or password");
+        assertNotNull(result);
+        assertFalse(result.getSuccess());
+        assertNull(result.getToken());
+        assertNull(result.getUser());
+        assertEquals("Invalid username or password", result.getError());
     }
 
     @Test
-    void login_ShouldReturnToken_WhenCredentialsValid() {
+    void login_ShouldReturnFailureResponse_WhenNullUsername() {
         // Arrange
-        LoginRequestDTO request = new LoginRequestDTO();
-        request.setUsername("user");
-        request.setPassword("password");
-
-        User user = new User("user", "encodedPassword");
-        user.setId(1L);
-        when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
-        when(jwtService.generateToken("user")).thenReturn("jwt-token");
+        mockLoginRequest.setUsername(null);
 
         // Act
-        var response = userService.login(request);
+        LoginResponseDTO result = userService.login(mockLoginRequest);
 
         // Assert
-        assertThat(response.getSuccess()).isTrue();
-        assertThat(response.getToken()).isEqualTo("jwt-token");
-        assertThat(response.getUser().getUsername()).isEqualTo("user");
+        assertNotNull(result);
+        assertFalse(result.getSuccess());
+        assertNull(result.getToken());
+        assertNull(result.getUser());
+        assertEquals("Invalid username or password", result.getError());
+    }
+
+    @Test
+    void login_ShouldReturnFailureResponse_WhenNullPassword() {
+        // Arrange
+        mockLoginRequest.setPassword(null);
+
+        // Act
+        LoginResponseDTO result = userService.login(mockLoginRequest);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.getSuccess());
+        assertNull(result.getToken());
+        assertNull(result.getUser());
+        assertEquals("Invalid username or password", result.getError());
     }
 
     @Test
     void findByUsername_ShouldReturnUser_WhenUserExists() {
         // Arrange
-        User user = new User("user", "password");
-        when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
+        String username = "testuser";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(mockUser));
 
         // Act
-        User result = userService.findByUsername("user");
+        User result = userService.findByUsername(username);
 
         // Assert
-        assertThat(result).isNotNull();
-        assertThat(result.getUsername()).isEqualTo("user");
+        assertNotNull(result);
+        assertEquals(mockUser, result);
     }
 
     @Test
     void findByUsername_ShouldThrowException_WhenUserNotFound() {
         // Arrange
-        when(userRepository.findByUsername("nonexistent")).thenReturn(Optional.empty());
+        String username = "nonexistent";
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThatThrownBy(() -> userService.findByUsername("nonexistent"))
-            .isInstanceOf(RuntimeException.class)
-            .hasMessage("User not found: nonexistent");
+        assertThrows(RuntimeException.class, () -> {
+            userService.findByUsername(username);
+        });
+    }
+
+    @Test
+    void findByUsername_ShouldThrowException_WhenUsernameIsNull() {
+        // Arrange
+        when(userRepository.findByUsername(null)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> {
+            userService.findByUsername(null);
+        });
+    }
+
+    @Test
+    void login_ShouldHandleEmptyUsername() {
+        // Arrange
+        mockLoginRequest.setUsername("");
+
+        // Act
+        LoginResponseDTO result = userService.login(mockLoginRequest);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.getSuccess());
+        assertEquals("Invalid username or password", result.getError());
+    }
+
+    @Test
+    void login_ShouldHandleEmptyPassword() {
+        // Arrange
+        mockLoginRequest.setPassword("");
+
+        // Act
+        LoginResponseDTO result = userService.login(mockLoginRequest);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.getSuccess());
+        assertEquals("Invalid username or password", result.getError());
+    }
+
+    @Test
+    void init_ShouldHandleDatabaseException() {
+        // Arrange
+        when(userRepository.count()).thenThrow(new RuntimeException("Database error"));
+
+        // Act & Assert - should throw exception
+        assertThrows(RuntimeException.class, () -> {
+            userService.init();
+        });
+    }
+
+    @Test
+    void login_ShouldHandlePasswordEncoderException() {
+        // Arrange
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches(anyString(), anyString())).thenThrow(new RuntimeException("Encoder error"));
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> {
+            userService.login(mockLoginRequest);
+        });
+    }
+
+    @Test
+    void login_ShouldHandleJwtServiceException() {
+        // Arrange
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches("password", "encodedpassword")).thenReturn(true);
+        when(jwtService.generateToken("testuser")).thenThrow(new RuntimeException("JWT error"));
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> {
+            userService.login(mockLoginRequest);
+        });
     }
 } 

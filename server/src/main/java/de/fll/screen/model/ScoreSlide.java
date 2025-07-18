@@ -1,6 +1,5 @@
 package de.fll.screen.model;
 
-import java.util.List;
 
 import jakarta.persistence.*;
 
@@ -8,20 +7,13 @@ import jakarta.persistence.*;
 @DiscriminatorValue("SCORE")
 public class ScoreSlide extends Slide {
 
-    @OneToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "category_id", unique = true, nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "category_id", nullable = true)
     private Category category;
-
-    @OneToMany(mappedBy = "scoreSlide", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Score> scores;
 
     public Category getCategory() { return category; }
 
     public void setCategory(Category category) { this.category = category; }
-
-    public List<Score> getScores() { return scores; }
-
-    public void setScores(List<Score> scores) { this.scores = scores; }
 
     @Override
     public String toString() {

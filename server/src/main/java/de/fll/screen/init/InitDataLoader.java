@@ -53,27 +53,22 @@ public class InitDataLoader implements CommandLineRunner {
             Category c1 = new Category();
             c1.setName("FLL Robot Game");
             c1.setCompetition(fll);
-            c1.setCategoryScoring(CategoryScoring.FLL_ROBOT_GAME);
             categoryRepository.save(c1);
             Category c2 = new Category();
             c2.setName("FLL Quarter Final");
             c2.setCompetition(fll);
-            c2.setCategoryScoring(CategoryScoring.FLL_QUARTER_FINAL);
             categoryRepository.save(c2);
             Category c3 = new Category();
             c3.setName("FLL Test Round");
             c3.setCompetition(fll);
-            c3.setCategoryScoring(CategoryScoring.FLL_TESTROUND);
             categoryRepository.save(c3);
             Category c4 = new Category();
             c4.setName("WRO Starter");
             c4.setCompetition(wro);
-            c4.setCategoryScoring(CategoryScoring.WRO_STARTER);
             categoryRepository.save(c4);
             Category c5 = new Category();
             c5.setName("WRO RoboMission 2025");
             c5.setCompetition(wro);
-            c5.setCategoryScoring(CategoryScoring.WRO_ROBOMISSION_2025);
             categoryRepository.save(c5);
             logger.info("[InitDataLoader] Inserted Categories");
         }
@@ -89,58 +84,76 @@ public class InitDataLoader implements CommandLineRunner {
 
         // 4. SlideImageMeta/SlideImageContent
         File slidesDir = new File(slidesPath);
-        if (slideImageMetaRepository.count() == 0 && slidesDir.exists() && slidesDir.isDirectory()) {
+        List<SlideImageMeta> importedImages = new ArrayList<>();
+        
+        if (slidesDir.exists() && slidesDir.isDirectory()) {
             File[] files = slidesDir.listFiles();
             if (files != null) {
+                // 只处理第一张图片，避免导入太多图片导致卡顿
+                boolean firstImageProcessed = false;
                 for (File file : files) {
-                    if (file.isFile()) {
-                        String contentType = Files.probeContentType(file.toPath());
-                        byte[] content = Files.readAllBytes(file.toPath());
-                        SlideImageMeta meta = new SlideImageMeta();
-                        meta.setName(file.getName());
-                        meta.setContentType(contentType);
-                        SlideImageMeta savedMeta = slideImageMetaRepository.save(meta);
-                        SlideImageContent imageContent = new SlideImageContent();
-                        imageContent.setContent(content);
-                        imageContent.setMeta(savedMeta);
-                        slideImageContentRepository.save(imageContent);
-                        logger.info("[InitDataLoader] Loaded image: " + file.getName());
+                    if (file.isFile() && isImageFile(file.getName()) && !firstImageProcessed) {
+                        try {
+                            String contentType = Files.probeContentType(file.toPath());
+                            if (contentType == null || !contentType.startsWith("image/")) {
+                                contentType = getContentTypeFromExtension(file.getName());
+                            }
+                            
+                            byte[] content = Files.readAllBytes(file.toPath());
+                            SlideImageMeta meta = new SlideImageMeta();
+                            meta.setName(file.getName());
+                            meta.setContentType(contentType);
+                            SlideImageMeta savedMeta = slideImageMetaRepository.save(meta);
+                            
+                            SlideImageContent imageContent = new SlideImageContent();
+                            imageContent.setContent(content);
+                            imageContent.setMeta(savedMeta);
+                            slideImageContentRepository.save(imageContent);
+                            
+                            importedImages.add(savedMeta);
+                            firstImageProcessed = true; // 标记已处理第一张图片
+                            logger.info("[InitDataLoader] Imported first image: {}", file.getName());
+                            break; // 处理完第一张图片后退出循环
+                        } catch (Exception e) {
+                            logger.error("[InitDataLoader] Failed to import image: {}", file.getName(), e);
+                        }
                     }
                 }
             }
         }
-        List<SlideImageMeta> images = slideImageMetaRepository.findAll();
-        SlideImageMeta meta = images.isEmpty() ? null : images.get(0);
+        
+        List<SlideImageMeta> allImages = slideImageMetaRepository.findAll();
+        logger.info("[InitDataLoader] Total images in database: {}", allImages.size());
+        
+        if (importedImages.isEmpty() && !allImages.isEmpty()) {
+            importedImages = allImages;
+        }
 
         // 5. Slide (ImageSlide/ScoreSlide)
-        if (slideRepository.count() == 0 && !decks.isEmpty() && meta != null && !categories.isEmpty()) {
-            for (Category category : categories) {
-                for (SlideDeck deck : decks) {
+        if (slideRepository.count() == 0 && !decks.isEmpty() && !importedImages.isEmpty() && !categories.isEmpty()) {
+            for (SlideDeck deck : decks) {
+                int slideIndex = 0;
+                // 先为每个category插入一个ScoreSlide，index递增
+                for (Category category : categories) {
                     ScoreSlide scoreSlide = new ScoreSlide();
                     scoreSlide.setName(category.getName() + " Score Board");
                     scoreSlide.setSlidedeck(deck);
-                    scoreSlide.setIndex(0);
+                    scoreSlide.setIndex(slideIndex++);
                     scoreSlide.setCategory(category);
                     slideRepository.save(scoreSlide);
                 }
-            }
-            // 保持ImageSlide逻辑不变
-            for (SlideDeck deck : decks) {
-                ImageSlide imageSlide = new ImageSlide();
-                imageSlide.setName("Demo Image");
-                imageSlide.setImageMeta(meta);
-                imageSlide.setSlidedeck(deck);
-                imageSlide.setIndex(1);
-                slideRepository.save(imageSlide);
+                // 为每个图片创建对应的ImageSlide
+                for (SlideImageMeta meta : importedImages) {
+                    ImageSlide imageSlide = new ImageSlide();
+                    imageSlide.setName(meta.getName());
+                    imageSlide.setImageMeta(meta);
+                    imageSlide.setSlidedeck(deck);
+                    imageSlide.setIndex(slideIndex++);
+                    slideRepository.save(imageSlide);
+                    logger.info("[InitDataLoader] Created ImageSlide for: {}", meta.getName());
+                }
             }
             logger.info("[InitDataLoader] Inserted Slides");
-        }
-        List<Slide> slides = slideRepository.findAll();
-        List<ScoreSlide> scoreSlides = new ArrayList<>();
-        for (Slide slide : slides) {
-            if (slide instanceof ScoreSlide) {
-                scoreSlides.add((ScoreSlide) slide);
-            }
         }
 
         // 6. Team
@@ -149,6 +162,7 @@ public class InitDataLoader implements CommandLineRunner {
             for (Category category : categories) {
                 for (int i = 1; i <= 3; i++) { // 每个category 3个team
                     Team team = new Team(category.getName() + " Team " + i);
+                    // 设置competitionId
                     team.setCategory(category);
                     teamRepository.save(team);
                     allTeams.add(team);
@@ -159,22 +173,16 @@ public class InitDataLoader implements CommandLineRunner {
         List<Team> teams = teamRepository.findAll();
 
         // 7. Score
-        // 每个team只插入一条score，scoreSlide为该team所属category的唯一ScoreSlide，分数和时间用随机数生成
-        if (scoreRepository.count() == 0 && !teams.isEmpty() && !scoreSlides.isEmpty()) {
+        // 每个team只插入一条score，不再关联ScoreSlide
+        if (scoreRepository.count() == 0 && !teams.isEmpty()) {
             for (Team team : teams) {
-                // 找到该team对应category的唯一scoreSlide
-                ScoreSlide assignedSlide = scoreSlides.stream()
-                    .filter(slide -> slide.getCategory().getId() == team.getCategory().getId())
-                    .findFirst()
-                    .orElse(null);
                 int baseScore = 20 + (int)(Math.random() * 40); // 20~59
                 int baseTime = 40 + (int)(Math.random() * 60); // 40~99
                 Score s = new Score(baseScore, baseTime);
                 s.setTeam(team);
-                s.setScoreSlide(assignedSlide);
                 scoreRepository.save(s);
             }
-            logger.info("[InitDataLoader] Inserted one Score per Team, each linked to its category's ScoreSlide");
+            logger.info("[InitDataLoader] Inserted one Score per Team");
         }
 
         // 8. Screen
@@ -193,5 +201,28 @@ public class InitDataLoader implements CommandLineRunner {
             screenRepository.save(screen2);
             logger.info("[InitDataLoader] Inserted Screens");
         }
+    }
+
+    private boolean isImageFile(String fileName) {
+        String lowerCaseFileName = fileName.toLowerCase();
+        return lowerCaseFileName.endsWith(".jpg") || lowerCaseFileName.endsWith(".jpeg") ||
+               lowerCaseFileName.endsWith(".png") || lowerCaseFileName.endsWith(".gif") ||
+               lowerCaseFileName.endsWith(".bmp") || lowerCaseFileName.endsWith(".webp");
+    }
+
+    private String getContentTypeFromExtension(String fileName) {
+        String lowerCaseFileName = fileName.toLowerCase();
+        if (lowerCaseFileName.endsWith(".jpg") || lowerCaseFileName.endsWith(".jpeg")) {
+            return "image/jpeg";
+        } else if (lowerCaseFileName.endsWith(".png")) {
+            return "image/png";
+        } else if (lowerCaseFileName.endsWith(".gif")) {
+            return "image/gif";
+        } else if (lowerCaseFileName.endsWith(".bmp")) {
+            return "image/bmp";
+        } else if (lowerCaseFileName.endsWith(".webp")) {
+            return "image/webp";
+        }
+        return "application/octet-stream"; // Default for unknown extensions
     }
 } 

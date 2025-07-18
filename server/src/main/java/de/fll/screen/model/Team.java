@@ -3,13 +3,8 @@ package de.fll.screen.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
-import org.springframework.lang.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.ALWAYS)
 @Entity
 public final class Team {
 
@@ -21,14 +16,10 @@ public final class Team {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     @JsonIgnore
     private Category category;
-
-    @OneToOne(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "score_id", unique = true, nullable = true)
-    private Score score;
 
     public Team() {
         this("");
@@ -77,13 +68,5 @@ public final class Team {
 
     public void setCategory(Category category) {
         this.category = category;
-    }
-
-    public Score getScore() {
-        return score;
-    }
-
-    public void setScore(Score score) {
-        this.score = score;
     }
 }

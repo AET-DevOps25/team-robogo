@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 @Entity
 @DiscriminatorValue("IMAGE")
 public class ImageSlide extends Slide {
+
     @ManyToOne
     @JoinColumn(name = "image_id", nullable = true)
     private SlideImageMeta imageMeta;

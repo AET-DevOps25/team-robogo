@@ -35,13 +35,30 @@ yarn test:ui
 
 ```
 tests/
-├── setup.ts              # Test setup file
+├── setup.ts                    # Test setup file
 ├── mocks/
-│   └── handlers.ts        # MSW request handlers
+│   └── handlers.ts             # MSW request handlers
 ├── services/
-│   └── aiService.test.ts  # AI service tests
+│   ├── aiService.test.ts       # AI service tests
+│   ├── categoryService.test.ts # Category service tests
+│   ├── scoreService.test.ts    # Score service tests
+│   ├── teamService.test.ts     # Team service tests
+│   ├── slideService.test.ts    # Slide service tests
+│   ├── syncService.test.ts     # Sync service tests
+│   ├── screenService.test.ts   # Screen service tests
+│   └── slideImageService.test.ts # Slide image service tests
 └── components/
-    └── AIServiceComponent.test.ts  # Component tests
+    ├── LanguageSwitcher.test.ts # Language switcher tests
+    ├── SlideCard.test.ts        # Slide card tests
+    ├── SlideDeckCard.test.ts    # Slide deck card tests
+    ├── ScreenCard.test.ts       # Screen card tests
+    ├── SpeedControl.test.ts     # Speed control tests
+    ├── AppHeader.test.ts        # App header tests
+    ├── Toast.test.ts            # Toast notification tests
+    ├── ToastContainer.test.ts   # Toast container tests
+    ├── AIChatBox.test.ts        # AI chat box tests
+    ├── ImageSlideCard.test.ts   # Image slide card tests
+    └── ScoreSlideCard.test.ts   # Score slide card tests
 ```
 
 ## Mock API Overview

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,13 @@ public class SlideDeck {
 	@Column(name = "version", nullable = false)
 	private int version = 0;
 
-	@OneToMany(mappedBy = "slidedeck", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	// lastUpdate is used to synchronize slide transitions across multiple screens
+	// it is updated whenever a slide transition occurs
+	// clients can poll this field to stay in sync with other screens showing the same deck
+	@Column(name = "last_update", nullable = false)
+	private LocalDateTime lastUpdate = LocalDateTime.now();
+
+	@OneToMany(mappedBy = "slidedeck", fetch = FetchType.EAGER)
 	@OrderColumn(name = "index")
 	private final List<Slide> slides = new ArrayList<>();
 
@@ -42,7 +49,7 @@ public class SlideDeck {
 	private Competition competition;
 
 	public SlideDeck() {
-		this("", 0, new ArrayList<>(), null);
+		this("", 1000, new ArrayList<>(), null);
 	}
 
 	public SlideDeck(String name, int transitionTime, List<Slide> slides, Competition competition) {
@@ -50,6 +57,7 @@ public class SlideDeck {
 		this.transitionTime = transitionTime;
 		this.slides.addAll(slides);
 		this.competition = competition;
+		this.lastUpdate = LocalDateTime.now();
 	}
 
 	public String getName() {
@@ -76,6 +84,14 @@ public class SlideDeck {
 		this.version = version;
 	}
 
+	public LocalDateTime getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(LocalDateTime lastUpdate) {
+		this.lastUpdate = lastUpdate;
+	}
+
 	public List<Slide> getSlides() {
 		return slides;
 	}
@@ -99,6 +115,7 @@ public class SlideDeck {
                 ", name='" + name + '\'' +
                 ", transitionTime=" + transitionTime +
                 ", version=" + version +
+                ", lastUpdate=" + lastUpdate +
                 ", competition=" + (competition != null ? competition.getId() : null) +
                 '}';
     }

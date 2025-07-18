@@ -101,3 +101,5 @@ export async function updateScreenStatus(id: number, status: string): Promise<Sc
     { method: 'PUT' }
   )
 }
+
+

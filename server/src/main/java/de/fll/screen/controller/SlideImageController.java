@@ -33,6 +33,7 @@ public class SlideImageController {
     /**
      * Get image binary content by meta id.
      * Can be used directly in <img> tag.
+     * Uses Redis cache for improved performance.
      */
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> getImageById(@PathVariable Long id) {
@@ -40,15 +41,18 @@ public class SlideImageController {
         if (metaOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        SlideImageContent content = slideImageService.getContentByMetaId(id);
-        if (content == null) {
+        
+        // 使用缓存方法获取图片内容
+        byte[] imageContent = slideImageService.getImageContentById(id);
+        if (imageContent == null) {
             return ResponseEntity.notFound().build();
         }
+        
         SlideImageMeta meta = metaOpt.get();
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + meta.getName() + "\"")
                 .contentType(MediaType.parseMediaType(meta.getContentType()))
-                .body(content.getContent());
+                .body(imageContent);
     }
 
     /**
@@ -63,5 +67,23 @@ public class SlideImageController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+    
+    /**
+     * Clear cache for a specific image
+     */
+    @DeleteMapping("/{id}/cache")
+    public ResponseEntity<Void> clearImageCache(@PathVariable Long id) {
+        slideImageService.clearImageCache(id);
+        return ResponseEntity.ok().build();
+    }
+    
+    /**
+     * Clear all image caches
+     */
+    @DeleteMapping("/cache")
+    public ResponseEntity<Void> clearAllImageCache() {
+        slideImageService.clearAllImageCache();
+        return ResponseEntity.ok().build();
     }
 } 

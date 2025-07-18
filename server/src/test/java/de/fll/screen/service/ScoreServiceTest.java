@@ -1,116 +1,425 @@
 package de.fll.screen.service;
 
-import de.fll.core.dto.CategoryDTO;
-import de.fll.core.dto.TeamDTO;
 import de.fll.core.dto.ScoreDTO;
 import de.fll.core.dto.ScoreSlideDTO;
-import de.fll.screen.model.*;
-import de.fll.screen.repository.*;
+import de.fll.core.dto.TeamDTO;
+import de.fll.screen.model.Score;
+import de.fll.screen.model.Team;
+import de.fll.screen.model.Category;
+import de.fll.screen.model.ScoreSlide;
+import de.fll.screen.model.SlideDeck;
+import de.fll.screen.repository.ScoreRepository;
+import de.fll.screen.repository.TeamRepository;
+import de.fll.screen.repository.CategoryRepository;
+import de.fll.screen.repository.SlideRepository;
+import de.fll.screen.repository.SlideDeckRepository;
 import de.fll.screen.assembler.TeamAssembler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.ArgumentMatchers.any;
 
+@ExtendWith(MockitoExtension.class)
 class ScoreServiceTest {
 
     @Mock
-    private TeamAssembler teamAssembler;
-    
-    @InjectMocks
-    private ScoreService scoreService;
+    private ScoreRepository scoreRepository;
+
+    @Mock
+    private TeamRepository teamRepository;
 
     @Mock
     private CategoryRepository categoryRepository;
-    @Mock
-    private TeamRepository teamRepository;
+
     @Mock
     private SlideRepository slideRepository;
+
     @Mock
-    private ScoreRepository scoreRepository;
+    private SlideDeckRepository slideDeckRepository;
+
+    @Mock
+    private TeamAssembler teamAssembler;
+
+    @Mock
+    private RankingService rankingService;
+
+    @InjectMocks
+    private ScoreService scoreService;
+
+    private Team mockTeam;
+    private Category mockCategory;
+    private Score mockScore;
+    private ScoreSlide mockScoreSlide;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        // mock save 返回参数本身
-        when(scoreRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        // mock count 返回1
-        when(scoreRepository.count()).thenReturn(1L);
-        // 默认mock fromDTO返回新Team，防止空指针
-        when(teamAssembler.fromDTO(any(TeamDTO.class))).thenReturn(new Team());
+        mockCategory = new Category();
+        mockCategory.setId(1L);
+        mockCategory.setName("Test Category");
+
+        mockTeam = new Team();
+        mockTeam.setId(1L);
+        mockTeam.setName("Test Team");
+        mockTeam.setCategory(mockCategory);
+
+        mockScore = new Score();
+        mockScore.setId(1L);
+        mockScore.setPoints(100.0);
+        mockScore.setTime(120);
+        mockScore.setTeam(mockTeam);
+
+        mockScoreSlide = new ScoreSlide();
+        mockScoreSlide.setName("Test Score Slide");
+        mockScoreSlide.setCategory(mockCategory);
     }
 
     @Test
-    void testCreateScoreSlideFromDTO_Normal() {
-        // 构造 DTO
+    void addScore_ShouldCreateNewScore_WhenNoExistingScore() {
+        // Arrange
+        Long teamId = 1L;
+        double points = 150.0;
+        int time = 180;
+
+        when(scoreRepository.findByTeam_Id(teamId)).thenReturn(Optional.empty());
+        when(teamRepository.findById(teamId)).thenReturn(Optional.of(mockTeam));
+        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> i.getArgument(0));
+        when(slideDeckRepository.findSlideDecksByScore(anyLong(), anyLong())).thenReturn(new ArrayList<>());
+
+        // Act
+        Score result = scoreService.addScore(teamId, points, time);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(points, result.getPoints());
+        assertEquals(time, result.getTime());
+        assertEquals(mockTeam, result.getTeam());
+        verify(scoreRepository).save(any(Score.class));
+    }
+
+    @Test
+    void addScore_ShouldUpdateExistingScore_WhenScoreExists() {
+        // Arrange
+        Long teamId = 1L;
+        double points = 200.0;
+        int time = 240;
+
+        when(scoreRepository.findByTeam_Id(teamId)).thenReturn(Optional.of(mockScore));
+        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> i.getArgument(0));
+        when(slideDeckRepository.findSlideDecksByScore(anyLong(), anyLong())).thenReturn(new ArrayList<>());
+
+        // Act
+        Score result = scoreService.addScore(teamId, points, time);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(points, result.getPoints());
+        assertEquals(time, result.getTime());
+        verify(scoreRepository).save(mockScore);
+    }
+
+    @Test
+    void addScore_ShouldThrowException_WhenTeamNotFound() {
+        // Arrange
+        Long teamId = 999L;
+        when(scoreRepository.findByTeam_Id(teamId)).thenReturn(Optional.empty());
+        when(teamRepository.findById(teamId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            scoreService.addScore(teamId, 100.0, 120);
+        });
+    }
+
+    @Test
+    void updateScore_ShouldUpdateScoreSuccessfully() {
+        // Arrange
+        Long scoreId = 1L;
+        Long teamId = 1L;
+        double points = 250.0;
+        int time = 300;
+
+        when(scoreRepository.findById(scoreId)).thenReturn(Optional.of(mockScore));
+        when(teamRepository.findById(teamId)).thenReturn(Optional.of(mockTeam));
+        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> i.getArgument(0));
+        when(slideDeckRepository.findSlideDecksByScore(anyLong(), anyLong())).thenReturn(new ArrayList<>());
+
+        // Act
+        Score result = scoreService.updateScore(scoreId, teamId, points, time);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(points, result.getPoints());
+        assertEquals(time, result.getTime());
+        assertEquals(mockTeam, result.getTeam());
+        verify(scoreRepository).save(mockScore);
+    }
+
+    @Test
+    void updateScore_ShouldThrowException_WhenScoreNotFound() {
+        // Arrange
+        Long scoreId = 999L;
+        when(scoreRepository.findById(scoreId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            scoreService.updateScore(scoreId, 1L, 100.0, 120);
+        });
+    }
+
+    @Test
+    void updateScore_ShouldThrowException_WhenTeamNotFound() {
+        // Arrange
+        Long scoreId = 1L;
+        Long teamId = 999L;
+        when(scoreRepository.findById(scoreId)).thenReturn(Optional.of(mockScore));
+        when(teamRepository.findById(teamId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            scoreService.updateScore(scoreId, teamId, 100.0, 120);
+        });
+    }
+
+    @Test
+    void deleteScore_ShouldDeleteScoreSuccessfully() {
+        // Arrange
+        Long scoreId = 1L;
+        when(scoreRepository.findById(scoreId)).thenReturn(Optional.of(mockScore));
+        when(slideDeckRepository.findSlideDecksByScore(anyLong(), anyLong())).thenReturn(new ArrayList<>());
+
+        // Act
+        scoreService.deleteScore(scoreId);
+
+        // Assert
+        verify(scoreRepository).delete(mockScore);
+    }
+
+    @Test
+    void deleteScore_ShouldThrowException_WhenScoreNotFound() {
+        // Arrange
+        Long scoreId = 999L;
+        when(scoreRepository.findById(scoreId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            scoreService.deleteScore(scoreId);
+        });
+    }
+
+    @Test
+    void getScoresForAllTeams_ShouldReturnAllScores() {
+        // Arrange
+        List<Score> expectedScores = Arrays.asList(mockScore);
+        when(scoreRepository.findAll()).thenReturn(expectedScores);
+
+        // Act
+        List<Score> result = scoreService.getScoresForAllTeams();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(mockScore, result.get(0));
+    }
+
+    @Test
+    void getScoresByCategoryId_ShouldReturnCategoryScores() {
+        // Arrange
+        Long categoryId = 1L;
+        List<Score> expectedScores = Arrays.asList(mockScore);
+        when(categoryRepository.findScoresByCategoryId(categoryId)).thenReturn(expectedScores);
+
+        // Act
+        List<Score> result = scoreService.getScoresByCategoryId(categoryId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(mockScore, result.get(0));
+    }
+
+    @Test
+    void getScoresByScoreSlide_ShouldReturnEmptyList_WhenScoreSlideIsNull() {
+        // Act
+        List<Score> result = scoreService.getScoresByScoreSlide(null);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getScoresByScoreSlide_ShouldReturnEmptyList_WhenCategoryIsNull() {
+        // Arrange
+        ScoreSlide scoreSlide = new ScoreSlide();
+        scoreSlide.setCategory(null);
+
+        // Act
+        List<Score> result = scoreService.getScoresByScoreSlide(scoreSlide);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getScoresByScoreSlide_ShouldReturnScores_WhenValidScoreSlide() {
+        // Arrange
+        List<Score> expectedScores = Arrays.asList(mockScore);
+        when(slideRepository.findScoresByScoreSlideCategory(mockCategory.getId())).thenReturn(expectedScores);
+
+        // Act
+        List<Score> result = scoreService.getScoresByScoreSlide(mockScoreSlide);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(mockScore, result.get(0));
+    }
+
+    @Test
+    void getScoreDTOsWithHighlight_ShouldReturnEmptyList_WhenCategoryIsNull() {
+        // Act
+        List<ScoreDTO> result = scoreService.getScoreDTOsWithHighlight((Category) null);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getScoreDTOsWithHighlight_ShouldReturnRankedTeams() {
+        // Arrange
+        Set<Team> teams = new HashSet<>(Arrays.asList(mockTeam));
+        List<ScoreDTO> expectedDTOs = Arrays.asList(new ScoreDTO());
+        when(categoryRepository.findTeamsByCategoryId(mockCategory.getId())).thenReturn(teams);
+        when(rankingService.getRankedTeams(mockCategory, teams)).thenReturn(expectedDTOs);
+
+        // Act
+        List<ScoreDTO> result = scoreService.getScoreDTOsWithHighlight(mockCategory);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void getScoreDTOsWithHighlight_ShouldReturnEmptyList_WhenCategoryIdNotFound() {
+        // Arrange
+        Long categoryId = 999L;
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
+
+        // Act
+        List<ScoreDTO> result = scoreService.getScoreDTOsWithHighlight(categoryId);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getScoreDTOsWithHighlight_ShouldReturnRankedTeams_WhenCategoryIdFound() {
+        // Arrange
+        Long categoryId = 1L;
+        Set<Team> teams = new HashSet<>(Arrays.asList(mockTeam));
+        List<ScoreDTO> expectedDTOs = Arrays.asList(new ScoreDTO());
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(mockCategory));
+        when(categoryRepository.findTeamsByCategoryId(categoryId)).thenReturn(teams);
+        when(rankingService.getRankedTeams(mockCategory, teams)).thenReturn(expectedDTOs);
+
+        // Act
+        List<ScoreDTO> result = scoreService.getScoreDTOsWithHighlight(categoryId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void getAllTeamsScoreDTOsWithHighlight_ShouldReturnAllCategoriesScores() {
+        // Arrange
+        List<Category> categories = Arrays.asList(mockCategory);
+        Set<Team> teams = new HashSet<>(Arrays.asList(mockTeam));
+        List<ScoreDTO> expectedDTOs = Arrays.asList(new ScoreDTO());
+        when(categoryRepository.findTeamsByCategoryId(mockCategory.getId())).thenReturn(teams);
+        when(rankingService.getRankedTeams(mockCategory, teams)).thenReturn(expectedDTOs);
+
+        // Act
+        List<ScoreDTO> result = scoreService.getAllTeamsScoreDTOsWithHighlight(categories);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void createScoreSlideFromDTO_ShouldReturnNull_WhenDTOIsNull() {
+        // Act
+        ScoreSlide result = scoreService.createScoreSlideFromDTO(null);
+
+        // Assert
+        assertNull(result);
+    }
+
+    @Test
+    void createScoreSlideFromDTO_ShouldCreateScoreSlide_WhenValidDTO() {
+        // Arrange
         ScoreSlideDTO dto = new ScoreSlideDTO();
-        dto.setName("slide1");
-        dto.setIndex(1);
-        dto.setCategory(CategoryDTO.builder().id(100L).build());
+        dto.setName("Test Slide");
+        dto.setIndex(0);
+        
+        when(slideRepository.save(any(ScoreSlide.class))).thenAnswer(i -> i.getArgument(0));
 
-        ScoreDTO scoreDTO = new ScoreDTO();
-        scoreDTO.setTeam(TeamDTO.builder().id(200L).build());
-        scoreDTO.setPoints(50.0);
-        scoreDTO.setTime(123);
-        dto.setScores(List.of(scoreDTO));
+        // Act
+        ScoreSlide result = scoreService.createScoreSlideFromDTO(dto);
 
-        // Mock category/team
-        Category category = new Category();
-        category.setId(100L);
-        Team team = new Team();
-        team.setId(200L);
-
-        when(categoryRepository.findById(100L)).thenReturn(Optional.of(category));
-        when(teamRepository.findById(200L)).thenReturn(Optional.of(team));
-        // mock fromDTO返回正确team
-        when(teamAssembler.fromDTO(scoreDTO.getTeam())).thenReturn(team);
-
-        // 调用
-        ScoreSlide slide = scoreService.createScoreSlideFromDTO(dto);
-
-        // 断言
-        assertNotNull(slide);
-        assertEquals("slide1", slide.getName());
-        assertEquals(1, slide.getIndex());
-        assertEquals(category, slide.getCategory());
-        assertEquals(1, slide.getScores().size());
-        Score score = slide.getScores().get(0);
-        assertEquals(team, score.getTeam());
-        assertEquals(50, score.getPoints());
-        assertEquals(123, score.getTime());
-
-        // 验证保存
-        verify(slideRepository).save(slide);
-        verify(scoreRepository).save(score);
+        // Assert
+        assertNotNull(result);
+        assertEquals("Test Slide", result.getName());
+        assertEquals(0, result.getIndex());
     }
 
     @Test
-    void testCreateScoreSlideFromDTO_NullCategory() {
-        ScoreSlideDTO dto = new ScoreSlideDTO();
-        dto.setCategory(CategoryDTO.builder().id(999L).build());
-        when(categoryRepository.findById(999L)).thenReturn(Optional.empty());
+    void updateSlideDeckVersionsForScore_ShouldUpdateVersions_WhenScoreHasValidData() {
+        // Arrange
+        List<SlideDeck> affectedDecks = Arrays.asList(new SlideDeck());
+        when(scoreRepository.findByTeam_Id(mockTeam.getId())).thenReturn(Optional.empty());
+        when(teamRepository.findById(mockTeam.getId())).thenReturn(Optional.of(mockTeam));
+        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> i.getArgument(0));
+        when(slideDeckRepository.findSlideDecksByScore(anyLong(), anyLong())).thenReturn(affectedDecks);
+        when(slideDeckRepository.save(any(SlideDeck.class))).thenAnswer(i -> i.getArgument(0));
 
-        ScoreSlide slide = scoreService.createScoreSlideFromDTO(dto);
-        assertNull(slide.getCategory());
+        // Act
+        scoreService.addScore(mockTeam.getId(), 100.0, 120);
+
+        // Assert
+        verify(slideDeckRepository, atLeastOnce()).save(any(SlideDeck.class));
     }
 
     @Test
-    void testCreateScoreSlideFromDTO_NullTeam() {
-        ScoreSlideDTO dto = new ScoreSlideDTO();
-        dto.setScores(List.of(new ScoreDTO()));
-        when(teamRepository.findById(any())).thenReturn(Optional.empty());
+    void updateSlideDeckVersionsForScore_ShouldHandleVersionOverflow() {
+        // Arrange
+        SlideDeck deck = new SlideDeck();
+        deck.setVersion(2000000000); // 接近最大值
+        List<SlideDeck> affectedDecks = Arrays.asList(deck);
+        
+        when(scoreRepository.findByTeam_Id(mockTeam.getId())).thenReturn(Optional.empty());
+        when(teamRepository.findById(mockTeam.getId())).thenReturn(Optional.of(mockTeam));
+        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> i.getArgument(0));
+        when(slideDeckRepository.findSlideDecksByScore(anyLong(), anyLong())).thenReturn(affectedDecks);
+        when(slideDeckRepository.save(any(SlideDeck.class))).thenAnswer(i -> i.getArgument(0));
 
-        ScoreSlide slide = scoreService.createScoreSlideFromDTO(dto);
-        assertTrue(slide.getScores().isEmpty());
-    }
+        // Act
+        scoreService.addScore(mockTeam.getId(), 100.0, 120);
 
-    @Test
-    void testCreateScoreSlideFromDTO_NullDTO() {
-        assertNull(scoreService.createScoreSlideFromDTO(null));
+        // Assert
+        verify(slideDeckRepository).save(any(SlideDeck.class));
     }
 } 

@@ -26,6 +26,7 @@ public class SlideDeckAssembler implements AbstractDTOAssembler<SlideDeck, Slide
         dto.setVersion(deck.getVersion());
         dto.setTransitionTime(deck.getTransitionTime());
         dto.setCompetitionId(deck.getCompetition().getId());
+        dto.setLastUpdate(deck.getLastUpdate());
         List<SlideDTO> slideDTOs = new ArrayList<>();
         for (Slide slide : deck.getSlides()) {
             SlideDTO slideDTO = slideAssembler.toDTO(slide);

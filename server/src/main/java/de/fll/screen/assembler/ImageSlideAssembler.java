@@ -23,7 +23,9 @@ public class ImageSlideAssembler implements AbstractDTOAssembler<ImageSlide, Ima
         ImageSlideDTO dto = new ImageSlideDTO();
         dto.setId(slide.getId());
         dto.setName(slide.getName());
-        dto.setIndex(slide.getIndex());
+        // 安全地设置 index，避免 NullPointerException
+        Integer index = slide.getIndex();
+        dto.setIndex(index != null ? index : 0);
         dto.setType(slide.getType().name());
         SlideImageMeta meta = slide.getImageMeta();
         ImageSlideMetaDTO metaDTO = imageSlideMetaAssembler.toDTO(meta);

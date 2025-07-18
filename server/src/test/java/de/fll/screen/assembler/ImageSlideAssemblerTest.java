@@ -35,6 +35,7 @@ class ImageSlideAssemblerTest {
         ImageSlide slide = new ImageSlide();
         setId(slide, 1L);
         slide.setName("img");
+        slide.setIndex(0); // 设置 index 值，避免 NullPointerException
         SlideImageMeta meta = new SlideImageMeta();
         slide.setImageMeta(meta);
         when(imageSlideMetaAssembler.toDTO(meta)).thenReturn(new ImageSlideMetaDTO());
@@ -42,6 +43,7 @@ class ImageSlideAssemblerTest {
         assertNotNull(dto);
         assertEquals(1L, dto.getId());
         assertEquals("img", dto.getName());
+        assertEquals(0, dto.getIndex());
     }
 
     @Test
