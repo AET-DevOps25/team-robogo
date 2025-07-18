@@ -16,9 +16,18 @@ import java.util.Map;
 import java.time.LocalDateTime;
 import de.fll.core.dto.SlideDTO;
 import de.fll.screen.assembler.SlideAssembler;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/slidedecks")
+@Tag(name = "Slide Deck Management", description = "Slide deck creation, updates, deletion and synchronization APIs")
 public class SlideDeckController {
 
     @Autowired
@@ -34,6 +43,11 @@ public class SlideDeckController {
     private SlideAssembler slideAssembler;
 
     @GetMapping
+    @Operation(summary = "Get All Slide Decks", description = "Returns all slide decks in the system")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Retrieved successfully", 
+                    content = @Content(schema = @Schema(implementation = SlideDeckDTO.class)))
+    })
     public List<SlideDeckDTO> getAllSlideDecks() {
         List<SlideDeck> decks = slideDeckService.getAllSlideDecks();
         List<SlideDeckDTO> dtos = new ArrayList<>();
@@ -44,14 +58,30 @@ public class SlideDeckController {
     }
 
     @GetMapping("/{deckId}")
-    public SlideDeckDTO getSlideDeckById(@PathVariable Long deckId) {
+    @Operation(summary = "Get Slide Deck by ID", description = "Gets detailed information of slide deck by ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Retrieved successfully", 
+                    content = @Content(schema = @Schema(implementation = SlideDeckDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Slide deck not found")
+    })
+    public SlideDeckDTO getSlideDeckById(
+            @Parameter(description = "Slide deck ID", required = true)
+            @PathVariable Long deckId) {
         SlideDeck deck = slideDeckService.getSlideDeckById(deckId)
                 .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
         return slideDeckAssembler.toDTO(deck);
     }
 
     @PostMapping
-    public SlideDeckDTO createSlideDeck(@RequestBody SlideDeckDTO deckDTO) {
+    @Operation(summary = "Create Slide Deck", description = "Creates a new slide deck")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Created successfully", 
+                    content = @Content(schema = @Schema(implementation = SlideDeckDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Bad request parameters")
+    })
+    public SlideDeckDTO createSlideDeck(
+            @Parameter(description = "Slide deck information", required = true)
+            @RequestBody SlideDeckDTO deckDTO) {
         SlideDeck deck = slideDeckAssembler.fromDTO(deckDTO);
         SlideDeck saved = slideDeckService.createSlideDeck(deck);
         return slideDeckAssembler.toDTO(saved);

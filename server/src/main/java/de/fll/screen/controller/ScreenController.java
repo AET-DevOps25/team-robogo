@@ -8,9 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/screens")
+@Tag(name = "Screen Management", description = "Display screen management and content control related APIs")
 public class ScreenController {
 
     @Autowired
@@ -20,6 +28,11 @@ public class ScreenController {
     private ScreenContentAssembler screenContentAssembler;
 
     @GetMapping
+    @Operation(summary = "Get All Screens", description = "Returns all display screens in the system")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Retrieved successfully", 
+                    content = @Content(schema = @Schema(implementation = ScreenContentDTO.class)))
+    })
     public List<ScreenContentDTO> getAllScreens() {
         List<Screen> screens = screenService.getAllScreens();
         return screens.stream().map(screenContentAssembler::toDTO).collect(Collectors.toList());
