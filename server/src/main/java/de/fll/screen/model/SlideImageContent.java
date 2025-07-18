@@ -9,7 +9,6 @@ public class SlideImageContent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Lob
     @Column(name = "content", nullable = false)
     private byte[] content;
 
