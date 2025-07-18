@@ -121,6 +121,28 @@ public class SlideDeckService {
     }
 
     /**
+     * 更新SlideDeck的播放速度
+     * @param deckId SlideDeck的ID
+     * @param transitionTime 新的过渡时间（秒）
+     * @return 更新后的SlideDeck
+     */
+    public SlideDeck updateSlideDeckSpeed(Long deckId, Double transitionTime) {
+        SlideDeck deck = slideDeckRepository.findById(deckId)
+            .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
+        
+        // 验证速度值
+        if (transitionTime != null && (transitionTime < 0.1 || transitionTime > 10.0)) {
+            throw new IllegalArgumentException("Transition time must be between 0.1 and 10.0 seconds");
+        }
+        
+        // 将秒转换为毫秒（因为数据库中存储的是毫秒）
+        int transitionTimeMs = transitionTime != null ? (int)(transitionTime * 1000) : 1000;
+        deck.setTransitionTime(transitionTimeMs);
+        deck.setVersion(incrementVersion(deck.getVersion()));
+        return slideDeckRepository.save(deck);
+    }
+
+    /**
      * 安全地递增版本号，处理溢出问题
      * 当版本号接近最大值时，重置为1
      */

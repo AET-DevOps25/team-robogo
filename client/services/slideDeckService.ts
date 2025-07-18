@@ -131,3 +131,21 @@ export async function fetchSlideById(
   return await authFetch<SlideItem>(`${BASE_URL}/${deckId}/slides/${slideId}`)
 }
 
+/**
+ * 更新 slideDeck 的播放速度
+ * @param deckId slideDeck 的 id
+ * @param transitionTime 过渡时间（秒）
+ * @returns Promise<SlideDeck>
+ */
+export async function updateSlideDeckSpeed(
+  deckId: string | number,
+  transitionTime: number
+): Promise<SlideDeck> {
+  const { authFetch } = useAuthFetch()
+  return await authFetch<SlideDeck>(`${BASE_URL}/${deckId}/speed`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ transitionTime })
+  })
+}
+

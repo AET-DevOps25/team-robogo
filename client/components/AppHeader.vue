@@ -17,20 +17,20 @@
 
     <!-- 右侧：语言切换和登出 -->
     <div class="flex items-center gap-4">
-      <LanguageSwitcher />
+    <LanguageSwitcher />
 
-      <UButton
+    <UButton
         v-if="showLogout && isAuthenticated"
-        color="error"
-        variant="soft"
-        icon="i-heroicons-arrow-right-on-rectangle"
-        size="sm"
-        loading-auto
-        loading-icon="i-lucide-loader-2"
-        @click="handleLogout"
-      >
-        {{ $t('logout') }}
-      </UButton>
+      color="error"
+      variant="soft"
+      icon="i-heroicons-arrow-right-on-rectangle"
+      size="sm"
+      loading-auto
+      loading-icon="i-lucide-loader-2"
+      @click="handleLogout"
+    >
+      {{ $t('logout') }}
+    </UButton>
     </div>
 
     <!-- 分数管理对话框 -->

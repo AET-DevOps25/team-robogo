@@ -293,57 +293,6 @@
         </div>
       </div>
     </teleport>
-
-    <!-- Toast通知 -->
-    <teleport to="body">
-      <div
-        v-if="toast.show"
-        class="fixed top-4 right-4 z-50 max-w-sm w-full"
-        :class="toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'"
-      >
-        <div class="flex items-center p-4 text-white rounded-lg shadow-lg">
-          <div class="flex-shrink-0">
-            <svg
-              v-if="toast.type === 'success'"
-              class="w-5 h-5"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <svg v-else class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm font-medium">{{ toast.message }}</p>
-          </div>
-          <div class="ml-auto pl-3">
-            <button
-              class="inline-flex text-white hover:text-gray-200 focus:outline-none"
-              @click="hideToast"
-            >
-              <span class="sr-only">Close</span>
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fill-rule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </teleport>
   </div>
 </template>
 
@@ -359,8 +308,10 @@
     fetchScoresByCategory
   } from '@/services/scoreService'
   import type { Team, Score, Category } from '@/interfaces/types'
+  import { useToast } from '@/composables/useToast'
 
   const { t } = useI18n()
+  const { showSuccess, showError } = useToast()
 
   // 状态管理
   const categories = ref<Category[]>([])
@@ -374,13 +325,6 @@
   const showDeleteConfirm = ref(false)
   const showChangeTeamCategoryDialog = ref(false)
   const isSubmitting = ref(false)
-
-  // Toast通知状态
-  const toast = reactive({
-    show: false,
-    message: '',
-    type: 'success' as 'success' | 'error'
-  })
 
   // 表单数据
   const formData = reactive({
@@ -403,27 +347,12 @@
     await loadTeams()
   })
 
-  // Toast方法
-  function showToast(message: string, type: 'success' | 'error' = 'success') {
-    toast.message = message
-    toast.type = type
-    toast.show = true
-    setTimeout(() => {
-      toast.show = false
-    }, 3000)
-  }
-
-  function hideToast() {
-    toast.show = false
-  }
-
   // 数据加载方法
   async function loadCategories() {
     try {
       categories.value = await fetchCategories()
     } catch (error) {
-      console.error('Failed to load categories:', error)
-      showToast(t('loadCategoriesFailed'), 'error')
+      showError(t('loadCategoriesFailed'))
     }
   }
 
@@ -431,8 +360,7 @@
     try {
       teams.value = await fetchTeams()
     } catch (error) {
-      console.error('Failed to load teams:', error)
-      showToast(t('loadTeamsFailed'), 'error')
+      showError(t('loadTeamsFailed'))
     }
   }
 
@@ -447,7 +375,7 @@
       scores.value = await fetchScoresByCategory(categoryId)
     } catch (error) {
       scores.value = []
-      showToast(t('loadScoresFailed'), 'error')
+      showError(t('loadScoresFailed'))
     }
   }
 
@@ -467,7 +395,7 @@
 
   async function submitScore() {
     if (!formData.teamId) {
-      showToast(t('selectTeam'), 'error')
+      showError(t('selectTeam'))
       return
     }
 
@@ -477,7 +405,7 @@
       const selectedTeam = teams.value.find(t => t.id === teamId)
 
       if (!selectedTeam) {
-        showToast(t('teamNotFound'), 'error')
+        showError(t('teamNotFound'))
         return
       }
 
@@ -489,17 +417,16 @@
 
       if (showEditScoreDialog.value && editingScore.value?.id) {
         await updateScore(editingScore.value.id, scoreData)
-        showToast(t('scoreUpdated'), 'success')
+        showSuccess(t('scoreUpdated'))
       } else {
         await addScore(scoreData as Score)
-        showToast(t('scoreAdded'), 'success')
+        showSuccess(t('scoreAdded'))
       }
 
       closeDialog()
       await loadScoresByCategory()
     } catch (error) {
-      console.error('Failed to submit score:', error)
-      showToast(t('submitFailed'), 'error')
+      showError(t('submitFailed'))
     } finally {
       isSubmitting.value = false
     }
@@ -507,7 +434,7 @@
 
   async function submitChangeTeamCategory() {
     if (!changeTeamCategoryData.teamId || !changeTeamCategoryData.categoryId) {
-      showToast(t('selectTeamAndCategory'), 'error')
+      showError(t('selectTeamAndCategory'))
       return
     }
 
@@ -517,7 +444,7 @@
       const categoryId = parseInt(changeTeamCategoryData.categoryId)
 
       await updateTeamCategory(teamId, categoryId)
-      showToast(t('changeSuccess'), 'success')
+      showSuccess(t('changeSuccess'))
       closeChangeTeamCategoryDialog()
 
       // 重新加载teams和scores
@@ -526,8 +453,7 @@
         await loadScoresByCategory()
       }
     } catch (error) {
-      console.error('Failed to change team category:', error)
-      showToast(t('changeFailed'), 'error')
+      showError(t('changeFailed'))
     } finally {
       isSubmitting.value = false
     }
@@ -539,13 +465,12 @@
     isSubmitting.value = true
     try {
       await deleteScoreApi(scoreToDelete.value.id)
-      showToast(t('scoreDeleted'), 'success')
+      showSuccess(t('scoreDeleted'))
       showDeleteConfirm.value = false
       scoreToDelete.value = null
       await loadScoresByCategory()
     } catch (error) {
-      console.error('Failed to delete score:', error)
-      showToast(t('deleteFailed'), 'error')
+      showError(t('deleteFailed'))
     } finally {
       isSubmitting.value = false
     }

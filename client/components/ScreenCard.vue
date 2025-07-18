@@ -9,7 +9,17 @@
     </button>
 
     <!-- Status Indicator -->
-    <div class="absolute top-2 left-2 flex items-center gap-1">
+    <button
+      class="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded border transition-colors hover:shadow-sm"
+      :class="{
+        'bg-green-100 border-green-300 text-green-700 hover:bg-green-200':
+          screen.status === 'ONLINE',
+        'bg-red-100 border-red-300 text-red-700 hover:bg-red-200': screen.status === 'OFFLINE',
+        'bg-yellow-100 border-yellow-300 text-yellow-700 hover:bg-yellow-200':
+          screen.status === 'ERROR'
+      }"
+      @click="toggleStatus"
+    >
       <div
         class="w-2 h-2 rounded-full"
         :class="{
@@ -18,17 +28,10 @@
           'bg-yellow-500': screen.status === 'ERROR'
         }"
       />
-      <span
-        class="text-xs font-medium px-1 py-0.5 rounded"
-        :class="{
-          'text-green-700 bg-green-100': screen.status === 'ONLINE',
-          'text-red-700 bg-red-100': screen.status === 'OFFLINE',
-          'text-yellow-700 bg-yellow-100': screen.status === 'ERROR'
-        }"
-      >
+      <span class="text-xs font-medium">
         {{ screen.status }}
       </span>
-    </div>
+    </button>
 
     <div v-if="currentSlide" class="w-[90%] h-40 mx-auto rounded overflow-hidden">
       <SlideCard :item="currentSlide" />
@@ -42,30 +45,34 @@
     <div class="px-6 py-4">
       <div class="font-bold text-xl mb-2 text-gray-900 dark:text-white">{{ screen.name }}</div>
       <p class="text-gray-700 dark:text-gray-300 text-base">
-        Current Deck: {{ screen.slideDeck?.id ?? 'None' }}
+        {{ $t('currentDeck') }}: {{ screen.slideDeck?.name ?? $t('none') }}
       </p>
     </div>
     <div class="px-6 pt-4 pb-2">
-      <USelectMenu
-        :model-value="
-          deckOptions.find(option => option.id === screen.slideDeck?.id) ?? deckOptions[0]
-        "
-        :items="deckOptions"
-        item-value="id"
-        item-text="name"
-        class="w-full"
-        @update:model-value="handleDeckChange"
-      />
+      <select
+        :value="selectedDeckOption?.id ?? null"
+        class="w-full px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+        @change="handleSelectChange"
+      >
+        <option v-for="option in deckOptions" :key="String(option.id)" :value="option.id">
+          {{ option.name }}
+        </option>
+      </select>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
   import { computed, onMounted, onUnmounted, watch } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import SlideCard from './SlideCard.vue'
   import { useDeckStore } from '@/stores/useDeckStore'
   import { assignSlideDeck } from '@/services/screenService'
   import type { SlideDeck, ScreenContent } from '@/interfaces/types'
+  import { useToast } from '@/composables/useToast'
+
+  const { t } = useI18n()
+  const { showError, showSuccess } = useToast()
 
   interface ScreenCardProps {
     screen: ScreenContent
@@ -77,57 +84,86 @@
 
   const deckStore = useDeckStore()
 
-  // 根据 useDeckStore 的 currentSlideIndex 动态获取当前 slide
   const currentSlide = computed(() => {
-    // 获取最新的 slideDeck 数据
     let slideDeck = props.screen.slideDeck
 
-    // 如果当前 screen 的 slideDeck 是正在播放的 deck，从 store 中获取最新数据
     if (slideDeck && deckStore.currentDeckId === slideDeck.id && deckStore.currentDeck) {
       slideDeck = deckStore.currentDeck
     }
 
     if (!slideDeck?.slides || slideDeck.slides.length === 0) return null
 
-    // 如果当前 screen 的 slideDeck 是正在播放的 deck
     if (deckStore.currentDeckId === slideDeck.id) {
       const slideIndex = deckStore.currentSlideIndex
       const slides = slideDeck.slides
       return slides[slideIndex] ?? null
     }
 
-    // 否则显示第一个 slide
     return slideDeck.slides[0] ?? null
   })
 
   const deckOptions = computed(() => {
     const options = [
-      { id: undefined, name: 'None' },
+      { id: null, name: t('none') },
       ...(props.slideDecks?.map(deck => ({ id: deck.id, name: deck.name })) ?? [])
     ]
     return options
   })
 
-  // 处理 slideDeck 选择
-  async function handleDeckChange(selectedOption: { id: number | undefined; name: string }) {
+  const selectedDeckOption = computed({
+    get() {
+      return (
+        deckOptions.value.find(option => option.id === props.screen.slideDeck?.id) ??
+        deckOptions.value[0]
+      )
+    },
+    set(value) {
+      if (value) {
+        handleDeckChange(value)
+      }
+    }
+  })
+
+  async function handleDeckChange(selectedOption: { id: number | null; name: string }) {
     const deckId = selectedOption.id
-    if (deckId === (props.screen.slideDeck?.id ?? undefined)) return
+    if (deckId === (props.screen.slideDeck?.id ?? null)) return
 
     try {
-      if (deckId === undefined) {
-        // 取消分配 slideDeck - 通过更新 screen 来设置 slideDeck 为 null
+      if (deckId === null) {
         const { updateScreen } = await import('@/services/screenService')
         await updateScreen(props.screen.id, {
           ...props.screen,
           slideDeck: null
         })
       } else {
-        // 分配新的 slideDeck
         await assignSlideDeck(props.screen.id, deckId)
       }
-      emit('deckAssigned') // 通知父组件刷新
+      emit('deckAssigned')
     } catch (error) {
-      console.error('Failed to assign slide deck:', error)
+      showError(t('failedToAssignDeck'))
+    }
+  }
+
+  async function toggleStatus() {
+    try {
+      const newStatus = props.screen.status === 'ONLINE' ? 'OFFLINE' : 'ONLINE'
+      const { updateScreenStatus } = await import('@/services/screenService')
+      await updateScreenStatus(props.screen.id, newStatus)
+      showSuccess(t('statusUpdated'))
+      emit('deckAssigned')
+    } catch (error) {
+      showError(t('failedToUpdateStatus'))
+    }
+  }
+
+  // 处理 select 元素的 change 事件
+  function handleSelectChange(event: Event) {
+    const selectedValue = (event.target as HTMLSelectElement).value
+    const selectedOption = deckOptions.value.find(
+      option => option.id === (selectedValue === 'null' ? null : parseInt(selectedValue))
+    )
+    if (selectedOption) {
+      handleDeckChange(selectedOption)
     }
   }
 

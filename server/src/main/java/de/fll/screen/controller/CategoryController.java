@@ -31,4 +31,29 @@ public class CategoryController {
         Category category = categoryService.getCategoryById(id);
         return categoryAssembler.toDTO(category);
     }
+
+    // 创建分类
+    @PostMapping
+    public CategoryDTO createCategory(@RequestBody CategoryDTO categoryDTO) {
+        Category category = new Category();
+        category.setName(categoryDTO.getName());
+        Category saved = categoryService.createCategory(category);
+        return categoryAssembler.toDTO(saved);
+    }
+
+    // 更新分类
+    @PutMapping("/{id}")
+    public CategoryDTO updateCategory(@PathVariable Long id, @RequestBody CategoryDTO categoryDTO) {
+        Category categoryDetails = new Category();
+        categoryDetails.setName(categoryDTO.getName());
+        
+        Category saved = categoryService.updateCategory(id, categoryDetails);
+        return categoryAssembler.toDTO(saved);
+    }
+
+    // 删除分类
+    @DeleteMapping("/{id}")
+    public void deleteCategory(@PathVariable Long id) {
+        categoryService.deleteCategory(id);
+    }
 } 

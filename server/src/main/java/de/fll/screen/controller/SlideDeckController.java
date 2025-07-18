@@ -93,4 +93,26 @@ public class SlideDeckController {
                 .orElseThrow(() -> new IllegalArgumentException("Slide not found in deck"));
         return slideAssembler.toDTO(slide);
     }
+
+    @PutMapping("/{deckId}/speed")
+    public SlideDeckDTO updateSlideDeckSpeed(
+            @PathVariable Long deckId,
+            @RequestBody SpeedUpdateRequest request
+    ) {
+        SlideDeck deck = slideDeckService.updateSlideDeckSpeed(deckId, request.getTransitionTime());
+        return slideDeckAssembler.toDTO(deck);
+    }
+
+    // 内部类用于接收速度更新请求
+    public static class SpeedUpdateRequest {
+        private Double transitionTime;
+
+        public Double getTransitionTime() {
+            return transitionTime;
+        }
+
+        public void setTransitionTime(Double transitionTime) {
+            this.transitionTime = transitionTime;
+        }
+    }
 } 

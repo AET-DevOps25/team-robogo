@@ -88,7 +88,7 @@ export const useDeckStore = defineStore('deck', () => {
           currentSlideIndex.value = 0
         }
 
-        // 重启 timer 以应用新的 slides
+        // 重启 timer 以应用新的 slides，但保持当前的速度设置
         if (timer.value) {
           startTimer(currentDeckId.value, freshDeck.slides ?? [], interval.value)
         }

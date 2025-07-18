@@ -37,6 +37,21 @@ export async function createCategory(category: Omit<Category, 'id'>): Promise<Ca
 }
 
 /**
+ * 更新分类
+ * @param id 分类ID
+ * @param category Category对象
+ * @returns Promise<Category>
+ */
+export async function updateCategory(id: number, category: Partial<Category>): Promise<Category> {
+  const { authFetch } = useAuthFetch()
+  return await authFetch<Category>(`${BASE_URL}/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(category)
+  })
+}
+
+/**
  * 删除分类
  * @param id 分类ID
  * @returns Promise<void>

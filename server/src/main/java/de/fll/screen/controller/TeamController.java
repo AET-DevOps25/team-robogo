@@ -2,10 +2,8 @@ package de.fll.screen.controller;
 
 import de.fll.core.dto.TeamDTO;
 import de.fll.screen.model.Team;
-import de.fll.screen.model.Category;
-import de.fll.screen.repository.TeamRepository;
-import de.fll.screen.repository.CategoryRepository;
 import de.fll.screen.assembler.TeamAssembler;
+import de.fll.screen.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -15,16 +13,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/teams")
 public class TeamController {
     @Autowired
-    private TeamRepository teamRepository;
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
     private TeamAssembler teamAssembler;
+    @Autowired
+    private TeamService teamService;
 
     // 获取所有团队
     @GetMapping
     public List<TeamDTO> getAllTeams() {
-        return teamRepository.findAll().stream()
+        return teamService.getAllTeams().stream()
                 .map(teamAssembler::toDTO)
                 .collect(Collectors.toList());
     }
@@ -32,8 +28,7 @@ public class TeamController {
     // 获取单个团队
     @GetMapping("/{id}")
     public TeamDTO getTeamById(@PathVariable Long id) {
-        Team team = teamRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Team not found"));
+        Team team = teamService.getTeamById(id);
         return teamAssembler.toDTO(team);
     }
 
@@ -42,27 +37,30 @@ public class TeamController {
     public TeamDTO createTeam(@RequestBody TeamDTO teamDTO) {
         Team team = new Team();
         team.setName(teamDTO.getName());
-        Team saved = teamRepository.save(team);
+        Team saved = teamService.createTeam(team);
+        return teamAssembler.toDTO(saved);
+    }
+
+    // 更新团队
+    @PutMapping("/{id}")
+    public TeamDTO updateTeam(@PathVariable Long id, @RequestBody TeamDTO teamDTO) {
+        Team teamDetails = new Team();
+        teamDetails.setName(teamDTO.getName());
+        
+        Team saved = teamService.updateTeam(id, teamDetails);
         return teamAssembler.toDTO(saved);
     }
 
     // 更新团队分类
     @PutMapping("/{id}/category")
     public TeamDTO updateTeamCategory(@PathVariable Long id, @RequestBody Long categoryId) {
-        Team team = teamRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Team not found"));
-        
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
-        
-        team.setCategory(category);
-        Team saved = teamRepository.save(team);
+        Team saved = teamService.updateTeamCategory(id, categoryId);
         return teamAssembler.toDTO(saved);
     }
 
     // 删除团队
     @DeleteMapping("/{id}")
     public void deleteTeam(@PathVariable Long id) {
-        teamRepository.deleteById(id);
+        teamService.deleteTeam(id);
     }
 } 
