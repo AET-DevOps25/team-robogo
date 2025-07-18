@@ -77,7 +77,14 @@ jobs:
         run: |
           kubectl delete namespace team-robogo --ignore-not-found
           helm dependency build ./infra/helm/screen
-          helm upgrade --install screen ./infra/helm/screen --namespace team-robogo --create-namespace
+          helm upgrade --install screen ./infra/helm/screen --namespace team-robogo --create-namespace \
+            -f ./infra/helm/screen/values.yaml \
+            --set grafana.enabled=false \
+            --set prometheus.enabled=false \
+            --set loki.enabled=false \
+            --set promtail.enabled=false \
+            --set redis.enabled=false \
+            --set postgresExporter.enabled=false
 
      # - name: Copy Helm chart to EC2
      #   run: |
