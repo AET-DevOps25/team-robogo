@@ -25,7 +25,7 @@ public final class Category {
     @JsonIgnore
     private Competition competition;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<Team> teams = new HashSet<>();
 
     public long getId() {

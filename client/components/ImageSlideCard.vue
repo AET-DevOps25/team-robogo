@@ -14,13 +14,14 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, watch } from 'vue'
+  import { ref, onMounted, watch, onUnmounted } from 'vue'
   import { useI18n } from 'vue-i18n'
   import { SlideType, type SlideItem } from '@/interfaces/types'
   import { fetchImageBlobById } from '@/services/slideImageService'
 
   const props = defineProps<{ item: SlideItem }>()
   const imageUrl = ref<string | null>(null)
+  const currentImageId = ref<number | null>(null)
   const { t } = useI18n()
 
   function getImageMetaId(item: SlideItem): number | undefined {
@@ -31,20 +32,51 @@
   }
 
   async function loadImage() {
-    imageUrl.value = null
     const imageId = getImageMetaId(props.item)
+
+    // 如果图片ID没有变化，不需要重新加载
+    if (imageId === currentImageId.value && imageUrl.value) {
+      return
+    }
+
+    // 释放之前的URL对象
+    if (imageUrl.value) {
+      URL.revokeObjectURL(imageUrl.value)
+      imageUrl.value = null
+    }
+
     if (imageId !== undefined) {
       try {
         const blob = await fetchImageBlobById(imageId)
         imageUrl.value = URL.createObjectURL(blob)
+        currentImageId.value = imageId
       } catch (e) {
         imageUrl.value = ''
+        currentImageId.value = null
       }
+    } else {
+      currentImageId.value = null
     }
   }
 
   onMounted(loadImage)
-  watch(() => getImageMetaId(props.item), loadImage)
+
+  // 只在图片ID真正变化时才重新加载
+  watch(
+    () => getImageMetaId(props.item),
+    (newId, oldId) => {
+      if (newId !== oldId) {
+        loadImage()
+      }
+    }
+  )
+
+  // 组件卸载时释放URL对象
+  onUnmounted(() => {
+    if (imageUrl.value) {
+      URL.revokeObjectURL(imageUrl.value)
+    }
+  })
 </script>
 
 <style scoped>

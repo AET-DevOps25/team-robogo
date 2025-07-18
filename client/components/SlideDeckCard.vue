@@ -8,7 +8,7 @@
         </label>
         <span class="text-sm text-gray-600 dark:text-gray-400">{{ interval }}ms</span>
       </div>
-      
+
       <!-- 动态速度滑块 -->
       <div class="relative">
         <input
@@ -24,9 +24,9 @@
 
         <!-- 速度指示器 -->
         <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-          <span>{{ $t('slow') }}</span>
-          <span>{{ $t('normal') }}</span>
           <span>{{ $t('fast') }}</span>
+          <span>{{ $t('normal') }}</span>
+          <span>{{ $t('slow') }}</span>
         </div>
       </div>
 
@@ -81,6 +81,28 @@
                 <div class="w-3 h-0.5 bg-gray-400 dark:bg-gray-500" />
               </div>
             </div>
+
+            <!-- 删除按钮 -->
+            <button
+              class="absolute top-1 right-1 w-6 h-6 flex items-center justify-center text-red-500 hover:text-red-700 bg-white dark:bg-gray-800 rounded-full shadow z-20"
+              title="删除"
+              @click.stop="handleRemoveSlide(element)"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
 
             <!-- 位置指示器 -->
             <div
@@ -172,8 +194,8 @@
   import {
     addSlideToDeck,
     reorderSlides,
-    removeSlideFromDeck,
-    updateSlideDeckSpeed
+    updateSlideDeckSpeed,
+    removeSlideFromDeck
   } from '@/services/slideDeckService'
   import type { SlideItem, SlideDeck } from '@/interfaces/types'
   import { useToast } from '@/composables/useToast'
@@ -216,7 +238,7 @@
     if (currentDeck.value && deckStore.currentDeckId === props.deckId) {
       deckStore.setCurrentDeck(currentDeck.value)
     }
-    
+
     // 重置用户设置标记
     userSetSpeed.value = false
   })
@@ -234,7 +256,8 @@
         // 只有在用户没有手动设置速度时才更新速度
         if (newDeck.transitionTime && !userSetSpeed.value) {
           // 如果检测到异常大的值（可能是数据错误），重置为默认值
-          if (newDeck.transitionTime > 10000) { // 大于10秒
+          if (newDeck.transitionTime > 10000) {
+            // 大于10秒
             interval.value = 2000 // 默认2秒
             // 自动修复后端数据
             updateSlideDeckSpeed(props.deckId, 2.0)
@@ -290,14 +313,13 @@
     }
   }
 
-  async function removeSlide(index: number) {
+  async function handleRemoveSlide(slide: SlideItem) {
     try {
-      const slide = deckSlides.value[index]
       await removeSlideFromDeck(props.deckId, slide.id)
       await deckStore.checkAndRefreshDeck()
-      showSuccess(t('slideRemoved'))
+      showSuccess(t('slideRemoved') || 'Slide removed')
     } catch (error) {
-      showError(t('failedToRemoveSlide'))
+      showError(t('failedToRemoveSlide') || 'Failed to remove slide')
     }
   }
 

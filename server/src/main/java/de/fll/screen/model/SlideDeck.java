@@ -32,7 +32,7 @@ public class SlideDeck {
 	@Column(name = "version", nullable = false)
 	private int version = 0;
 
-	@OneToMany(mappedBy = "slidedeck", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "slidedeck", fetch = FetchType.EAGER)
 	@OrderColumn(name = "index")
 	private final List<Slide> slides = new ArrayList<>();
 

@@ -2,6 +2,7 @@ package de.fll.screen.service;
 
 import de.fll.screen.model.SlideDeck;
 import de.fll.screen.repository.SlideDeckRepository;
+import de.fll.screen.repository.SlideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,9 @@ public class SlideDeckService {
 
     @Autowired
     private SlideDeckRepository slideDeckRepository;
+
+    @Autowired
+    private SlideRepository slideRepository;
 
 
     public List<SlideDeck> getAllSlideDecks() {
@@ -86,9 +90,26 @@ public class SlideDeckService {
 
     @Transactional
     public SlideDeck removeSlideFromDeck(Long deckId, Long slideId) {
+        // 使用原生SQL删除slide，避免JPA级联问题
+        slideRepository.deleteSlideFromDeck(deckId, slideId);
+        
+        // 重新从数据库获取slides列表，确保数据一致性
+        List<Slide> remainingSlides = slideRepository.findBySlidedeck_Id(deckId);
+        if (!remainingSlides.isEmpty()) {
+            // 第一步：全部设为负数，避免唯一约束冲突
+            slideDeckRepository.setSlidesIndexNegative(deckId);
+            
+            // 第二步：按新顺序批量赋值
+            for (int i = 0; i < remainingSlides.size(); i++) {
+                Slide slide = remainingSlides.get(i);
+                if (slide != null && slide.getId() != null) {
+                    slideDeckRepository.updateSlideIndexById(slide.getId(), i);
+                }
+            }
+        }
+        
         SlideDeck deck = slideDeckRepository.findById(deckId)
             .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
-        deck.getSlides().removeIf(s -> s.getId() == slideId);
         deck.setVersion(incrementVersion(deck.getVersion()));
         return slideDeckRepository.save(deck);
     }

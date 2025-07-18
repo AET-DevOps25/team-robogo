@@ -99,7 +99,6 @@ public class InitDataLoader implements CommandLineRunner {
                         imageContent.setContent(content);
                         imageContent.setMeta(savedMeta);
                         slideImageContentRepository.save(imageContent);
-                        logger.info("[InitDataLoader] Loaded image: " + file.getName());
                     }
                 }
             }
@@ -126,7 +125,7 @@ public class InitDataLoader implements CommandLineRunner {
                 imageSlide.setImageMeta(meta);
                 imageSlide.setSlidedeck(deck);
                 imageSlide.setIndex(slideIndex);
-                slideRepository.save(imageSlide);
+                // slideRepository.save(imageSlide);
             }
             logger.info("[InitDataLoader] Inserted Slides");
         }
