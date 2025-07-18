@@ -84,30 +84,49 @@ public class InitDataLoader implements CommandLineRunner {
 
         // 4. SlideImageMeta/SlideImageContent
         File slidesDir = new File(slidesPath);
-        if (slideImageMetaRepository.count() == 0 && slidesDir.exists() && slidesDir.isDirectory()) {
+        List<SlideImageMeta> importedImages = new ArrayList<>();
+        
+        if (slidesDir.exists() && slidesDir.isDirectory()) {
             File[] files = slidesDir.listFiles();
             if (files != null) {
                 for (File file : files) {
-                    if (file.isFile()) {
-                        String contentType = Files.probeContentType(file.toPath());
-                        byte[] content = Files.readAllBytes(file.toPath());
-                        SlideImageMeta meta = new SlideImageMeta();
-                        meta.setName(file.getName());
-                        meta.setContentType(contentType);
-                        SlideImageMeta savedMeta = slideImageMetaRepository.save(meta);
-                        SlideImageContent imageContent = new SlideImageContent();
-                        imageContent.setContent(content);
-                        imageContent.setMeta(savedMeta);
-                        slideImageContentRepository.save(imageContent);
+                    if (file.isFile() && isImageFile(file.getName())) {
+                        try {
+                            String contentType = Files.probeContentType(file.toPath());
+                            if (contentType == null || !contentType.startsWith("image/")) {
+                                contentType = getContentTypeFromExtension(file.getName());
+                            }
+                            
+                            byte[] content = Files.readAllBytes(file.toPath());
+                            SlideImageMeta meta = new SlideImageMeta();
+                            meta.setName(file.getName());
+                            meta.setContentType(contentType);
+                            SlideImageMeta savedMeta = slideImageMetaRepository.save(meta);
+                            
+                            SlideImageContent imageContent = new SlideImageContent();
+                            imageContent.setContent(content);
+                            imageContent.setMeta(savedMeta);
+                            slideImageContentRepository.save(imageContent);
+                            
+                            importedImages.add(savedMeta);
+                            logger.info("[InitDataLoader] Imported image: {}", file.getName());
+                        } catch (Exception e) {
+                            logger.error("[InitDataLoader] Failed to import image: {}", file.getName(), e);
+                        }
                     }
                 }
             }
         }
-        List<SlideImageMeta> images = slideImageMetaRepository.findAll();
-        SlideImageMeta meta = images.isEmpty() ? null : images.get(0);
+        
+        List<SlideImageMeta> allImages = slideImageMetaRepository.findAll();
+        logger.info("[InitDataLoader] Total images in database: {}", allImages.size());
+        
+        if (importedImages.isEmpty() && !allImages.isEmpty()) {
+            importedImages = allImages;
+        }
 
         // 5. Slide (ImageSlide/ScoreSlide)
-        if (slideRepository.count() == 0 && !decks.isEmpty() && meta != null && !categories.isEmpty()) {
+        if (slideRepository.count() == 0 && !decks.isEmpty() && !importedImages.isEmpty() && !categories.isEmpty()) {
             for (SlideDeck deck : decks) {
                 int slideIndex = 0;
                 // 先为每个category插入一个ScoreSlide，index递增
@@ -119,13 +138,16 @@ public class InitDataLoader implements CommandLineRunner {
                     scoreSlide.setCategory(category);
                     slideRepository.save(scoreSlide);
                 }
-                // 再插入一个ImageSlide，index为下一个
-                ImageSlide imageSlide = new ImageSlide();
-                imageSlide.setName("Demo Image");
-                imageSlide.setImageMeta(meta);
-                imageSlide.setSlidedeck(deck);
-                imageSlide.setIndex(slideIndex);
-                // slideRepository.save(imageSlide);
+                // 为每个图片创建对应的ImageSlide
+                for (SlideImageMeta meta : importedImages) {
+                    ImageSlide imageSlide = new ImageSlide();
+                    imageSlide.setName(meta.getName());
+                    imageSlide.setImageMeta(meta);
+                    imageSlide.setSlidedeck(deck);
+                    imageSlide.setIndex(slideIndex++);
+                    slideRepository.save(imageSlide);
+                    logger.info("[InitDataLoader] Created ImageSlide for: {}", meta.getName());
+                }
             }
             logger.info("[InitDataLoader] Inserted Slides");
         }
@@ -175,5 +197,28 @@ public class InitDataLoader implements CommandLineRunner {
             screenRepository.save(screen2);
             logger.info("[InitDataLoader] Inserted Screens");
         }
+    }
+
+    private boolean isImageFile(String fileName) {
+        String lowerCaseFileName = fileName.toLowerCase();
+        return lowerCaseFileName.endsWith(".jpg") || lowerCaseFileName.endsWith(".jpeg") ||
+               lowerCaseFileName.endsWith(".png") || lowerCaseFileName.endsWith(".gif") ||
+               lowerCaseFileName.endsWith(".bmp") || lowerCaseFileName.endsWith(".webp");
+    }
+
+    private String getContentTypeFromExtension(String fileName) {
+        String lowerCaseFileName = fileName.toLowerCase();
+        if (lowerCaseFileName.endsWith(".jpg") || lowerCaseFileName.endsWith(".jpeg")) {
+            return "image/jpeg";
+        } else if (lowerCaseFileName.endsWith(".png")) {
+            return "image/png";
+        } else if (lowerCaseFileName.endsWith(".gif")) {
+            return "image/gif";
+        } else if (lowerCaseFileName.endsWith(".bmp")) {
+            return "image/bmp";
+        } else if (lowerCaseFileName.endsWith(".webp")) {
+            return "image/webp";
+        }
+        return "application/octet-stream"; // Default for unknown extensions
     }
 } 

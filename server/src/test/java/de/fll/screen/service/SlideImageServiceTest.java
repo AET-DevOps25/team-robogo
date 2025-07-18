@@ -16,6 +16,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 class SlideImageServiceTest {
@@ -93,6 +94,49 @@ class SlideImageServiceTest {
     }
 
     @Test
+    void getImageContentById_ShouldFallbackToDatabase_WhenRedisUnavailable() {
+        // Arrange
+        Long imageId = 1L;
+        byte[] dbContent = "test image content".getBytes();
+        
+        SlideImageContent content = new SlideImageContent();
+        content.setContent(dbContent);
+        
+        when(valueOperations.get("image:content:1")).thenThrow(new RuntimeException("Redis connection failed"));
+        when(contentRepository.findByMetaId(imageId)).thenReturn(content);
+
+        // Act
+        byte[] result = slideImageService.getImageContentById(imageId);
+
+        // Assert
+        assertNotNull(result);
+        assertArrayEquals(dbContent, result);
+        verify(valueOperations, never()).set(any(), any(), anyLong(), any());
+    }
+
+    @Test
+    void getImageContentById_ShouldSkipCache_WhenRedisSetFails() {
+        // Arrange
+        Long imageId = 1L;
+        byte[] dbContent = "test image content".getBytes();
+        
+        SlideImageContent content = new SlideImageContent();
+        content.setContent(dbContent);
+        
+        when(valueOperations.get("image:content:1")).thenReturn(null);
+        doThrow(new RuntimeException("Redis set failed"))
+            .when(valueOperations).set(eq("image:content:1"), eq(dbContent), eq(24L), eq(java.util.concurrent.TimeUnit.HOURS));
+        when(contentRepository.findByMetaId(imageId)).thenReturn(content);
+
+        // Act
+        byte[] result = slideImageService.getImageContentById(imageId);
+
+        // Assert
+        assertNotNull(result);
+        assertArrayEquals(dbContent, result);
+    }
+
+    @Test
     void clearImageCache_ShouldDeleteCacheKey() {
         // Arrange
         Long imageId = 1L;
@@ -102,6 +146,16 @@ class SlideImageServiceTest {
 
         // Assert
         verify(redisTemplate).delete("image:content:1");
+    }
+
+    @Test
+    void clearImageCache_ShouldHandleRedisFailure() {
+        // Arrange
+        Long imageId = 1L;
+        when(redisTemplate.delete("image:content:1")).thenThrow(new RuntimeException("Redis delete failed"));
+
+        // Act & Assert - should not throw exception
+        assertDoesNotThrow(() -> slideImageService.clearImageCache(imageId));
     }
 
     @Test
@@ -115,5 +169,14 @@ class SlideImageServiceTest {
 
         // Assert
         verify(redisTemplate).delete(keys);
+    }
+
+    @Test
+    void clearAllImageCache_ShouldHandleRedisFailure() {
+        // Arrange
+        when(redisTemplate.keys("image:content:*")).thenThrow(new RuntimeException("Redis keys failed"));
+
+        // Act & Assert - should not throw exception
+        assertDoesNotThrow(() -> slideImageService.clearAllImageCache());
     }
 } 

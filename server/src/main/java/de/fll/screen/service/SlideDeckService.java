@@ -45,6 +45,8 @@ public class SlideDeckService {
     public SlideDeck addSlideToDeck(Long deckId, Slide slide) {
         SlideDeck deck = slideDeckRepository.findById(deckId)
             .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
+        
+        // 创建新的slide对象
         Slide newSlide;
         if (slide instanceof ScoreSlide) {
             ScoreSlide s = (ScoreSlide) slide;
@@ -66,9 +68,21 @@ public class SlideDeckService {
             generic.setName(slide.getName());
             newSlide = generic;
         }
+        
+        // 设置关联关系
         newSlide.setSlidedeck(deck);
-        newSlide.setIndex(deck.getSlides().size());
-        deck.getSlides().add(newSlide);
+        
+        // 获取当前deck中的所有slides，确保获取最新状态
+        List<Slide> currentSlides = slideRepository.findBySlidedeck_Id(deckId);
+        
+        // 设置新slide的索引为当前最大索引+1
+        int newIndex = currentSlides.size();
+        newSlide.setIndex(newIndex);
+        
+        // 保存新slide
+        newSlide = slideRepository.save(newSlide);
+        
+        // 更新deck的版本
         deck.setVersion(incrementVersion(deck.getVersion()));
         return slideDeckRepository.save(deck);
     }
