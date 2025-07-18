@@ -1,15 +1,30 @@
 <template>
-  <div class="image-slide-card">
+  <div class="image-slide-card w-full">
+    <div
+      v-if="isLoading"
+      class="w-full h-48 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg mb-3"
+    >
+      <div class="loading-spinner" />
+      <span class="ml-2 text-gray-500">{{ t('loading') }}</span>
+    </div>
     <img
-      v-if="imageUrl"
+      v-else-if="imageUrl"
       :src="imageUrl"
       :alt="item.name"
-      class="w-full h-40 object-cover rounded mb-2"
+      class="w-full h-48 object-cover rounded-lg mb-3 shadow-md"
+      @load="handleImageLoad"
+      @error="handleImageError"
     />
-    <div v-else class="w-full h-40 flex items-center justify-center text-gray-400">
-      {{ t('loading') }}
+    <div
+      v-else
+      class="w-full h-48 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg mb-3"
+    >
+      <div class="text-gray-400 text-center">
+        <div class="text-2xl mb-2">📷</div>
+        <div>{{ t('imageLoadError') }}</div>
+      </div>
     </div>
-    <div class="font-semibold text-gray-900 dark:text-white">{{ item.name }}</div>
+    <div class="font-semibold text-gray-900 dark:text-white text-center">{{ item.name }}</div>
   </div>
 </template>
 
@@ -22,6 +37,7 @@
   const props = defineProps<{ item: SlideItem }>()
   const imageUrl = ref<string | null>(null)
   const currentImageId = ref<number | null>(null)
+  const isLoading = ref(false)
   const { t } = useI18n()
 
   function getImageMetaId(item: SlideItem): number | undefined {
@@ -46,17 +62,46 @@
     }
 
     if (imageId !== undefined) {
+      isLoading.value = true
       try {
         const blob = await fetchImageBlobById(imageId)
-        imageUrl.value = URL.createObjectURL(blob)
+        const url = URL.createObjectURL(blob)
+        imageUrl.value = url
         currentImageId.value = imageId
+
+        // 预加载图片以确保能正确触发load事件
+        const img = new Image()
+        img.onload = () => {
+          console.log('Image preloaded successfully:', props.item.name)
+          isLoading.value = false
+        }
+        img.onerror = () => {
+          console.error('Image preload failed:', props.item.name)
+          isLoading.value = false
+          imageUrl.value = null
+        }
+        img.src = url
       } catch (e) {
-        imageUrl.value = ''
+        console.error('Failed to load image:', e)
+        imageUrl.value = null
         currentImageId.value = null
+        isLoading.value = false
       }
     } else {
       currentImageId.value = null
+      isLoading.value = false
     }
+  }
+
+  function handleImageError() {
+    console.error('Image load error for:', props.item.name)
+    isLoading.value = false
+    imageUrl.value = null
+  }
+
+  function handleImageLoad() {
+    console.log('Image loaded successfully:', props.item.name)
+    isLoading.value = false
   }
 
   onMounted(loadImage)
@@ -84,5 +129,24 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
+  }
+
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #e5e7eb;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 </style>

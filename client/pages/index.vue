@@ -13,7 +13,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mb-12">
-        <UCard class="flex flex-col items-center py-8">
+        <UCard class="flex flex-col items-center pt-8 pb-8">
           <Icon name="i-heroicons-device-tablet" class="w-10 h-10 text-primary mb-2" />
           <h3 class="text-xl font-bold mb-1">
             {{ $t('featureGroup') }}
@@ -22,7 +22,7 @@
             {{ $t('featureGroupDesc') }}
           </p>
         </UCard>
-        <UCard class="flex flex-col items-center py-8">
+        <UCard class="flex flex-col items-center pt-8 pb-8">
           <Icon name="i-heroicons-bolt" class="w-10 h-10 text-primary mb-2" />
           <h3 class="text-xl font-bold mb-1">
             {{ $t('featureRealtime') }}
@@ -31,7 +31,7 @@
             {{ $t('featureRealtimeDesc') }}
           </p>
         </UCard>
-        <UCard class="flex flex-col items-center py-8">
+        <UCard class="flex flex-col items-center pt-8 pb-8">
           <Icon name="i-heroicons-sparkles" class="w-10 h-10 text-primary mb-2" />
           <h3 class="text-xl font-bold mb-1">
             {{ $t('featureAI') }}

@@ -86,7 +86,7 @@
       </div>
 
       <section
-        class="grid grid-cols-[2fr_1fr] gap-6 bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow"
+        class="grid grid-cols-[6fr_1fr] gap-6 bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow"
       >
         <!-- Left: Slide Group -->
         <div>
@@ -320,7 +320,8 @@
       competitionId: selectedCompetitionDeck.value.id,
       slides: null,
       transitionTime: 5,
-      version: 0
+      version: 0,
+      lastUpdate: new Date().toISOString()
     }
     const response = await createSlideDeck(newDeck)
     slideDecks.value.push(response)

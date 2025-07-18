@@ -1,33 +1,35 @@
 <template>
-  <div class="score-slide-card">
+  <div class="score-slide-card w-full">
     <template v-if="item.type === 'SCORE' && 'scores' in item">
-      <div class="font-semibold text-gray-900 dark:text-white mb-2">{{ item.name }}</div>
+      <div class="font-semibold text-gray-900 dark:text-white mb-4 text-center text-lg">
+        {{ item.name }}
+      </div>
       <div class="overflow-x-auto w-full">
-        <table class="w-full text-sm border-separate border-spacing-0 rounded-lg shadow">
+        <table class="w-full text-sm border-separate border-spacing-0 rounded-lg shadow-lg">
           <thead>
             <tr>
               <th
-                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-4 py-2 first:rounded-tl-lg last:rounded-tr-lg border-b"
+                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-6 py-3 first:rounded-tl-lg last:rounded-tr-lg border-b"
               >
                 {{ t('teamName') }}
               </th>
               <th
-                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-4 py-2 border-b"
+                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-6 py-3 border-b"
               >
                 {{ t('scoreUnit') }}
               </th>
               <th
-                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-4 py-2 border-b"
+                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-6 py-3 border-b"
               >
                 {{ t('time') }}
               </th>
               <th
-                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-4 py-2 border-b"
+                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-6 py-3 border-b"
               >
                 {{ t('category') }}
               </th>
               <th
-                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-4 py-2 last:rounded-tr-lg border-b"
+                class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold px-6 py-3 last:rounded-tr-lg border-b"
               >
                 {{ t('rank') }}
               </th>
@@ -45,18 +47,21 @@
                 'border-b last:border-b-0'
               ]"
             >
-              <td class="px-4 py-2 border-b">{{ score.team.name }}</td>
-              <td class="px-4 py-2 border-b">{{ score.points }}</td>
-              <td class="px-4 py-2 border-b">{{ score.time }}</td>
-              <td class="px-4 py-2 border-b">{{ item.category?.name }}</td>
-              <td class="px-4 py-2 border-b">{{ score.rank }}</td>
+              <td class="px-6 py-3 border-b">{{ score.team.name }}</td>
+              <td class="px-6 py-3 border-b">{{ score.points }}</td>
+              <td class="px-6 py-3 border-b">{{ score.time }}</td>
+              <td class="px-6 py-3 border-b">{{ item.category?.name }}</td>
+              <td class="px-6 py-3 border-b">{{ score.rank }}</td>
             </tr>
           </tbody>
         </table>
       </div>
     </template>
     <template v-else>
-      <div class="text-xs text-gray-400 mt-1">{{ t('notScoreType') }}</div>
+      <div class="text-center text-gray-400 pt-8 pb-8">
+        <div class="text-2xl mb-2">📊</div>
+        <div>{{ t('notScoreType') }}</div>
+      </div>
     </template>
   </div>
 </template>
@@ -73,13 +78,14 @@
   .score-slide-card {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    width: 100%;
   }
 
   table {
     border-radius: 0.5rem;
     overflow: hidden;
-    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1);
   }
 
   th,

@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 space-y-6">
+  <div class="w-full bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 space-y-6">
     <!-- 播放速度调整 -->
     <div class="space-y-3">
       <div class="flex items-center justify-between">
@@ -49,14 +49,14 @@
     </div>
     <!-- 当前 deck slides -->
     <div>
-      <h3 class="text-lg font-bold text-blue-700 dark:text-blue-400 mb-2 flex items-center gap-2">
+      <h3 class="text-lg font-bold text-blue-700 dark:text-blue-400 mb-4 flex items-center gap-2">
         <span class="inline-block w-2 h-2 bg-blue-400 rounded-full" />
         {{ $t('currentSlides') }}
       </h3>
       <draggable
         v-model="deckSlides"
         item-key="id"
-        class="grid grid-cols-2 gap-4"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
         :animation="300"
         ghost-class="drag-ghost"
         chosen-class="drag-chosen"
@@ -68,12 +68,12 @@
       >
         <template #item="{ element, index }">
           <div
-            class="slide-item relative p-2 rounded border border-blue-200 dark:border-blue-600 transition-all duration-200 hover:shadow-md dark:hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-500 group"
+            class="slide-item relative p-4 rounded-lg border border-blue-200 dark:border-blue-600 transition-all duration-200 hover:shadow-lg dark:hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-500 group bg-white dark:bg-gray-700"
             :class="{ 'opacity-50': isDragging && draggedIndex === index }"
           >
             <!-- 拖拽手柄 -->
             <div
-              class="drag-handle absolute top-1 left-1 w-6 h-6 flex items-center justify-center cursor-move opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+              class="drag-handle absolute top-2 left-2 w-6 h-6 flex items-center justify-center cursor-move opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
             >
               <div class="w-4 h-4 flex flex-col justify-center items-center">
                 <div class="w-3 h-0.5 bg-gray-400 dark:bg-gray-500 mb-0.5" />
@@ -85,7 +85,7 @@
             <!-- 删除按钮 -->
             <button
               v-if="false"
-              class="absolute top-1 right-1 w-6 h-6 flex items-center justify-center text-red-500 hover:text-red-700 bg-white dark:bg-gray-800 rounded-full shadow z-20"
+              class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-red-500 hover:text-red-700 bg-white dark:bg-gray-800 rounded-full shadow z-20"
               :title="$t('deleteSlide')"
               @click.stop="handleRemoveSlide(element)"
             >
@@ -107,7 +107,7 @@
 
             <!-- 位置指示器 -->
             <div
-              class="absolute bottom-1 left-1 bg-blue-500 dark:bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full opacity-75"
+              class="absolute bottom-2 left-2 bg-blue-500 dark:bg-blue-600 text-white text-xs px-2 py-1 rounded-full opacity-90 font-medium"
             >
               {{ index + 1 }}
             </div>
@@ -117,6 +117,7 @@
         </template>
         <template #footer>
           <div
+            v-if="false"
             class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-green-400 dark:border-green-500 rounded cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors duration-200"
             @click="openAddDialog"
           >
