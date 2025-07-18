@@ -1,6 +1,5 @@
 import type { ScreenContent } from '@/interfaces/types'
 import { useAuthFetch } from '@/composables/useAuthFetch'
-
 const BASE_URL = '/api/proxy/screens'
 
 /**

@@ -103,6 +103,11 @@ export interface ChatMessage {
   text: string
 }
 
+export interface DeckStartTime{
+  id: number
+  startTime: number
+}
+
 // common types
 export type ScreenStatus = 'ONLINE' | 'OFFLINE' | 'ERROR'
 export type ContentType = 'BLACK_SCREEN' | string
