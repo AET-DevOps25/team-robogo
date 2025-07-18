@@ -89,8 +89,10 @@ public class InitDataLoader implements CommandLineRunner {
         if (slidesDir.exists() && slidesDir.isDirectory()) {
             File[] files = slidesDir.listFiles();
             if (files != null) {
+                // 只处理第一张图片，避免导入太多图片导致卡顿
+                boolean firstImageProcessed = false;
                 for (File file : files) {
-                    if (file.isFile() && isImageFile(file.getName())) {
+                    if (file.isFile() && isImageFile(file.getName()) && !firstImageProcessed) {
                         try {
                             String contentType = Files.probeContentType(file.toPath());
                             if (contentType == null || !contentType.startsWith("image/")) {
@@ -109,7 +111,9 @@ public class InitDataLoader implements CommandLineRunner {
                             slideImageContentRepository.save(imageContent);
                             
                             importedImages.add(savedMeta);
-                            logger.info("[InitDataLoader] Imported image: {}", file.getName());
+                            firstImageProcessed = true; // 标记已处理第一张图片
+                            logger.info("[InitDataLoader] Imported first image: {}", file.getName());
+                            break; // 处理完第一张图片后退出循环
                         } catch (Exception e) {
                             logger.error("[InitDataLoader] Failed to import image: {}", file.getName(), e);
                         }

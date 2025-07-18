@@ -49,7 +49,7 @@ public class SlideDeck {
 	private Competition competition;
 
 	public SlideDeck() {
-		this("", 0, new ArrayList<>(), null);
+		this("", 1000, new ArrayList<>(), null);
 	}
 
 	public SlideDeck(String name, int transitionTime, List<Slide> slides, Competition competition) {
