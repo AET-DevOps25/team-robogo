@@ -140,5 +140,6 @@
   "failedToRemoveSlide": "Failed to remove slide",
   "slow": "Slow",
   "normal": "Normal",
-  "fast": "Fast"
+  "fast": "Fast",
+  "deleteSlide": "Delete Slide"
 }

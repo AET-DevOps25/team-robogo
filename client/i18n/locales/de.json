@@ -140,5 +140,6 @@
   "failedToRemoveSlide": "Folie konnte nicht entfernt werden",
   "slow": "Langsam",
   "normal": "Normal",
-  "fast": "Schnell"
+  "fast": "Schnell",
+  "deleteSlide": "Folie löschen"
 }

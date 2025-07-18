@@ -84,8 +84,9 @@
 
             <!-- 删除按钮 -->
             <button
+              v-if="false"
               class="absolute top-1 right-1 w-6 h-6 flex items-center justify-center text-red-500 hover:text-red-700 bg-white dark:bg-gray-800 rounded-full shadow z-20"
-              title="删除"
+              :title="$t('deleteSlide')"
               @click.stop="handleRemoveSlide(element)"
             >
               <svg
