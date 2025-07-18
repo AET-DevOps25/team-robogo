@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import de.fll.core.dto.SlideDeckDTO;
 
 @WebMvcTest(
-    controllers = ScreenController.class,
+    controllers = {ScreenController.class, GlobalExceptionHandler.class},
     excludeAutoConfiguration = {
         SecurityAutoConfiguration.class,
         SecurityFilterAutoConfiguration.class
@@ -72,15 +72,35 @@ public class ScreenControllerTest {
 
     private void setId(Object entity, Long id) {
         try {
+            // 首先尝试在当前类中查找 id 字段
             java.lang.reflect.Field field = entity.getClass().getDeclaredField("id");
             field.setAccessible(true);
-            if (field.getType() == long.class) {
-                field.setLong(entity, id);
-            } else {
-                field.set(entity, id);
+            setFieldValue(field, entity, id);
+        } catch (NoSuchFieldException e) {
+            // 如果当前类没有 id 字段，尝试在父类中查找
+            try {
+                java.lang.reflect.Field field = entity.getClass().getSuperclass().getDeclaredField("id");
+                field.setAccessible(true);
+                setFieldValue(field, entity, id);
+            } catch (Exception ex) {
+                throw new RuntimeException("Cannot set id field on " + entity.getClass().getName(), ex);
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Cannot set id field on " + entity.getClass().getName(), e);
+        }
+    }
+
+    private void setFieldValue(java.lang.reflect.Field field, Object entity, Long id) throws IllegalAccessException {
+        if (field.getType() == long.class) {
+            field.setLong(entity, id);
+        } else if (field.getType() == Long.class) {
+            field.set(entity, id);
+        } else if (field.getType() == int.class) {
+            field.setInt(entity, id.intValue());
+        } else if (field.getType() == Integer.class) {
+            field.set(entity, id.intValue());
+        } else {
+            field.set(entity, id);
         }
     }
 

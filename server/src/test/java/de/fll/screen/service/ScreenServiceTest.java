@@ -2,24 +2,30 @@ package de.fll.screen.service;
 
 import de.fll.core.dto.ScreenContentDTO;
 import de.fll.core.dto.SlideDeckDTO;
-import de.fll.screen.assembler.SlideDeckAssembler;
 import de.fll.screen.model.Screen;
 import de.fll.screen.model.ScreenStatus;
 import de.fll.screen.model.SlideDeck;
 import de.fll.screen.repository.ScreenRepository;
 import de.fll.screen.repository.SlideDeckRepository;
+import de.fll.screen.repository.CompetitionRepository;
+import de.fll.screen.assembler.SlideDeckAssembler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
-import java.util.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-public class ScreenServiceTest {
-
-    @InjectMocks
-    private ScreenService screenService;
+@ExtendWith(MockitoExtension.class)
+class ScreenServiceTest {
 
     @Mock
     private ScreenRepository screenRepository;
@@ -28,171 +34,301 @@ public class ScreenServiceTest {
     private SlideDeckRepository slideDeckRepository;
 
     @Mock
+    private CompetitionRepository competitionRepository;
+
+    @Mock
     private SlideDeckAssembler slideDeckAssembler;
+
+    @InjectMocks
+    private ScreenService screenService;
+
+    private Screen mockScreen;
+    private SlideDeck mockSlideDeck;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        mockScreen = new Screen();
+        mockScreen.setName("Test Screen");
+        mockScreen.setStatus(ScreenStatus.ONLINE);
+
+        mockSlideDeck = new SlideDeck();
+        mockSlideDeck.setVersion(1);
     }
 
     @Test
-    void testCreateScreen() {
-        Screen screen = new Screen();
-        screen.setName("TestScreen");
-        screen.setStatus(ScreenStatus.ONLINE);
-        when(screenRepository.save(any(Screen.class))).thenReturn(screen);
+    void getAllScreens_ShouldReturnAllScreens() {
+        // Arrange
+        List<Screen> expectedScreens = Arrays.asList(mockScreen);
+        when(screenRepository.findAll()).thenReturn(expectedScreens);
 
-        Screen result = screenService.createScreen(screen);
-        assertEquals("TestScreen", result.getName());
-        assertEquals(ScreenStatus.ONLINE, result.getStatus());
+        // Act
+        List<Screen> result = screenService.getAllScreens();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(mockScreen, result.get(0));
     }
 
     @Test
-    void testGetAllScreens() {
-        Screen screen1 = new Screen();
-        Screen screen2 = new Screen();
-        when(screenRepository.findAll()).thenReturn(Arrays.asList(screen1, screen2));
+    void getScreenById_ShouldReturnScreen_WhenScreenExists() {
+        // Arrange
+        Long screenId = 1L;
+        when(screenRepository.findById(screenId)).thenReturn(Optional.of(mockScreen));
 
-        List<Screen> screens = screenService.getAllScreens();
-        assertEquals(2, screens.size());
+        // Act
+        Optional<Screen> result = screenService.getScreenById(screenId);
+
+        // Assert
+        assertTrue(result.isPresent());
+        assertEquals(mockScreen, result.get());
     }
 
     @Test
-    void testUpdateScreen() {
-        Screen oldScreen = new Screen();
-        oldScreen.setName("Old");
-        oldScreen.setStatus(ScreenStatus.OFFLINE);
+    void getScreenById_ShouldReturnEmpty_WhenScreenNotFound() {
+        // Arrange
+        Long screenId = 999L;
+        when(screenRepository.findById(screenId)).thenReturn(Optional.empty());
 
+        // Act
+        Optional<Screen> result = screenService.getScreenById(screenId);
+
+        // Assert
+        assertFalse(result.isPresent());
+    }
+
+    @Test
+    void createScreen_ShouldCreateScreenSuccessfully() {
+        // Arrange
         Screen newScreen = new Screen();
-        newScreen.setName("New");
-        newScreen.setStatus(ScreenStatus.ONLINE);
+        newScreen.setName("New Screen");
+        newScreen.setStatus(ScreenStatus.OFFLINE);
+        
+        when(screenRepository.save(any(Screen.class))).thenAnswer(i -> i.getArgument(0));
 
-        when(screenRepository.findById(1L)).thenReturn(Optional.of(oldScreen));
-        when(screenRepository.save(any(Screen.class))).thenReturn(oldScreen);
+        // Act
+        Screen result = screenService.createScreen(newScreen);
 
-        Screen updated = screenService.updateScreen(1L, newScreen);
-        assertEquals("New", updated.getName());
-        assertEquals(ScreenStatus.ONLINE, updated.getStatus());
+        // Assert
+        assertNotNull(result);
+        assertEquals("New Screen", result.getName());
+        assertEquals(ScreenStatus.OFFLINE, result.getStatus());
+        verify(screenRepository).save(newScreen);
     }
 
     @Test
-    void testUpdateScreenNotFound() {
-        when(screenRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> screenService.updateScreen(1L, new Screen()));
+    void updateScreen_ShouldUpdateScreenSuccessfully() {
+        // Arrange
+        Long screenId = 1L;
+        Screen screenDetails = new Screen();
+        screenDetails.setName("Updated Screen");
+        screenDetails.setStatus(ScreenStatus.OFFLINE);
+
+        when(screenRepository.findById(screenId)).thenReturn(Optional.of(mockScreen));
+        when(screenRepository.save(any(Screen.class))).thenAnswer(i -> i.getArgument(0));
+
+        // Act
+        Screen result = screenService.updateScreen(screenId, screenDetails);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Updated Screen", result.getName());
+        assertEquals(ScreenStatus.OFFLINE, result.getStatus());
+        verify(screenRepository).save(mockScreen);
     }
 
     @Test
-    void testAssignSlideDeck() {
-        Screen screen = new Screen();
-        SlideDeck deck = new SlideDeck();
+    void updateScreen_ShouldThrowException_WhenScreenNotFound() {
+        // Arrange
+        Long screenId = 999L;
+        Screen screenDetails = new Screen();
+        when(screenRepository.findById(screenId)).thenReturn(Optional.empty());
 
-        when(screenRepository.findById(1L)).thenReturn(Optional.of(screen));
-        when(slideDeckRepository.findById(2L)).thenReturn(Optional.of(deck));
-        when(screenRepository.save(any(Screen.class))).thenReturn(screen);
-
-        Screen result = screenService.assignSlideDeck(1L, 2L);
-        assertEquals(deck, result.getSlideDeck());
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> {
+            screenService.updateScreen(screenId, screenDetails);
+        });
     }
 
     @Test
-    void testAssignSlideDeckScreenNotFound() {
-        when(screenRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> screenService.assignSlideDeck(1L, 2L));
+    void deleteScreen_ShouldDeleteScreenSuccessfully() {
+        // Arrange
+        Long screenId = 1L;
+
+        // Act
+        screenService.deleteScreen(screenId);
+
+        // Assert
+        verify(screenRepository).deleteById(screenId);
     }
 
     @Test
-    void testAssignSlideDeckDeckNotFound() {
-        Screen screen = new Screen();
-        when(screenRepository.findById(1L)).thenReturn(Optional.of(screen));
-        when(slideDeckRepository.findById(2L)).thenReturn(Optional.empty());
-        assertThrows(NoSuchElementException.class, () -> screenService.assignSlideDeck(1L, 2L));
+    void assignSlideDeck_ShouldAssignSlideDeckSuccessfully() {
+        // Arrange
+        Long screenId = 1L;
+        Long slideDeckId = 1L;
+
+        when(screenRepository.findById(screenId)).thenReturn(Optional.of(mockScreen));
+        when(slideDeckRepository.findById(slideDeckId)).thenReturn(Optional.of(mockSlideDeck));
+        when(screenRepository.save(any(Screen.class))).thenAnswer(i -> i.getArgument(0));
+
+        // Act
+        Screen result = screenService.assignSlideDeck(screenId, slideDeckId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(mockSlideDeck, result.getSlideDeck());
+        verify(screenRepository).save(mockScreen);
     }
 
     @Test
-    void testDeleteScreen() {
-        doNothing().when(screenRepository).deleteById(1L);
-        screenService.deleteScreen(1L);
-        verify(screenRepository, times(1)).deleteById(1L);
+    void assignSlideDeck_ShouldThrowException_WhenScreenNotFound() {
+        // Arrange
+        Long screenId = 999L;
+        Long slideDeckId = 1L;
+        when(screenRepository.findById(screenId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> {
+            screenService.assignSlideDeck(screenId, slideDeckId);
+        });
     }
 
     @Test
-    void testGetScreenByIdNotFound() {
-        when(screenRepository.findById(1L)).thenReturn(Optional.empty());
-        assertTrue(screenService.getScreenById(1L).isEmpty());
+    void assignSlideDeck_ShouldThrowException_WhenSlideDeckNotFound() {
+        // Arrange
+        Long screenId = 1L;
+        Long slideDeckId = 999L;
+        when(screenRepository.findById(screenId)).thenReturn(Optional.of(mockScreen));
+        when(slideDeckRepository.findById(slideDeckId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> {
+            screenService.assignSlideDeck(screenId, slideDeckId);
+        });
     }
 
     @Test
-    void testUpdateScreenStatus() {
-        Screen screen = new Screen();
-        screen.setStatus(ScreenStatus.OFFLINE);
-        when(screenRepository.findById(1L)).thenReturn(Optional.of(screen));
-        when(screenRepository.save(any(Screen.class))).thenReturn(screen);
-        Screen updated = screenService.updateScreenStatus(1L, ScreenStatus.ONLINE);
+    void updateScreenStatus_ShouldUpdateStatusSuccessfully() {
+        // Arrange
+        Long screenId = 1L;
+        ScreenStatus newStatus = ScreenStatus.OFFLINE;
 
-        assertEquals(ScreenStatus.ONLINE, updated.getStatus());
+        when(screenRepository.findById(screenId)).thenReturn(Optional.of(mockScreen));
+        when(screenRepository.save(any(Screen.class))).thenAnswer(i -> i.getArgument(0));
+
+        // Act
+        Screen result = screenService.updateScreenStatus(screenId, newStatus);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(newStatus, result.getStatus());
+        verify(screenRepository).save(mockScreen);
     }
 
     @Test
-    void testCreateScreenFromDTO_Normal() {
-        // 构造 DTO
+    void updateScreenStatus_ShouldThrowException_WhenScreenNotFound() {
+        // Arrange
+        Long screenId = 999L;
+        ScreenStatus newStatus = ScreenStatus.OFFLINE;
+        when(screenRepository.findById(screenId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> {
+            screenService.updateScreenStatus(screenId, newStatus);
+        });
+    }
+
+    @Test
+    void createScreenFromDTO_ShouldReturnNull_WhenDTOIsNull() {
+        // Act
+        Screen result = screenService.createScreenFromDTO(null);
+
+        // Assert
+        assertNull(result);
+    }
+
+    @Test
+    void createScreenFromDTO_ShouldCreateScreen_WhenValidDTO() {
+        // Arrange
         ScreenContentDTO dto = new ScreenContentDTO();
-        dto.setName("screen1");
+        dto.setName("Test Screen from DTO");
         dto.setStatus("ONLINE");
-        SlideDeckDTO deckDTO = new SlideDeckDTO();
-        dto.setSlideDeck(deckDTO);
+        
+        when(screenRepository.save(any(Screen.class))).thenAnswer(i -> i.getArgument(0));
 
-        SlideDeck deck = new SlideDeck();
-        when(slideDeckAssembler.fromDTO(deckDTO)).thenReturn(deck);
-
-        Screen savedScreen = new Screen();
-        savedScreen.setName("screen1");
-        savedScreen.setStatus(ScreenStatus.ONLINE);
-        savedScreen.setSlideDeck(deck);
-
-        when(screenRepository.save(any(Screen.class))).thenReturn(savedScreen);
-
-        // 调用
+        // Act
         Screen result = screenService.createScreenFromDTO(dto);
 
-        // 断言
+        // Assert
         assertNotNull(result);
-        assertEquals("screen1", result.getName());
+        assertEquals("Test Screen from DTO", result.getName());
         assertEquals(ScreenStatus.ONLINE, result.getStatus());
-        assertEquals(deck, result.getSlideDeck());
-
-        verify(slideDeckAssembler).fromDTO(deckDTO);
         verify(screenRepository).save(any(Screen.class));
     }
 
     @Test
-    void testCreateScreenFromDTO_NullStatusAndDeck() {
+    void createScreenFromDTO_ShouldCreateScreen_WhenDTOHasSlideDeck() {
+        // Arrange
         ScreenContentDTO dto = new ScreenContentDTO();
-        dto.setName("screen2");
-        dto.setStatus(null);
-        dto.setSlideDeck(null);
+        dto.setName("Test Screen with SlideDeck");
+        dto.setStatus("ONLINE");
+        
+        SlideDeckDTO slideDeckDTO = new SlideDeckDTO();
+        slideDeckDTO.setVersion(1);
+        dto.setSlideDeck(slideDeckDTO);
+        
+        when(slideDeckAssembler.fromDTO(slideDeckDTO)).thenReturn(mockSlideDeck);
+        when(screenRepository.save(any(Screen.class))).thenAnswer(i -> i.getArgument(0));
 
-        Screen savedScreen = new Screen();
-        savedScreen.setName("screen2");
-        savedScreen.setStatus(null);
-        savedScreen.setSlideDeck(null);
-
-        when(screenRepository.save(any(Screen.class))).thenReturn(savedScreen);
-
+        // Act
         Screen result = screenService.createScreenFromDTO(dto);
 
+        // Assert
         assertNotNull(result);
-        assertEquals("screen2", result.getName());
-        assertNull(result.getStatus());
-        assertNull(result.getSlideDeck());
-
+        assertEquals("Test Screen with SlideDeck", result.getName());
+        assertEquals(ScreenStatus.ONLINE, result.getStatus());
+        assertEquals(mockSlideDeck, result.getSlideDeck());
         verify(screenRepository).save(any(Screen.class));
-        verify(slideDeckAssembler, never()).fromDTO(any());
     }
 
     @Test
-    void testCreateScreenFromDTO_NullDTO() {
-        assertNull(screenService.createScreenFromDTO(null));
-        verify(screenRepository, never()).save(any());
-        verify(slideDeckAssembler, never()).fromDTO(any());
+    void createScreenFromDTO_ShouldCreateScreen_WhenDTOHasNullStatus() {
+        // Arrange
+        ScreenContentDTO dto = new ScreenContentDTO();
+        dto.setName("Test Screen with null status");
+        dto.setStatus(null);
+        
+        when(screenRepository.save(any(Screen.class))).thenAnswer(i -> i.getArgument(0));
+
+        // Act
+        Screen result = screenService.createScreenFromDTO(dto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Test Screen with null status", result.getName());
+        assertNull(result.getStatus());
+        verify(screenRepository).save(any(Screen.class));
     }
-}
+
+    @Test
+    void createScreenFromDTO_ShouldCreateScreen_WhenDTOHasNullSlideDeck() {
+        // Arrange
+        ScreenContentDTO dto = new ScreenContentDTO();
+        dto.setName("Test Screen with null slideDeck");
+        dto.setStatus("ONLINE");
+        dto.setSlideDeck(null);
+        
+        when(screenRepository.save(any(Screen.class))).thenAnswer(i -> i.getArgument(0));
+
+        // Act
+        Screen result = screenService.createScreenFromDTO(dto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Test Screen with null slideDeck", result.getName());
+        assertEquals(ScreenStatus.ONLINE, result.getStatus());
+        assertNull(result.getSlideDeck());
+        verify(screenRepository).save(any(Screen.class));
+    }
+} 

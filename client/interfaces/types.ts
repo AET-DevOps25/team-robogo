@@ -5,7 +5,6 @@ export interface Category {
   id: number
   name: string
   competitionId: number
-  categoryScoring: string
 }
 
 // ImageSlideMeta
@@ -23,6 +22,7 @@ export interface Team {
 
 // ScoreDTO
 export interface Score {
+  id: number
   points: number
   time: number
   highlight: boolean
@@ -65,9 +65,10 @@ export interface SlideDeck {
   id: number
   name: string
   competitionId: number
-  slides: SlideItem[]
+  slides: SlideItem[] | null
   transitionTime: number
   version: number
+  lastUpdate: string // ISO 8601 format datetime string
 }
 
 // ScreenContent
@@ -75,10 +76,7 @@ export interface ScreenContent {
   id: number
   name: string
   status: string
-  slideDeck: SlideDeck
-  currentContent: string
-  thumbnailUrl?: string
-  urlPath?: string
+  slideDeck: SlideDeck | null
 }
 
 // LoginRequest
@@ -107,5 +105,25 @@ export interface ChatMessage {
 }
 
 // common types
-export type ScreenStatus = 'online' | 'offline' | 'error'
+export type ScreenStatus = 'ONLINE' | 'OFFLINE' | 'ERROR'
 export type ContentType = 'BLACK_SCREEN' | string
+export interface SyncState {
+  deckId: number
+  currentSlideIndex: number
+  lastUpdate: string
+  isMaster: boolean
+  screenId?: string
+}
+
+export interface SyncResponse {
+  deckId: number
+  currentSlideIndex: number
+  slideCount: number
+  transitionTime: number
+  lastUpdate: string
+  version: number
+  isMaster: boolean
+  lastUpdateScreenId?: string
+  syncActive: boolean
+  errorMessage?: string
+}

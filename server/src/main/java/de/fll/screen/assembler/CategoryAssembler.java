@@ -2,7 +2,6 @@ package de.fll.screen.assembler;
 
 import de.fll.core.dto.CategoryDTO;
 import de.fll.screen.model.Category;
-import de.fll.screen.model.CategoryScoring;
 import de.fll.screen.repository.CategoryRepository;
 import de.fll.screen.repository.CompetitionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,6 @@ public class CategoryAssembler implements AbstractDTOAssembler<Category, Categor
                 .id(category.getId())
                 .name(category.getName())
                 .competitionId(category.getCompetition() != null ? category.getCompetition().getId() : null)
-                .categoryScoring(category.getCategoryScoring() != null ? category.getCategoryScoring().name() : null)
                 .build();
     }
 
@@ -36,7 +34,6 @@ public class CategoryAssembler implements AbstractDTOAssembler<Category, Categor
         Category category = new Category();
         category.setName(dto.getName());
         category.setCompetition(competitionRepository.findById(dto.getCompetitionId()).orElse(null));
-        category.setCategoryScoring(dto.getCategoryScoring() != null ? CategoryScoring.valueOf(dto.getCategoryScoring()) : null);
         return category;
     }
 } 

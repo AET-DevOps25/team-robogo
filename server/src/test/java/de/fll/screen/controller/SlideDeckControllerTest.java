@@ -7,6 +7,7 @@ import de.fll.screen.assembler.SlideAssembler;
 import de.fll.screen.assembler.SlideDeckAssembler;
 import de.fll.screen.model.SlideDeck;
 import de.fll.screen.service.SlideDeckService;
+import de.fll.screen.service.SlideDeckSyncService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,9 @@ public class SlideDeckControllerTest {
 
     @MockBean
     private SlideAssembler slideAssembler;
+
+    @MockBean
+    private SlideDeckSyncService slideDeckSyncService;
 
     @BeforeEach
     void setUp() {

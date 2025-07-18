@@ -15,11 +15,8 @@ import { mockSlideDecks } from '@/data/mockSlideDecks'
 const mockScreen: ScreenContent = {
   id: 1,
   name: 'Screen 1',
-  status: 'online',
-  slideDeck: mockSlideDecks[0],
-  currentContent: '',
-  thumbnailUrl: '',
-  urlPath: ''
+  status: 'ONLINE',
+  slideDeck: mockSlideDecks[0]
 }
 
 describe('screenService', () => {
@@ -70,8 +67,8 @@ describe('screenService', () => {
   })
 
   it('should update screen status', async () => {
-    const updated = await updateScreenStatus(1, 'offline')
+    const updated = await updateScreenStatus(1, 'OFFLINE')
     expect(updated).toHaveProperty('status')
-    expect(updated.status).toBe('offline')
+    expect(updated.status).toBe('OFFLINE')
   })
 })

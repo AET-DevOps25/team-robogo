@@ -21,28 +21,11 @@ public class ScoreController {
     private ScoreService scoreService;
     @Autowired
     private ScoreSlideAssembler scoreSlideAssembler;
-    @Autowired
-    private CategoryAssembler categoryAssembler;
 
-    // 获取所有分数
-    @GetMapping
-    public List<ScoreDTO> getAllScores() {
-        return scoreService.getScoresForAllTeams().stream()
-                .map(score -> {
-                    ScoreDTO dto = new ScoreDTO();
-                    dto.setPoints(score.getPoints());
-                    dto.setTime(score.getTime());
-                    // 这里可补充team、rank等
-                    return dto;
-                })
-                .collect(Collectors.toList());
-    }
-
-    // 根据分类获取分数高亮
-    @PostMapping("/highlight")
-    public List<ScoreDTO> getScoresWithHighlight(@RequestBody CategoryDTO categoryDTO) {
-        Category category = categoryAssembler.fromDTO(categoryDTO);
-        return scoreService.getScoreDTOsWithHighlight(category);
+    // 根据分类获取分数（包含排名和高亮信息）
+    @GetMapping("/category/{categoryId}")
+    public List<ScoreDTO> getScoresByCategory(@PathVariable Long categoryId) {
+        return scoreService.getScoreDTOsWithHighlight(categoryId);
     }
 
     // 添加分数
@@ -53,10 +36,42 @@ public class ScoreController {
         }
         Score score = scoreService.addScore(scoreDTO.getTeam().getId(), scoreDTO.getPoints(), scoreDTO.getTime());
         ScoreDTO dto = new ScoreDTO();
+        dto.setId(score.getId());
         dto.setPoints(score.getPoints());
         dto.setTime(score.getTime());
-        // 这里可补充team、rank等
+        if (score.getTeam() != null) {
+            dto.setTeam(de.fll.core.dto.TeamDTO.builder()
+                    .id(score.getTeam().getId())
+                    .name(score.getTeam().getName())
+                    .build());
+        }
         return dto;
+    }
+
+    // 更新分数
+    @PutMapping("/{id}")
+    public ScoreDTO updateScore(@PathVariable Long id, @RequestBody ScoreDTO scoreDTO) {
+        if (scoreDTO.getTeam() == null || scoreDTO.getTeam().getId() == null) {
+            throw new IllegalArgumentException("Team id required");
+        }
+        Score score = scoreService.updateScore(id, scoreDTO.getTeam().getId(), scoreDTO.getPoints(), scoreDTO.getTime());
+        ScoreDTO dto = new ScoreDTO();
+        dto.setId(score.getId());
+        dto.setPoints(score.getPoints());
+        dto.setTime(score.getTime());
+        if (score.getTeam() != null) {
+            dto.setTeam(de.fll.core.dto.TeamDTO.builder()
+                    .id(score.getTeam().getId())
+                    .name(score.getTeam().getName())
+                    .build());
+        }
+        return dto;
+    }
+
+    // 删除分数
+    @DeleteMapping("/{id}")
+    public void deleteScore(@PathVariable Long id) {
+        scoreService.deleteScore(id);
     }
 
     // 创建ScoreSlide

@@ -38,15 +38,39 @@
 
 <style lang="postcss">
   .language-select {
-    @apply appearance-none bg-white dark:bg-gray-800;
-    @apply border border-gray-300 dark:border-gray-600;
-    @apply rounded-lg px-4 py-2 pr-8;
-    @apply hover:border-gray-400 dark:hover:border-gray-500;
-    @apply focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary;
-    @apply focus:border-transparent;
-    @apply transition-all duration-200;
-    @apply cursor-pointer;
-    @apply text-gray-700 dark:text-gray-200;
+    appearance: none;
+    background-color: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 0.5rem 2rem 0.5rem 1rem;
+    cursor: pointer;
+    color: #374151;
+    transition: all 0.2s;
+  }
+
+  .language-select:hover {
+    border-color: #9ca3af;
+  }
+
+  .language-select:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px #3b82f6;
+  }
+
+  /* Dark mode styles */
+  .dark .language-select {
+    background-color: #1f2937;
+    border-color: #4b5563;
+    color: #e5e7eb;
+  }
+
+  .dark .language-select:hover {
+    border-color: #6b7280;
+  }
+
+  .dark .language-select:focus {
+    box-shadow: 0 0 0 2px #3b82f6;
   }
 
   select::-ms-expand {

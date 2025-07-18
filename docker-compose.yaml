@@ -15,7 +15,7 @@ services:
     build:
       dockerfile: server/Dockerfile
     volumes:
-      - ./server/src/main/resources/slides:/data/slides
+      - ./data/slides:/data/slides
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/robogo_db

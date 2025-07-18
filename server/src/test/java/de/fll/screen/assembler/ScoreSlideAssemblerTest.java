@@ -53,7 +53,6 @@ class ScoreSlideAssemblerTest {
                 .id(10L)
                 .name("FLL Robot Game")
                 .competitionId(100L)
-                .categoryScoring("FLL_ROBOT_GAME")
                 .build();
         when(categoryAssembler.toDTO(category)).thenReturn(categoryDTO);
 

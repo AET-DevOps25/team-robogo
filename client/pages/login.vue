@@ -69,8 +69,8 @@
   import { useAuth, definePageMeta, navigateTo } from '#imports'
   import type { LoginRequest } from '@/interfaces/types'
 
-  const LOGIN_SUCCESS_REDIRECT_PATH = '/slide-deck-demo'
-
+  // const LOGIN_SUCCESS_REDIRECT_PATH = '/slide-deck-demo'
+  const LOGIN_SUCCESS_REDIRECT_PATH = '/dashboard'
   definePageMeta({
     auth: false
   })

@@ -30,7 +30,9 @@ public class ScoreSlideAssembler implements AbstractDTOAssembler<ScoreSlide, Sco
         ScoreSlideDTO dto = new ScoreSlideDTO();
         dto.setId(slide.getId());
         dto.setName(slide.getName());
-        dto.setIndex(slide.getIndex());
+        // 安全地设置 index，避免 NullPointerException
+        Integer index = slide.getIndex();
+        dto.setIndex(index != null ? index : 0);
         dto.setType(slide.getType().name());
         dto.setCategory(categoryAssembler.toDTO(slide.getCategory()));
         List<ScoreDTO> scores = scoreService.getScoreDTOsWithHighlight(slide.getCategory());
