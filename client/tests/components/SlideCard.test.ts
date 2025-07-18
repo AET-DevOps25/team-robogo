@@ -1,15 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createI18n } from 'vue-i18n'
 import SlideCard from '@/components/SlideCard.vue'
-import en from '@/i18n/locales/en.json'
 import { SlideType } from '@/interfaces/types'
-
-const i18n = createI18n({
-  legacy: false,
-  locale: 'en',
-  messages: { en }
-})
 
 const mockItem = {
   id: 1,
@@ -22,7 +14,11 @@ const mockItem = {
 const factory = (selected = false) =>
   mount(SlideCard, {
     props: { item: mockItem, selected },
-    global: { plugins: [i18n] }
+    global: {
+      mocks: {
+        $t: (key: string) => key
+      }
+    }
   })
 
 describe('SlideCard', () => {

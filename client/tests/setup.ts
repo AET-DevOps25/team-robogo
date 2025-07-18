@@ -54,6 +54,56 @@ vi.stubGlobal('$fetch', async (url: string, options: any = {}) => {
   return await response.json()
 })
 
+// 全局 mock useAuth
+vi.mock('#imports', () => ({
+  useAuth: () => ({
+    token: { value: 'mock-token' },
+    status: { value: 'authenticated' },
+    signOut: vi.fn().mockResolvedValue({ error: null }),
+    signIn: vi.fn().mockResolvedValue({ error: null })
+  }),
+  useI18n: () => ({
+    t: vi.fn((key: string) => key),
+    locale: { value: 'en' },
+    locales: {
+      value: [
+        { code: 'en', name: 'English' },
+        { code: 'de', name: 'Deutsch' }
+      ]
+    },
+    setLocale: vi.fn()
+  }),
+  useToast: () => ({
+    add: vi.fn()
+  }),
+  navigateTo: vi.fn()
+}))
+
+// Mock vue-i18n
+vi.mock('vue-i18n', () => ({
+  useI18n: () => ({
+    t: vi.fn((key: string) => key),
+    locale: { value: 'en' },
+    locales: {
+      value: [
+        { code: 'en', name: 'English' },
+        { code: 'de', name: 'Deutsch' }
+      ]
+    },
+    setLocale: vi.fn()
+  })
+}))
+
+// Mock @sidebase/nuxt-auth
+vi.mock('@sidebase/nuxt-auth', () => ({
+  useAuth: () => ({
+    token: { value: 'mock-token' },
+    status: { value: 'authenticated' },
+    signOut: vi.fn().mockResolvedValue({ error: null }),
+    signIn: vi.fn().mockResolvedValue({ error: null })
+  })
+}))
+
 // 全局 mock useAuthFetch
 vi.mock('@/composables/useAuthFetch', () => ({
   useAuthFetch: () => ({
@@ -82,6 +132,7 @@ vi.mock('@/composables/useAuthFetch', () => ({
       if (typeof url === 'string' && url.includes('/suggestion')) {
         const bodyObj = _options && _options.body ? JSON.parse(_options.body) : {}
         if (bodyObj.text === 'error') {
+          // 不在这里打印错误，让测试自己处理
           return Promise.reject(new Error('Mocked error'))
         }
         return Promise.resolve({

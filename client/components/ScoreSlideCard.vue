@@ -37,17 +37,17 @@
           </thead>
           <tbody>
             <tr
-              v-for="score in item.scores"
-              :key="score.team.id"
+              v-for="(score, index) in item.scores"
+              :key="score.team?.id || index"
               :class="[
                 'transition-colors',
                 score.highlight
-                  ? 'bg-yellow-100 dark:bg-yellow-900/80'
+                  ? 'bg-yellow-100 dark:bg-yellow-900/80 hover:bg-yellow-200 dark:hover:bg-yellow-800'
                   : 'hover:bg-gray-50 dark:hover:bg-gray-800',
                 'border-b last:border-b-0'
               ]"
             >
-              <td class="px-6 py-3 border-b">{{ score.team.name }}</td>
+              <td class="px-6 py-3 border-b">{{ score.team?.name || '' }}</td>
               <td class="px-6 py-3 border-b">{{ score.points }}</td>
               <td class="px-6 py-3 border-b">{{ score.time }}</td>
               <td class="px-6 py-3 border-b">{{ item.category?.name }}</td>

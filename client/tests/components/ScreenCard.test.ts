@@ -1,42 +1,108 @@
 // tests/components/ScreenCard.test.ts
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { shallowMount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
 import ScreenCard from '@/components/ScreenCard.vue'
+import type { SlideDeck, ScreenContent } from '@/interfaces/types'
+import { SlideType } from '@/interfaces/types'
+// Mock services
+vi.mock('@/services/screenService', () => ({
+  assignSlideDeck: vi.fn().mockResolvedValue(undefined),
+  updateScreen: vi.fn().mockResolvedValue(undefined)
+}))
 
-const SelectMenuStub = defineComponent({
-  name: 'SelectMenu', // 组件名
-  emits: ['update:model-value'], // 声明会发出的事件
-  setup(_, { slots }) {
-    return () => h('div', slots.default?.())
+vi.mock('@/stores/useDeckStore', () => ({
+  useDeckStore: () => ({
+    currentDeckId: 1,
+    currentDeck: {
+      id: 1,
+      name: 'Test Deck',
+      competitionId: 1,
+      slides: [
+        {
+          id: 1,
+          index: 0,
+          name: 'Slide 1',
+          type: 'IMAGE',
+          imageMeta: { id: 1, name: 'Slide 1', contentType: 'image/jpeg' }
+        }
+      ],
+      transitionTime: 5000,
+      version: 1,
+      lastUpdate: new Date().toISOString()
+    },
+    currentSlideIndex: 0,
+    setCurrentDeck: vi.fn(),
+    stopVersionCheck: vi.fn()
+  })
+}))
+
+vi.mock('@/composables/useToast', () => ({
+  useToast: () => ({
+    showError: vi.fn(),
+    showSuccess: vi.fn()
+  })
+}))
+
+const mockSlides = [
+  {
+    id: 1,
+    index: 0,
+    name: 'Slide 1',
+    type: SlideType.IMAGE,
+    imageMeta: { id: 1, name: 'Slide 1', contentType: 'image/jpeg' }
   }
-})
-const mockSlides = [{ id: 1, name: 'Slide 1', url: 'https://example.com/slide1.jpg' }]
-const mockGroups = [{ id: 'G-1', slideIds: [1], speed: 50, lastResetAt: Date.now() }]
-const baseScreen = {
-  id: 'SCR-1',
+]
+
+const mockSlideDeck: SlideDeck = {
+  id: 1,
+  name: 'Test Deck',
+  competitionId: 1,
+  slides: mockSlides,
+  transitionTime: 5000,
+  version: 1,
+  lastUpdate: new Date().toISOString()
+}
+
+const mockSlideDeck2: SlideDeck = {
+  id: 2,
+  name: 'Test Deck 2',
+  competitionId: 1,
+  slides: mockSlides,
+  transitionTime: 5000,
+  version: 1,
+  lastUpdate: new Date().toISOString()
+}
+
+const mockGroups = [mockSlideDeck, mockSlideDeck2]
+
+const baseScreen: ScreenContent = {
+  id: 1,
   name: 'Hall Display',
   status: 'ONLINE',
-  groupId: 'G-1',
-  currentContent: '1',
-  thumbnailUrl: '',
-  urlPath: '/screens/1'
+  slideDeck: mockSlideDeck
 }
+
+vi.mock('@/composables/useToast', () => ({
+  useToast: () => ({
+    showError: vi.fn(),
+    showSuccess: vi.fn()
+  })
+}))
 
 const factory = (override: Partial<typeof baseScreen> = {}) =>
   shallowMount(ScreenCard, {
     props: {
       screen: { ...baseScreen, ...override },
-      slideDecks: mockGroups,
-      allSlides: mockSlides
+      slideDecks: mockGroups
     },
     global: {
       stubs: {
         ClientOnly: { template: '<slot />' },
         'client-only': { template: '<slot />' },
-
-        /* 👇 用刚才的组件替换 Nuxt UI 的 <select-menu> */
-        'select-menu': SelectMenuStub
+        SlideCard: { template: '<div class="slide-card">Mock Slide</div>' }
+      },
+      mocks: {
+        $t: (key: string) => key
       }
     }
   })
@@ -51,33 +117,32 @@ describe('ScreenCard', () => {
   })
 
   it('renders current slide image when present', () => {
-    const img = factory().find('img')
-    expect(img.exists()).toBe(true)
+    const wrapper = factory()
+    const slideCard = wrapper.find('.slide-card')
+    expect(slideCard.exists()).toBe(true)
+    expect(slideCard.text()).toContain('Mock Slide')
   })
 
   it('shows placeholder when slide not found', () => {
-    const w = factory({ currentContent: '999' })
-    expect(w.find('img').exists()).toBe(false)
+    const w = factory({ slideDeck: null })
+    expect(w.findComponent({ name: 'SlideCard' }).exists()).toBe(false)
     expect(w.text()).toContain('No Content')
   })
 
-  it('emits updateGroup when select menu changes', async () => {
+  it('emits deckAssigned when select menu changes', async () => {
     const w = factory()
 
-    const select = w.findComponent(SelectMenuStub) // VueWrapper ✔
+    const select = w.find('select')
     expect(select.exists()).toBe(true)
 
-    await select.vm.$emit('update:model-value', 'G-NEW')
+    await select.setValue('2') // 选择一个新的deck ID
 
-    expect(w.emitted('updateGroup')![0][0]).toMatchObject({
-      id: 'SCR-1',
-      groupId: 'G-NEW'
-    })
+    expect(w.emitted('deckAssigned')).toBeTruthy()
   })
 
   it('emits requestDelete on delete button click', async () => {
     const w = factory()
     await w.find('button').trigger('click')
-    expect(w.emitted('requestDelete')![0][0]).toMatchObject({ id: 'SCR-1' })
+    expect(w.emitted('requestDelete')![0][0]).toMatchObject({ id: 1 })
   })
 })
