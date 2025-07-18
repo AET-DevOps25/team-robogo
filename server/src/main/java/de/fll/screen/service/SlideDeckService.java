@@ -46,41 +46,20 @@ public class SlideDeckService {
         SlideDeck deck = slideDeckRepository.findById(deckId)
             .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
         
-        // 创建新的slide对象
-        Slide newSlide;
-        if (slide instanceof ScoreSlide) {
-            ScoreSlide s = (ScoreSlide) slide;
-            ScoreSlide scoreSlide = new ScoreSlide();
-            scoreSlide.setName(s.getName());
-            scoreSlide.setCategory(s.getCategory());
-            newSlide = scoreSlide;
-        } else if (slide instanceof ImageSlide) {
-            ImageSlide s = (ImageSlide) slide;
-            ImageSlide imageSlide = new ImageSlide();
-            imageSlide.setName(s.getName());
-            imageSlide.setImageMeta(s.getImageMeta());
-            newSlide = imageSlide;
-        } else {
-            // 其他slide类型
-            Slide generic = new Slide() {
-                // 匿名子类实现抽象类
-            };
-            generic.setName(slide.getName());
-            newSlide = generic;
-        }
-        
-        // 设置关联关系
-        newSlide.setSlidedeck(deck);
+        // 验证 slide 是否存在
+        Slide existingSlide = slideRepository.findById(slide.getId())
+            .orElseThrow(() -> new IllegalArgumentException("Slide not found"));
         
         // 获取当前deck中的所有slides，确保获取最新状态
         List<Slide> currentSlides = slideRepository.findBySlidedeck_Id(deckId);
         
         // 设置新slide的索引为当前最大索引+1
         int newIndex = currentSlides.size();
-        newSlide.setIndex(newIndex);
         
-        // 保存新slide
-        newSlide = slideRepository.save(newSlide);
+        // 更新 slide 的关联关系和索引
+        existingSlide.setSlidedeck(deck);
+        existingSlide.setIndex(newIndex);
+        slideRepository.save(existingSlide);
         
         // 更新deck的版本
         deck.setVersion(incrementVersion(deck.getVersion()));
@@ -104,8 +83,18 @@ public class SlideDeckService {
 
     @Transactional
     public SlideDeck removeSlideFromDeck(Long deckId, Long slideId) {
-        // 使用原生SQL删除slide，避免JPA级联问题
-        slideRepository.deleteSlideFromDeck(deckId, slideId);
+        // 验证 slide 是否存在且属于该 deck
+        Slide slide = slideRepository.findById(slideId)
+            .orElseThrow(() -> new IllegalArgumentException("Slide not found"));
+        
+        if (slide.getSlidedeck() == null) {
+            throw new IllegalArgumentException("Slide does not belong to any deck");
+        }
+        
+        // 将 slide 的 slidedeck 设置为 null，而不是删除 slide
+        slide.setSlidedeck(null);
+        slide.setIndex(null);
+        slideRepository.save(slide);
         
         // 重新从数据库获取slides列表，确保数据一致性
         List<Slide> remainingSlides = slideRepository.findBySlidedeck_Id(deckId);
@@ -115,9 +104,9 @@ public class SlideDeckService {
             
             // 第二步：按新顺序批量赋值
             for (int i = 0; i < remainingSlides.size(); i++) {
-                Slide slide = remainingSlides.get(i);
-                if (slide != null && slide.getId() != null) {
-                    slideDeckRepository.updateSlideIndexById(slide.getId(), i);
+                Slide remainingSlide = remainingSlides.get(i);
+                if (remainingSlide != null && remainingSlide.getId() != null) {
+                    slideDeckRepository.updateSlideIndexById(remainingSlide.getId(), i);
                 }
             }
         }

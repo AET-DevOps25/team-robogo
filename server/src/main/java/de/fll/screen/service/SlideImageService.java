@@ -4,8 +4,10 @@ import de.fll.core.dto.ImageSlideMetaDTO;
 import de.fll.screen.assembler.ImageSlideMetaAssembler;
 import de.fll.screen.model.SlideImageContent;
 import de.fll.screen.model.SlideImageMeta;
+import de.fll.screen.model.ImageSlide;
 import de.fll.screen.repository.SlideImageContentRepository;
 import de.fll.screen.repository.SlideImageMetaRepository;
+import de.fll.screen.repository.SlideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,8 @@ public class SlideImageService {
     private SlideImageMetaRepository metaRepository;
     @Autowired
     private SlideImageContentRepository contentRepository;
+    @Autowired
+    private SlideRepository slideRepository;
     @Autowired
     private RedisTemplate<String, byte[]> redisTemplate;
     
@@ -54,6 +58,15 @@ public class SlideImageService {
         content.setContent(file.getBytes());
         content.setMeta(savedMeta);
         contentRepository.save(content);
+        
+        // 创建对应的 ImageSlide
+        ImageSlide imageSlide = new ImageSlide();
+        imageSlide.setName(file.getOriginalFilename());
+        imageSlide.setImageMeta(savedMeta);
+        // 注意：这里不设置 slidedeck 和 index，因为需要用户手动添加到具体的 deck
+        slideRepository.save(imageSlide);
+        
+        logger.info("Created ImageSlide for uploaded image: {}", file.getOriginalFilename());
         
         // 清除所有图片缓存，因为可能有新的图片被添加
         clearAllImageCache();

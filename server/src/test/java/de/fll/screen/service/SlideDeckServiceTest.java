@@ -30,22 +30,48 @@ public class SlideDeckServiceTest {
     }
 
     @Test
+    void testAddSlideToDeck() {
+        // 创建测试数据
+        SlideDeck deck = new SlideDeck();
+        deck.setVersion(1);
+        
+        Slide existingSlide = mock(Slide.class);
+        when(existingSlide.getId()).thenReturn(2L);
+        when(existingSlide.getName()).thenReturn("Test Slide");
+        
+        when(slideDeckRepository.findById(1L)).thenReturn(Optional.of(deck));
+        when(slideRepository.findById(2L)).thenReturn(Optional.of(existingSlide));
+        when(slideRepository.findBySlidedeck_Id(1L)).thenReturn(new ArrayList<>());
+        when(slideRepository.save(any(Slide.class))).thenAnswer(i -> i.getArgument(0));
+        when(slideDeckRepository.save(any(SlideDeck.class))).thenAnswer(i -> i.getArgument(0));
+        
+        // 执行添加操作
+        SlideDeck result = slideDeckService.addSlideToDeck(1L, existingSlide);
+        
+        // 验证结果
+        assertEquals(2, result.getVersion());
+        verify(slideRepository).save(existingSlide);
+        verify(existingSlide).setSlidedeck(deck);
+        verify(existingSlide).setIndex(0);
+    }
+
+    @Test
     void testRemoveScoreSlideFromDeck() {
         // 创建测试数据
         SlideDeck deck = new SlideDeck();
         deck.setVersion(1);
         
-        // 创建一个 ScoreSlide 并模拟其 ID
         ScoreSlide mockedScoreSlide = mock(ScoreSlide.class);
         when(mockedScoreSlide.getId()).thenReturn(2L);
         when(mockedScoreSlide.getName()).thenReturn("Test Score Slide");
-        deck.getSlides().add(mockedScoreSlide);
+        when(mockedScoreSlide.getSlidedeck()).thenReturn(deck);
         
         when(slideDeckRepository.findById(1L)).thenReturn(Optional.of(deck));
+        when(slideRepository.findById(2L)).thenReturn(Optional.of(mockedScoreSlide));
+        when(slideRepository.save(any(Slide.class))).thenAnswer(i -> i.getArgument(0));
         when(slideDeckRepository.save(any(SlideDeck.class))).thenAnswer(i -> i.getArgument(0));
         
         // 模拟 SlideRepository 的方法
-        doNothing().when(slideRepository).deleteSlideFromDeck(1L, 2L);
         when(slideRepository.findBySlidedeck_Id(1L)).thenReturn(new ArrayList<>());
         doNothing().when(slideDeckRepository).setSlidesIndexNegative(1L);
         doNothing().when(slideDeckRepository).updateSlideIndexById(anyLong(), anyInt());
@@ -59,7 +85,9 @@ public class SlideDeckServiceTest {
         // 验证 repository 调用
         verify(slideDeckRepository, times(1)).findById(1L);
         verify(slideDeckRepository, times(1)).save(any(SlideDeck.class));
-        verify(slideRepository, times(1)).deleteSlideFromDeck(1L, 2L);
+        verify(slideRepository, times(1)).save(mockedScoreSlide);
+        verify(mockedScoreSlide).setSlidedeck(null);
+        verify(mockedScoreSlide).setIndex(null);
     }
 
     @Test
@@ -72,13 +100,14 @@ public class SlideDeckServiceTest {
         ImageSlide mockedImageSlide = mock(ImageSlide.class);
         when(mockedImageSlide.getId()).thenReturn(3L);
         when(mockedImageSlide.getName()).thenReturn("Test Image Slide");
-        deck.getSlides().add(mockedImageSlide);
+        when(mockedImageSlide.getSlidedeck()).thenReturn(deck);
         
         when(slideDeckRepository.findById(1L)).thenReturn(Optional.of(deck));
+        when(slideRepository.findById(3L)).thenReturn(Optional.of(mockedImageSlide));
+        when(slideRepository.save(any(Slide.class))).thenAnswer(i -> i.getArgument(0));
         when(slideDeckRepository.save(any(SlideDeck.class))).thenAnswer(i -> i.getArgument(0));
         
         // 模拟 SlideRepository 的方法
-        doNothing().when(slideRepository).deleteSlideFromDeck(1L, 3L);
         when(slideRepository.findBySlidedeck_Id(1L)).thenReturn(new ArrayList<>());
         doNothing().when(slideDeckRepository).setSlidesIndexNegative(1L);
         doNothing().when(slideDeckRepository).updateSlideIndexById(anyLong(), anyInt());
@@ -100,19 +129,19 @@ public class SlideDeckServiceTest {
         ScoreSlide mockedScoreSlide = mock(ScoreSlide.class);
         when(mockedScoreSlide.getId()).thenReturn(2L);
         when(mockedScoreSlide.getName()).thenReturn("Score Slide");
+        when(mockedScoreSlide.getSlidedeck()).thenReturn(deck);
         
         ImageSlide mockedImageSlide = mock(ImageSlide.class);
         when(mockedImageSlide.getId()).thenReturn(3L);
         when(mockedImageSlide.getName()).thenReturn("Image Slide");
-        
-        deck.getSlides().add(mockedScoreSlide);
-        deck.getSlides().add(mockedImageSlide);
+        when(mockedImageSlide.getSlidedeck()).thenReturn(deck);
         
         when(slideDeckRepository.findById(1L)).thenReturn(Optional.of(deck));
+        when(slideRepository.findById(2L)).thenReturn(Optional.of(mockedScoreSlide));
+        when(slideRepository.save(any(Slide.class))).thenAnswer(i -> i.getArgument(0));
         when(slideDeckRepository.save(any(SlideDeck.class))).thenAnswer(i -> i.getArgument(0));
         
         // 模拟 SlideRepository 的方法
-        doNothing().when(slideRepository).deleteSlideFromDeck(1L, 2L);
         List<Slide> remainingSlides = Arrays.asList(mockedImageSlide);
         when(slideRepository.findBySlidedeck_Id(1L)).thenReturn(remainingSlides);
         doNothing().when(slideDeckRepository).setSlidesIndexNegative(1L);
@@ -131,26 +160,16 @@ public class SlideDeckServiceTest {
         SlideDeck deck = new SlideDeck();
         deck.setVersion(1);
         
-        // 创建一个 ScoreSlide
-        ScoreSlide mockedScoreSlide = mock(ScoreSlide.class);
-        when(mockedScoreSlide.getId()).thenReturn(2L);
-        when(mockedScoreSlide.getName()).thenReturn("Test Score Slide");
-        deck.getSlides().add(mockedScoreSlide);
-        
         when(slideDeckRepository.findById(1L)).thenReturn(Optional.of(deck));
-        when(slideDeckRepository.save(any(SlideDeck.class))).thenAnswer(i -> i.getArgument(0));
+        when(slideRepository.findById(999L)).thenReturn(Optional.empty());
         
-        // 模拟 SlideRepository 的方法 - 即使 slide 不存在，deleteSlideFromDeck 也不会抛出异常
-        doNothing().when(slideRepository).deleteSlideFromDeck(1L, 999L);
-        when(slideRepository.findBySlidedeck_Id(1L)).thenReturn(deck.getSlides());
-        doNothing().when(slideDeckRepository).setSlidesIndexNegative(1L);
-        doNothing().when(slideDeckRepository).updateSlideIndexById(anyLong(), anyInt());
+        // 验证抛出异常
+        assertThrows(IllegalArgumentException.class, () -> {
+            slideDeckService.removeSlideFromDeck(1L, 999L);
+        });
         
-        // 执行移除操作 - 尝试移除不存在的 slide
-        SlideDeck result = slideDeckService.removeSlideFromDeck(1L, 999L);
-        
-        // 验证结果 - 版本仍然会递增
-        assertEquals(2, result.getVersion());
+        // 验证没有调用 save 方法
+        verify(slideDeckRepository, never()).save(any(SlideDeck.class));
     }
 
     @Test
@@ -159,11 +178,16 @@ public class SlideDeckServiceTest {
         SlideDeck deck = new SlideDeck();
         deck.setVersion(1);
         
+        Slide slide = mock(Slide.class);
+        when(slide.getId()).thenReturn(2L);
+        when(slide.getSlidedeck()).thenReturn(deck);
+        
         when(slideDeckRepository.findById(1L)).thenReturn(Optional.of(deck));
+        when(slideRepository.findById(2L)).thenReturn(Optional.of(slide));
+        when(slideRepository.save(any(Slide.class))).thenAnswer(i -> i.getArgument(0));
         when(slideDeckRepository.save(any(SlideDeck.class))).thenAnswer(i -> i.getArgument(0));
         
         // 模拟 SlideRepository 的方法
-        doNothing().when(slideRepository).deleteSlideFromDeck(1L, 2L);
         when(slideRepository.findBySlidedeck_Id(1L)).thenReturn(new ArrayList<>());
         doNothing().when(slideDeckRepository).setSlidesIndexNegative(1L);
         doNothing().when(slideDeckRepository).updateSlideIndexById(anyLong(), anyInt());
@@ -196,13 +220,14 @@ public class SlideDeckServiceTest {
         
         ScoreSlide mockedScoreSlide = mock(ScoreSlide.class);
         when(mockedScoreSlide.getId()).thenReturn(2L);
-        deck.getSlides().add(mockedScoreSlide);
+        when(mockedScoreSlide.getSlidedeck()).thenReturn(deck);
         
         when(slideDeckRepository.findById(1L)).thenReturn(Optional.of(deck));
+        when(slideRepository.findById(2L)).thenReturn(Optional.of(mockedScoreSlide));
+        when(slideRepository.save(any(Slide.class))).thenAnswer(i -> i.getArgument(0));
         when(slideDeckRepository.save(any(SlideDeck.class))).thenAnswer(i -> i.getArgument(0));
         
         // 模拟 SlideRepository 的方法
-        doNothing().when(slideRepository).deleteSlideFromDeck(1L, 2L);
         when(slideRepository.findBySlidedeck_Id(1L)).thenReturn(new ArrayList<>());
         doNothing().when(slideDeckRepository).setSlidesIndexNegative(1L);
         doNothing().when(slideDeckRepository).updateSlideIndexById(anyLong(), anyInt());
@@ -219,24 +244,35 @@ public class SlideDeckServiceTest {
         SlideDeck deck = new SlideDeck();
         deck.setVersion(1);
         
-        ScoreSlide mockedScoreSlide = mock(ScoreSlide.class);
-        when(mockedScoreSlide.getId()).thenReturn(2L);
-        deck.getSlides().add(mockedScoreSlide);
-        
         when(slideDeckRepository.findById(1L)).thenReturn(Optional.of(deck));
-        when(slideDeckRepository.save(any(SlideDeck.class))).thenAnswer(i -> i.getArgument(0));
+        when(slideRepository.findById(null)).thenReturn(Optional.empty());
         
-        // 模拟 SlideRepository 的方法
-        doNothing().when(slideRepository).deleteSlideFromDeck(1L, null);
-        when(slideRepository.findBySlidedeck_Id(1L)).thenReturn(deck.getSlides());
-        doNothing().when(slideDeckRepository).setSlidesIndexNegative(1L);
-        doNothing().when(slideDeckRepository).updateSlideIndexById(anyLong(), anyInt());
+        // 验证抛出异常
+        assertThrows(IllegalArgumentException.class, () -> {
+            slideDeckService.removeSlideFromDeck(1L, null);
+        });
+    }
+
+    @Test
+    void testRemoveSlideFromDeckWithWrongDeck() {
+        // 模拟 slide 不属于指定 deck 的情况
+        SlideDeck deck1 = new SlideDeck();
+        deck1.setVersion(1);
         
-        // 执行移除操作 - 传入 null
-        SlideDeck result = slideDeckService.removeSlideFromDeck(1L, null);
+        SlideDeck deck2 = new SlideDeck();
+        deck2.setVersion(1);
         
-        // 验证结果 - 版本仍然会递增
-        assertEquals(2, result.getVersion());
+        Slide slide = mock(Slide.class);
+        when(slide.getId()).thenReturn(2L);
+        when(slide.getSlidedeck()).thenReturn(deck2); // slide 属于 deck2
+        
+        when(slideDeckRepository.findById(1L)).thenReturn(Optional.of(deck1));
+        when(slideRepository.findById(2L)).thenReturn(Optional.of(slide));
+        
+        // 验证抛出异常
+        assertThrows(IllegalArgumentException.class, () -> {
+            slideDeckService.removeSlideFromDeck(1L, 2L);
+        });
     }
 
     @Test
@@ -249,18 +285,17 @@ public class SlideDeckServiceTest {
         ScoreSlide mockedScoreSlide = mock(ScoreSlide.class);
         when(mockedScoreSlide.getId()).thenReturn(2L);
         when(mockedScoreSlide.getName()).thenReturn("Score Slide with FK Constraint");
-        
-        deck.getSlides().add(mockedScoreSlide);
+        when(mockedScoreSlide.getSlidedeck()).thenReturn(deck);
         
         when(slideDeckRepository.findById(1L)).thenReturn(Optional.of(deck));
+        when(slideRepository.findById(2L)).thenReturn(Optional.of(mockedScoreSlide));
         
         // 模拟保存时抛出外键约束异常
-        when(slideDeckRepository.save(any(SlideDeck.class))).thenThrow(
+        when(slideRepository.save(any(Slide.class))).thenThrow(
             new RuntimeException("Foreign key constraint violation")
         );
         
         // 模拟 SlideRepository 的方法
-        doNothing().when(slideRepository).deleteSlideFromDeck(1L, 2L);
         when(slideRepository.findBySlidedeck_Id(1L)).thenReturn(new ArrayList<>());
         doNothing().when(slideDeckRepository).setSlidesIndexNegative(1L);
         doNothing().when(slideDeckRepository).updateSlideIndexById(anyLong(), anyInt());
@@ -272,6 +307,6 @@ public class SlideDeckServiceTest {
         
         // 验证 repository 调用
         verify(slideDeckRepository, times(1)).findById(1L);
-        verify(slideDeckRepository, times(1)).save(any(SlideDeck.class));
+        verify(slideRepository, times(1)).save(any(Slide.class));
     }
 } 

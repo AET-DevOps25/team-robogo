@@ -1,9 +1,13 @@
 package de.fll.screen.service;
 
+import de.fll.core.dto.ImageSlideMetaDTO;
+import de.fll.screen.assembler.ImageSlideMetaAssembler;
 import de.fll.screen.model.SlideImageContent;
 import de.fll.screen.model.SlideImageMeta;
+import de.fll.screen.model.ImageSlide;
 import de.fll.screen.repository.SlideImageContentRepository;
 import de.fll.screen.repository.SlideImageMetaRepository;
+import de.fll.screen.repository.SlideRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.mock.web.MockMultipartFile;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -27,6 +32,12 @@ class SlideImageServiceTest {
     private SlideImageContentRepository contentRepository;
 
     @Mock
+    private SlideRepository slideRepository;
+
+    @Mock
+    private ImageSlideMetaAssembler imageSlideMetaAssembler;
+
+    @Mock
     private RedisTemplate<String, byte[]> redisTemplate;
 
     @Mock
@@ -39,6 +50,41 @@ class SlideImageServiceTest {
     void setUp() {
         // 使用 lenient 来避免 UnnecessaryStubbingException
         lenient().when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    }
+
+    @Test
+    void uploadImage_ShouldCreateImageSlide() throws Exception {
+        // Arrange
+        MockMultipartFile file = new MockMultipartFile(
+            "file", 
+            "test-image.jpg", 
+            "image/jpeg", 
+            "test image content".getBytes()
+        );
+        
+        SlideImageMeta savedMeta = new SlideImageMeta();
+        savedMeta.setName("test-image.jpg");
+        savedMeta.setContentType("image/jpeg");
+        
+        ImageSlideMetaDTO expectedDTO = new ImageSlideMetaDTO();
+        expectedDTO.setName("test-image.jpg");
+        expectedDTO.setContentType("image/jpeg");
+        
+        when(metaRepository.save(any(SlideImageMeta.class))).thenReturn(savedMeta);
+        when(contentRepository.save(any(SlideImageContent.class))).thenAnswer(i -> i.getArgument(0));
+        when(slideRepository.save(any(ImageSlide.class))).thenAnswer(i -> i.getArgument(0));
+        when(imageSlideMetaAssembler.toDTO(any(SlideImageMeta.class))).thenReturn(expectedDTO);
+        
+        // Act
+        var result = slideImageService.uploadImage(file);
+        
+        // Assert
+        assertNotNull(result);
+        assertEquals("test-image.jpg", result.getName());
+        assertEquals("image/jpeg", result.getContentType());
+        
+        // 验证创建了 ImageSlide
+        verify(slideRepository).save(any(ImageSlide.class));
     }
 
     @Test
