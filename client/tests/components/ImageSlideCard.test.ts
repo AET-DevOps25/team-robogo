@@ -35,8 +35,6 @@ describe('ImageSlideCard', () => {
     }
   }
 
-  const mockBlob = new Blob(['mock image data'], { type: 'image/jpeg' })
-
   beforeEach(() => {
     vi.clearAllMocks()
 
@@ -198,4 +196,4 @@ describe('ImageSlideCard', () => {
       expect(global.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url')
     })
   })
-}) 
+})

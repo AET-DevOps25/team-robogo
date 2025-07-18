@@ -7,16 +7,11 @@ import {
   deleteScore,
   createScoreSlide
 } from '@/services/scoreService'
-import type { Score, Category, SlideItem } from '@/interfaces/types'
+import type { Category, SlideItem } from '@/interfaces/types'
 import { SlideType } from '@/interfaces/types'
 
 describe('ScoreService', () => {
   const mockTeam = { id: 1, name: 'Test Team' }
-
-  const mockScores: Score[] = [
-    { id: 1, points: 10, time: 60, highlight: false, team: mockTeam, rank: 1 },
-    { id: 2, points: 20, time: 120, highlight: true, team: mockTeam, rank: 2 }
-  ]
 
   const mockCategory: Category = {
     id: 1,
@@ -129,4 +124,4 @@ describe('ScoreService', () => {
       await expect(createScoreSlide(mockScoreSlide)).resolves.toEqual({})
     })
   })
-}) 
+})

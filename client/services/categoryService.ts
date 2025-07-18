@@ -59,4 +59,4 @@ export async function updateCategory(id: number, category: Partial<Category>): P
 export async function deleteCategory(id: number): Promise<void> {
   const { authFetch } = useAuthFetch()
   await authFetch<void>(`${BASE_URL}/${id}`, { method: 'DELETE' })
-} 
+}

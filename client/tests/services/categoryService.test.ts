@@ -6,20 +6,8 @@ import {
   updateCategory,
   deleteCategory
 } from '@/services/categoryService'
-import type { Category } from '@/interfaces/types'
 
 describe('CategoryService', () => {
-  const mockCategories: Category[] = [
-    { id: 1, name: 'Category 1', competitionId: 1 },
-    { id: 2, name: 'Category 2', competitionId: 1 }
-  ]
-
-  const mockCategory: Category = {
-    id: 1,
-    name: 'Test Category',
-    competitionId: 1
-  }
-
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -89,4 +77,4 @@ describe('CategoryService', () => {
       await expect(deleteCategory(999)).resolves.toBeUndefined()
     })
   })
-}) 
+})

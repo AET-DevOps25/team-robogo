@@ -215,4 +215,4 @@ describe('SlideDeckCard', () => {
 
     expect(emptyWrapper.exists()).toBe(true)
   })
-}) 
+})

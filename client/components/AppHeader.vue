@@ -17,20 +17,20 @@
 
     <!-- 右侧：语言切换和登出 -->
     <div class="flex items-center gap-4">
-    <LanguageSwitcher />
+      <LanguageSwitcher />
 
-    <UButton
+      <UButton
         v-if="showLogout && isAuthenticated"
-      color="error"
-      variant="soft"
-      icon="i-heroicons-arrow-right-on-rectangle"
-      size="sm"
-      loading-auto
-      loading-icon="i-lucide-loader-2"
-      @click="handleLogout"
-    >
-      {{ $t('logout') }}
-    </UButton>
+        color="error"
+        variant="soft"
+        icon="i-heroicons-arrow-right-on-rectangle"
+        size="sm"
+        loading-auto
+        loading-icon="i-lucide-loader-2"
+        @click="handleLogout"
+      >
+        {{ $t('logout') }}
+      </UButton>
     </div>
 
     <!-- 分数管理对话框 -->
@@ -39,8 +39,12 @@
         v-if="showScoreManagement"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 dark:bg-black dark:bg-opacity-60"
       >
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-6xl h-5/6 mx-4 overflow-hidden">
-          <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div
+          class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-6xl h-5/6 mx-4 overflow-hidden"
+        >
+          <div
+            class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700"
+          >
             <h2 class="text-xl font-bold text-gray-900 dark:text-white">
               {{ $t('scoreManagement') }}
             </h2>

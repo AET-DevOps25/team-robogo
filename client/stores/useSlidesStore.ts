@@ -45,4 +45,4 @@ export const useSlidesStore = defineStore('slides', () => {
     stopAutoRefresh,
     onSlidesChanged
   }
-}) 
+})

@@ -6,35 +6,10 @@ import {
   updateSlide,
   deleteSlide
 } from '@/services/slideService'
-import type { SlideItem, Score, Team, Category } from '@/interfaces/types'
+import type { SlideItem } from '@/interfaces/types'
 import { SlideType } from '@/interfaces/types'
 
 describe('SlideService', () => {
-  const mockTeam: Team = { id: 1, name: 'Test Team' }
-  const mockCategory: Category = { id: 1, name: 'Test Category', competitionId: 1 }
-  const mockScores: Score[] = [
-    { id: 1, points: 10, time: 60, highlight: false, team: mockTeam, rank: 1 },
-    { id: 2, points: 20, time: 120, highlight: true, team: mockTeam, rank: 2 }
-  ]
-
-  const mockSlides: SlideItem[] = [
-    {
-      id: 1,
-      index: 0,
-      name: 'Slide 1',
-      type: SlideType.IMAGE,
-      imageMeta: { id: 1, name: 'img1', contentType: 'image/jpeg' }
-    },
-    {
-      id: 2,
-      index: 1,
-      name: 'Slide 2',
-      type: SlideType.SCORE,
-      scores: mockScores,
-      category: mockCategory
-    }
-  ]
-
   const mockSlide: SlideItem = {
     id: 1,
     index: 0,
@@ -132,4 +107,4 @@ describe('SlideService', () => {
       await expect(deleteSlide(999)).resolves.toBeUndefined()
     })
   })
-}) 
+})

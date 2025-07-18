@@ -148,4 +148,3 @@ export async function updateSlideDeckSpeed(
     body: JSON.stringify({ transitionTime })
   })
 }
-

@@ -117,7 +117,7 @@ describe('ScoreSlideCard', () => {
 
       const firstRow = wrapper.find('tbody tr')
       const cells = firstRow.findAll('td')
-      
+
       expect(cells[0].text()).toBe('Team Alpha')
       expect(cells[1].text()).toBe('100')
       expect(cells[2].text()).toBe('120')
@@ -177,7 +177,7 @@ describe('ScoreSlideCard', () => {
       wrapper = createWrapper()
 
       const rows = wrapper.findAll('tbody tr')
-      
+
       // Check first row (highlighted)
       const firstRowCells = rows[0].findAll('td')
       expect(firstRowCells[0].text()).toBe('Team Alpha')
@@ -283,7 +283,7 @@ describe('ScoreSlideCard', () => {
 
       const headers = wrapper.findAll('th')
       expect(headers.length).toBeGreaterThan(0)
-      
+
       headers.forEach((header: any) => {
         expect(header.exists()).toBe(true)
       })
@@ -294,7 +294,7 @@ describe('ScoreSlideCard', () => {
 
       const rows = wrapper.findAll('tbody tr')
       expect(rows.length).toBeGreaterThan(0)
-      
+
       rows.forEach((row: any) => {
         const cells = row.findAll('td')
         expect(cells.length).toBe(5)
@@ -408,4 +408,4 @@ describe('ScoreSlideCard', () => {
       expect(wrapper.text()).toContain('notScoreType')
     })
   })
-}) 
+})

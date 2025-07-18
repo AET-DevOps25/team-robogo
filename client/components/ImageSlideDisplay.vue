@@ -71,4 +71,4 @@
       URL.revokeObjectURL(imageUrl.value)
     }
   })
-</script> 
+</script>

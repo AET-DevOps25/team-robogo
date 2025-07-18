@@ -15,4 +15,4 @@
   import { useToast } from '@/composables/useToast'
 
   const { toasts, removeToast } = useToast()
-</script> 
+</script>

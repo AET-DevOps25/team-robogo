@@ -6,19 +6,8 @@ import {
   updateTeam,
   deleteTeam
 } from '@/services/teamService'
-import type { Team } from '@/interfaces/types'
 
 describe('TeamService', () => {
-  const mockTeams: Team[] = [
-    { id: 1, name: 'Team 1' },
-    { id: 2, name: 'Team 2' }
-  ]
-
-  const mockTeam: Team = {
-    id: 1,
-    name: 'Test Team'
-  }
-
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -88,4 +77,4 @@ describe('TeamService', () => {
       await expect(deleteTeam(999)).resolves.toBeUndefined()
     })
   })
-}) 
+})

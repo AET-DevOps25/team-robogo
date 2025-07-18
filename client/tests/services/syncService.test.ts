@@ -1,11 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { startSync, stopSync, getCurrentSlideIndex, setSlideIndex, cleanup } from '@/services/syncService'
-import type { SyncState } from '@/interfaces/types'
+import {
+  startSync,
+  stopSync,
+  getCurrentSlideIndex,
+  setSlideIndex,
+  cleanup
+} from '@/services/syncService'
 
 describe('SyncService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // 清理之前的同步状态
     cleanup()
   })
 
@@ -18,7 +22,7 @@ describe('SyncService', () => {
 
     it('should not start sync if already syncing', () => {
       startSync(1, 5000, 'screen-1')
-      startSync(1, 5000, 'screen-1') // Second call should be ignored
+      startSync(1, 5000, 'screen-1')
 
       expect(getCurrentSlideIndex(1)).toBe(0)
     })
@@ -75,4 +79,4 @@ describe('SyncService', () => {
       expect(getCurrentSlideIndex(2)).toBe(0)
     })
   })
-}) 
+})

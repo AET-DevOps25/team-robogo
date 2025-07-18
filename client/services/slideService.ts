@@ -62,4 +62,4 @@ export async function updateSlide(id: number, slide: SlideItem): Promise<SlideIt
 export async function deleteSlide(id: number): Promise<void> {
   const { authFetch } = useAuthFetch()
   await authFetch<void>(`${BASE_URL}/${id}`, { method: 'DELETE' })
-} 
+}

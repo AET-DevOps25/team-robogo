@@ -13,4 +13,4 @@
 
   defineProps<{ slide: SlideItem }>()
   const { t } = useI18n()
-</script> 
+</script>
