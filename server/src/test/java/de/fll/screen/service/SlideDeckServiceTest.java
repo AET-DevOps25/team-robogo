@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import java.util.*;
+import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -27,6 +28,19 @@ public class SlideDeckServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+    
+    /**
+     * 使用反射设置 SlideDeck 的 ID
+     */
+    private void setId(SlideDeck deck, long id) {
+        try {
+            Field idField = SlideDeck.class.getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(deck, id);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set ID", e);
+        }
     }
 
     @Test
@@ -60,6 +74,7 @@ public class SlideDeckServiceTest {
         // 创建测试数据
         SlideDeck deck = new SlideDeck();
         deck.setVersion(1);
+        setId(deck, 1L); // 设置 deck 的 ID 为 1
         
         ScoreSlide mockedScoreSlide = mock(ScoreSlide.class);
         when(mockedScoreSlide.getId()).thenReturn(2L);
@@ -95,6 +110,7 @@ public class SlideDeckServiceTest {
         // 创建测试数据
         SlideDeck deck = new SlideDeck();
         deck.setVersion(1);
+        setId(deck, 1L); // 设置 deck 的 ID 为 1
         
         // 创建一个 ImageSlide 并模拟其 ID
         ImageSlide mockedImageSlide = mock(ImageSlide.class);
@@ -124,6 +140,7 @@ public class SlideDeckServiceTest {
         // 创建测试数据
         SlideDeck deck = new SlideDeck();
         deck.setVersion(1);
+        setId(deck, 1L); // 设置 deck 的 ID 为 1
         
         // 创建多个 slides
         ScoreSlide mockedScoreSlide = mock(ScoreSlide.class);
@@ -177,6 +194,7 @@ public class SlideDeckServiceTest {
         // 创建空的 deck
         SlideDeck deck = new SlideDeck();
         deck.setVersion(1);
+        setId(deck, 1L); // 设置 deck 的 ID 为 1
         
         Slide slide = mock(Slide.class);
         when(slide.getId()).thenReturn(2L);
@@ -217,6 +235,7 @@ public class SlideDeckServiceTest {
         // 测试版本号递增逻辑
         SlideDeck deck = new SlideDeck();
         deck.setVersion(1);
+        setId(deck, 1L); // 设置 deck 的 ID 为 1
         
         ScoreSlide mockedScoreSlide = mock(ScoreSlide.class);
         when(mockedScoreSlide.getId()).thenReturn(2L);
@@ -266,13 +285,18 @@ public class SlideDeckServiceTest {
         when(slide.getId()).thenReturn(2L);
         when(slide.getSlidedeck()).thenReturn(deck2); // slide 属于 deck2
         
-        when(slideDeckRepository.findById(1L)).thenReturn(Optional.of(deck1));
         when(slideRepository.findById(2L)).thenReturn(Optional.of(slide));
         
         // 验证抛出异常
         assertThrows(IllegalArgumentException.class, () -> {
             slideDeckService.removeSlideFromDeck(1L, 2L);
         });
+        
+        // 验证没有调用 save 方法，因为异常会在验证阶段抛出
+        verify(slideRepository, never()).save(any(Slide.class));
+        verify(slideDeckRepository, never()).save(any(SlideDeck.class));
+        verify(slideRepository, times(1)).findById(2L);
+        // 由于异常在验证slide时就抛出，不会调用findById(1L)
     }
 
     @Test
@@ -280,6 +304,7 @@ public class SlideDeckServiceTest {
         // 模拟外键约束失败的情况
         SlideDeck deck = new SlideDeck();
         deck.setVersion(1);
+        setId(deck, 1L); // 设置 deck 的 ID 为 1
         
         // 创建 ScoreSlide
         ScoreSlide mockedScoreSlide = mock(ScoreSlide.class);
@@ -287,7 +312,6 @@ public class SlideDeckServiceTest {
         when(mockedScoreSlide.getName()).thenReturn("Score Slide with FK Constraint");
         when(mockedScoreSlide.getSlidedeck()).thenReturn(deck);
         
-        when(slideDeckRepository.findById(1L)).thenReturn(Optional.of(deck));
         when(slideRepository.findById(2L)).thenReturn(Optional.of(mockedScoreSlide));
         
         // 模拟保存时抛出外键约束异常
@@ -295,18 +319,16 @@ public class SlideDeckServiceTest {
             new RuntimeException("Foreign key constraint violation")
         );
         
-        // 模拟 SlideRepository 的方法
-        when(slideRepository.findBySlidedeck_Id(1L)).thenReturn(new ArrayList<>());
-        doNothing().when(slideDeckRepository).setSlidesIndexNegative(1L);
-        doNothing().when(slideDeckRepository).updateSlideIndexById(anyLong(), anyInt());
-        
         // 验证抛出异常
         assertThrows(RuntimeException.class, () -> {
             slideDeckService.removeSlideFromDeck(1L, 2L);
         });
         
         // 验证 repository 调用
-        verify(slideDeckRepository, times(1)).findById(1L);
+        verify(slideRepository, times(1)).findById(2L);
         verify(slideRepository, times(1)).save(any(Slide.class));
+        // 由于异常发生在保存slide时，不会到达保存deck的步骤
+        verify(slideDeckRepository, never()).save(any(SlideDeck.class));
+        verify(slideDeckRepository, never()).findById(anyLong());
     }
 } 

@@ -92,6 +92,11 @@ public class SlideDeckService {
             throw new IllegalArgumentException("Slide does not belong to any deck");
         }
         
+        // 验证 slide 是否属于指定的 deck
+        if (slide.getSlidedeck().getId() != deckId) {
+            throw new IllegalArgumentException("Slide does not belong to the specified deck");
+        }
+        
         // 将 slide 的 slidedeck 设置为 null，而不是删除 slide
         slide.setSlidedeck(null);
         slide.setIndex(null);
