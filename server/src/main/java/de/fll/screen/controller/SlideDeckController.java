@@ -1,14 +1,19 @@
 package de.fll.screen.controller;
 
 import de.fll.core.dto.SlideDeckDTO;
+import de.fll.core.dto.SlideDeckSyncDTO;
+import de.fll.core.dto.SlideDeckSyncRequestDTO;
 import de.fll.screen.model.SlideDeck;
 import de.fll.screen.model.Slide;
 import de.fll.screen.service.SlideDeckService;
+import de.fll.screen.service.SlideDeckSyncService;
 import de.fll.screen.assembler.SlideDeckAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.time.LocalDateTime;
 import de.fll.core.dto.SlideDTO;
 import de.fll.screen.assembler.SlideAssembler;
 
@@ -18,6 +23,9 @@ public class SlideDeckController {
 
     @Autowired
     private SlideDeckService slideDeckService;
+
+    @Autowired
+    private SlideDeckSyncService slideDeckSyncService;
 
     @Autowired
     private SlideDeckAssembler slideDeckAssembler;
@@ -114,5 +122,26 @@ public class SlideDeckController {
         public void setTransitionTime(Double transitionTime) {
             this.transitionTime = transitionTime;
         }
+    }
+
+    // 同步API - 获取当前同步状态
+    @GetMapping("/{deckId}/sync")
+    public SlideDeckSyncDTO getSyncStatus(@PathVariable Long deckId) {
+        return slideDeckSyncService.getSyncStatus(deckId);
+    }
+
+    // 同步API - 更新同步状态
+    @PostMapping("/{deckId}/sync")
+    public SlideDeckSyncDTO updateSyncStatus(
+            @PathVariable Long deckId,
+            @RequestBody SlideDeckSyncRequestDTO request
+    ) {
+        return slideDeckSyncService.updateSyncStatus(deckId, request);
+    }
+
+    // 同步API - 强制同步更新（用于内容变更时）
+    @PostMapping("/{deckId}/sync/force")
+    public SlideDeckSyncDTO forceSyncUpdate(@PathVariable Long deckId) {
+        return slideDeckSyncService.forceSyncUpdate(deckId);
     }
 } 

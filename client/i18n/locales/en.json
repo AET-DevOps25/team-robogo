@@ -141,5 +141,20 @@
   "slow": "Slow",
   "normal": "Normal",
   "fast": "Fast",
-  "deleteSlide": "Delete Slide"
+  "deleteSlide": "Delete Slide",
+  "screenAccessInfo": "Screen Access Information",
+  "screenAccessDescription": "To access a screen for display, use the following URL format:",
+  "screenAccessExample": "Example: Replace [screen-id] with the actual screen ID",
+  "copyUrl": "Copy URL for",
+  "urlCopiedSuccess": "URL copied to clipboard successfully",
+  "slideType": "Slide Type",
+  "noScoreData": "No score data available",
+  "seconds": "seconds",
+  "rank": "Rank",
+  "rankWithNumber": "Rank {number}",
+  "imageLoadError": "Failed to load image",
+  "imageLoading": "Loading image...",
+  "loadingSlides": "Loading slides...",
+  "noSlideDeckAssigned": "No slide deck assigned",
+  "slideDeckLoading": "Loading slide deck..."
 }

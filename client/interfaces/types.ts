@@ -68,6 +68,7 @@ export interface SlideDeck {
   slides: SlideItem[] | null
   transitionTime: number
   version: number
+  lastUpdate: string // ISO 8601 format datetime string
 }
 
 // ScreenContent
@@ -106,3 +107,23 @@ export interface ChatMessage {
 // common types
 export type ScreenStatus = 'ONLINE' | 'OFFLINE' | 'ERROR'
 export type ContentType = 'BLACK_SCREEN' | string
+export interface SyncState {
+  deckId: number
+  currentSlideIndex: number
+  lastUpdate: string
+  isMaster: boolean
+  screenId?: string
+}
+
+export interface SyncResponse {
+  deckId: number
+  currentSlideIndex: number
+  slideCount: number
+  transitionTime: number
+  lastUpdate: string
+  version: number
+  isMaster: boolean
+  lastUpdateScreenId?: string
+  syncActive: boolean
+  errorMessage?: string
+}

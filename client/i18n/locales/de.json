@@ -141,5 +141,20 @@
   "slow": "Langsam",
   "normal": "Normal",
   "fast": "Schnell",
-  "deleteSlide": "Folie löschen"
+  "deleteSlide": "Folie löschen",
+  "screenAccessInfo": "Bildschirm-Zugriffsinformationen",
+  "screenAccessDescription": "Um auf einen Bildschirm für die Anzeige zuzugreifen, verwenden Sie das folgende URL-Format:",
+  "screenAccessExample": "Beispiel: Ersetzen Sie [screen-id] mit der tatsächlichen Bildschirm-ID",
+  "copyUrl": "URL kopieren für",
+  "urlCopiedSuccess": "URL erfolgreich in die Zwischenablage kopiert",
+  "slideType": "Folientyp",
+  "noScoreData": "Keine Punktzahldaten verfügbar",
+  "seconds": "Sekunden",
+  "rank": "Rang",
+  "rankWithNumber": "Rang {number}",
+  "imageLoadError": "Bild konnte nicht geladen werden",
+  "imageLoading": "Bild wird geladen...",
+  "loadingSlides": "Folien werden geladen...",
+  "noSlideDeckAssigned": "Keine Folien-Gruppe zugewiesen",
+  "slideDeckLoading": "Folien-Gruppe wird geladen..."
 }

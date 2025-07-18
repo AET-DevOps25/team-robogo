@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 import de.fll.screen.model.Slide;
 import java.util.ArrayList;
 import de.fll.screen.model.ScoreSlide;
@@ -162,6 +163,19 @@ public class SlideDeckService {
         // 将秒转换为毫秒（因为数据库中存储的是毫秒）
         int transitionTimeMs = transitionTime != null ? (int)(transitionTime * 1000) : 1000;
         deck.setTransitionTime(transitionTimeMs);
+        deck.setVersion(incrementVersion(deck.getVersion()));
+        return slideDeckRepository.save(deck);
+    }
+
+    /**
+     * 更新SlideDeck的最后更新时间
+     * @param deckId SlideDeck的ID
+     * @return 更新后的SlideDeck
+     */
+    public SlideDeck updateLastUpdate(Long deckId) {
+        SlideDeck deck = slideDeckRepository.findById(deckId)
+            .orElseThrow(() -> new IllegalArgumentException("SlideDeck not found"));
+        deck.setLastUpdate(LocalDateTime.now());
         deck.setVersion(incrementVersion(deck.getVersion()));
         return slideDeckRepository.save(deck);
     }
