@@ -117,11 +117,23 @@ jobs:
 
       - name: Create GenAI Secret
         run: |
-          kubectl create namespace devops25-team-robogo
-          kubectl create secret generic genai-secret \
-            --from-literal=CHAIR_API_KEY="${{ github.event.inputs.CHAIR_API_KEY }}" \
-            --from-literal=OPENAI_API_KEY="${{ github.event.inputs.OPENAI_API_KEY }}" \
-            -n devops25-team-robogo --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace devops25-team-robogo --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Check if secret exists and patch it, otherwise create it
+          if kubectl get secret genai-secret -n devops25-team-robogo >/dev/null 2>&1; then
+            echo "Secret genai-secret already exists, patching it..."
+            kubectl patch secret genai-secret -n devops25-team-robogo \
+              --type='merge' \
+              -p="{\"data\":{\"CHAIR_API_KEY\":\"$(echo -n "${{ github.event.inputs.CHAIR_API_KEY }}" | base64)\",\"OPENAI_API_KEY\":\"$(echo -n "${{ github.event.inputs.OPENAI_API_KEY }}" | base64)\"}}"
+          else
+            echo "Creating new secret genai-secret..."
+            kubectl create secret generic genai-secret \
+              --from-literal=CHAIR_API_KEY="${{ github.event.inputs.CHAIR_API_KEY }}" \
+              --from-literal=OPENAI_API_KEY="${{ github.event.inputs.OPENAI_API_KEY }}" \
+              -n devops25-team-robogo
+          fi
+          
+          # Add Helm labels and annotations
           kubectl label secret genai-secret -n devops25-team-robogo app.kubernetes.io/managed-by=Helm --overwrite
           kubectl annotate secret genai-secret -n devops25-team-robogo meta.helm.sh/release-name=screen --overwrite
           kubectl annotate secret genai-secret -n devops25-team-robogo meta.helm.sh/release-namespace=devops25-team-robogo --overwrite
