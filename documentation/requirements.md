@@ -4,47 +4,80 @@
 
 Team RoboGo is a multi-screen presentation and score management system designed for robotics competitions. The system enables real-time synchronization of slide presentations across multiple display screens while providing comprehensive score tracking and team management capabilities.
 
+## Main Feature Modules
+
+![Main Feature Modules](main-features.png)
+*Functional architecture showing the four core feature modules: Score Management, AI Features, Slide Management, and Real-time Features with their interconnections*
+
 ## 1. Functional Requirements
 
-### 1.1 User Authentication and Authorization
+### 1.1 Score Management Module
+The system provides comprehensive score tracking and management capabilities:
+- **Input**: Score entry and validation for team performances
+- **Display**: Real-time score visualization and ranking
+- **Analysis**: Score processing and statistical analysis
+- **Feedback Loop**: Continuous score updates and processing
+
+### 1.2 AI Features Module
+AI-powered content generation and analysis capabilities:
+- **Content Generation**: AI-driven slide content creation
+- **Score Analysis**: AI-powered score prediction and analysis
+- **Content Optimization**: AI-based content enhancement for different screen sizes
+- **Integration**: Seamless integration with slide management and score systems
+
+### 1.3 Slide Management Module
+Complete slide deck creation and management system:
+- **Create**: Slide creation with AI-generated content
+- **Edit**: Slide modification and content updates
+- **Sync**: Real-time synchronization across all displays
+- **Content Flow**: Integration with AI features for content generation
+
+### 1.4 Real-time Features Module
+Real-time display and synchronization capabilities:
+- **Real-time Sync**: Immediate content updates across all screens
+- **Multi-screen Display**: Simultaneous display on multiple screens
+- **Live Updates**: Continuous real-time content streaming
+- **Integration**: Seamless connection with slide management system
+
+### 1.5 User Authentication and Authorization
 - **FR-1.1**: System shall provide user login functionality with username and password
 - **FR-1.2**: System shall generate and validate JWT tokens for authenticated sessions
 - **FR-1.3**: System shall support session validation and logout functionality
 - **FR-1.4**: System shall protect API endpoints requiring authentication
 
-### 1.2 Slide Deck Management
+### 1.6 Slide Deck Management
 - **FR-2.1**: System shall allow creation of slide decks with configurable transition times
 - **FR-2.2**: System shall support two types of slides: Image slides and Score slides
 - **FR-2.3**: System shall enable adding, updating, and deleting slides within decks
 - **FR-2.4**: System shall maintain slide order and indexing within decks
 - **FR-2.5**: System shall support image upload and storage for image slides
 
-### 1.3 Real-time Synchronization
+### 1.7 Real-time Synchronization
 - **FR-3.1**: System shall implement version control for slide decks
 - **FR-3.2**: System shall support polling-based synchronization mechanism
 - **FR-3.3**: System shall detect changes and notify all connected screens
 - **FR-3.4**: System shall ensure all screens display identical content simultaneously
 - **FR-3.5**: System shall handle network interruptions gracefully
 
-### 1.4 Score Management
+### 1.8 Score Management
 - **FR-4.1**: System shall allow recording team scores with points and completion time
 - **FR-4.2**: System shall support score updates and modifications
 - **FR-4.3**: System shall provide score ranking and sorting capabilities
 - **FR-4.4**: System shall display scores in real-time on score slides
 
-### 1.5 Team and Category Management
+### 1.9 Team and Category Management
 - **FR-5.1**: System shall support team creation and management
 - **FR-5.2**: System shall allow categorization of teams
 - **FR-5.3**: System shall maintain team-category relationships
 - **FR-5.4**: System shall support competition organization
 
-### 1.6 Screen Management
+### 1.10 Screen Management
 - **FR-6.1**: System shall allow registration and management of display screens
 - **FR-6.2**: System shall support screen status monitoring (active, inactive, error)
 - **FR-6.3**: System shall enable assignment of slide decks to screens
 - **FR-6.4**: System shall provide screen content control
 
-### 1.7 Image Management
+### 1.11 Image Management
 - **FR-7.1**: System shall support image upload with metadata storage
 - **FR-7.2**: System shall store image content separately from metadata
 - **FR-7.3**: System shall support various image formats (JPEG, PNG, GIF)
