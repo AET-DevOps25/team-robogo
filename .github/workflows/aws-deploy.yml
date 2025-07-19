@@ -14,6 +14,12 @@ on:
       AWS_SESSION_TOKEN:
         description: 'AWS Session Token'
         required: true
+      CHAIR_API_KEY:
+        description: 'CHAIR API Key for GenAI service'
+        required: true
+      OPENAI_API_KEY:
+        description: 'OpenAI API Key for GenAI service'
+        required: true
 
 jobs:
   provision:
@@ -82,6 +88,13 @@ jobs:
           sudo apt update
           sudo apt install -y ansible
 
+      - name: Create GenAI Secret
+        run: |
+          kubectl create secret generic genai-secret \
+            --from-literal=CHAIR_API_KEY="${{ github.event.inputs.CHAIR_API_KEY }}" \
+            --from-literal=OPENAI_API_KEY="${{ github.event.inputs.OPENAI_API_KEY }}" \
+            -n devops25-team-robogo --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Generate Ansible inventory
         run: |
           echo "[ec2]" > infra/inventory.ini
@@ -110,9 +123,9 @@ jobs:
 
       - name: Deploy Helm chart
         run: |
-          kubectl delete namespace team-robogo --ignore-not-found
+          kubectl delete namespace devops25-team-robogo --ignore-not-found
           helm dependency build ./infra/helm/screen
-          helm upgrade --install screen ./infra/helm/screen --namespace team-robogo --create-namespace \
+          helm upgrade --install screen ./infra/helm/screen --namespace devops25-team-robogo --create-namespace \
             -f ./infra/helm/screen/values.yaml \
             --set grafana.enabled=false \
             --set prometheus.enabled=false \
@@ -120,5 +133,9 @@ jobs:
             --set promtail.enabled=false \
             --set redis.enabled=false \
             --set postgresExporter.enabled=false
+
+      - name: Verify Secret Creation
+        run: |
+          kubectl get secret genai-secret -n devops25-team-robogo -o yaml
 
 
