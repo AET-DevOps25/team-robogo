@@ -71,7 +71,7 @@
             </div>
             <div class="flex justify-between">
               <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('time') }}:</span>
-              <span class="font-semibold text-gray-900 dark:text-white">{{ score.time }}秒</span>
+              <span class="font-semibold text-gray-900 dark:text-white">{{ score.time }}</span>
             </div>
           </div>
           <div class="mt-3 flex gap-2">
