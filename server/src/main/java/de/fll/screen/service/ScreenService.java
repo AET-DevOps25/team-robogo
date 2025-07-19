@@ -8,6 +8,7 @@ import de.fll.screen.repository.SlideDeckRepository;
 import de.fll.core.dto.ScreenContentDTO;
 import de.fll.screen.repository.CompetitionRepository;
 import de.fll.screen.assembler.SlideDeckAssembler;
+import io.micrometer.core.instrument.Counter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,9 @@ public class ScreenService {
     @Autowired
     private SlideDeckAssembler slideDeckAssembler;
 
+    @Autowired
+    private Counter screenStatusChangeCounter;
+
     public List<Screen> getAllScreens() {
         return screenRepository.findAll();
     }
@@ -44,6 +48,12 @@ public class ScreenService {
 
     public Screen updateScreen(Long id, Screen screenDetails) {
         Screen screen = screenRepository.findById(id).orElseThrow();
+        
+        // 检查状态是否发生变化
+        if (screen.getStatus() != screenDetails.getStatus()) {
+            screenStatusChangeCounter.increment();
+        }
+        
         screen.setName(screenDetails.getName());
         screen.setStatus(screenDetails.getStatus());
         return screenRepository.save(screen);

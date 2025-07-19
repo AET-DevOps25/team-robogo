@@ -80,6 +80,84 @@ prometheus:
     size: 5Gi
     storageClassName: ""
 
+alertmanager:
+  image:
+    repository: prom/alertmanager
+    tag: v0.26.0
+  service:
+    port: 9093
+  resources: {}
+  persistence:
+    enabled: false
+    size: 1Gi
+    storageClassName: ""
+  config:
+    global:
+      resolve_timeout: 5m
+      slack_api_url: 'https://hooks.slack.com/services/YOUR_SLACK_WEBHOOK'
+    route:
+      group_by: ['alertname', 'service']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 1h
+      receiver: 'slack-notifications'
+      routes:
+        - match:
+            severity: critical
+          receiver: 'pager-duty-critical'
+          continue: true
+        - match:
+            severity: info
+          receiver: 'slack-info'
+          continue: true
+    inhibit_rules:
+      - source_match:
+          severity: 'critical'
+        target_match:
+          severity: 'warning'
+        equal: ['service']
+    receivers:
+      - name: 'slack-notifications'
+        slack_configs:
+          - channel: '#team-robogo-alerts'
+            title: 'Team RoboGo Alert'
+            text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+            color: '{{ if eq .CommonLabels.severity "critical" }}danger{{ else if eq .CommonLabels.severity "warning" }}warning{{ else }}good{{ end }}'
+            fields:
+              - title: 'Severity'
+                value: '{{ .CommonLabels.severity }}'
+                short: true
+              - title: 'Service'
+                value: '{{ .CommonLabels.service }}'
+                short: true
+      - name: 'slack-info'
+        slack_configs:
+          - channel: '#team-robogo-info'
+            title: 'Team RoboGo Info'
+            text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+            color: 'good'
+      - name: 'pager-duty-critical'
+        pagerduty_configs:
+          - service_key: YOUR_PAGERDUTY_SERVICE_KEY
+            description: 'Critical alert in Team RoboGo system'
+            severity: '{{ if eq .CommonLabels.severity "critical" }}critical{{ else }}warning{{ end }}'
+      - name: 'email-notifications'
+        email_configs:
+          - to: 'team-robogo-alerts@company.com'
+            from: 'alertmanager@team-robogo.com'
+            smarthost: 'smtp.company.com:587'
+            auth_username: 'alertmanager@company.com'
+            auth_password: 'YOUR_EMAIL_PASSWORD'
+            headers:
+              subject: 'Team RoboGo Alert: {{ .CommonLabels.alertname }}'
+            html: |
+              <h1>Team RoboGo Alert</h1>
+              <p><strong>Alert:</strong> {{ .CommonLabels.alertname }}</p>
+              <p><strong>Severity:</strong> {{ .CommonLabels.severity }}</p>
+              <p><strong>Service:</strong> {{ .CommonLabels.service }}</p>
+              <p><strong>Summary:</strong> {{ .CommonAnnotations.summary }}</p>
+              <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>
+
 grafana:
   image:
     repository: grafana/grafana

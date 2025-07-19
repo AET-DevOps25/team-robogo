@@ -3,7 +3,7 @@ global:
   slack_api_url: 'https://hooks.slack.com/services/YOUR_SLACK_WEBHOOK'
 
 route:
-  group_by: ['alertname']
+  group_by: ['alertname', 'service']
   group_wait: 10s
   group_interval: 10s
   repeat_interval: 1h
@@ -13,6 +13,17 @@ route:
         severity: critical
       receiver: 'pager-duty-critical'
       continue: true
+    - match:
+        severity: info
+      receiver: 'slack-info'
+      continue: true
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['service']
 
 receivers:
   - name: 'slack-notifications'
@@ -21,6 +32,20 @@ receivers:
         title: 'Team RoboGo Alert'
         text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
         color: '{{ if eq .CommonLabels.severity "critical" }}danger{{ else if eq .CommonLabels.severity "warning" }}warning{{ else }}good{{ end }}'
+        fields:
+          - title: 'Severity'
+            value: '{{ .CommonLabels.severity }}'
+            short: true
+          - title: 'Service'
+            value: '{{ .CommonLabels.service }}'
+            short: true
+
+  - name: 'slack-info'
+    slack_configs:
+      - channel: '#team-robogo-info'
+        title: 'Team RoboGo Info'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        color: 'good'
 
   - name: 'pager-duty-critical'
     pagerduty_configs:
@@ -41,5 +66,6 @@ receivers:
           <h1>Team RoboGo Alert</h1>
           <p><strong>Alert:</strong> {{ .CommonLabels.alertname }}</p>
           <p><strong>Severity:</strong> {{ .CommonLabels.severity }}</p>
+          <p><strong>Service:</strong> {{ .CommonLabels.service }}</p>
           <p><strong>Summary:</strong> {{ .CommonAnnotations.summary }}</p>
           <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p> 

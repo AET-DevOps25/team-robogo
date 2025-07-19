@@ -24,7 +24,18 @@ curl -s http://localhost:8081/actuator/health | jq '.status' || echo "Backend st
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8081
 - **Swagger UI**: http://localhost:8081/swagger-ui.html
-- **GenAI Service**: http://localhost:8000/docs
+- **GenAI Service**: http://localhost:5000/docs
+
+### API Documentation
+- **Backend Swagger**: http://localhost:8081/swagger-ui.html
+- **Backend API Docs**: http://localhost:8081/v3/api-docs
+- **GenAI Swagger**: http://localhost:5000/docs
+- **GenAI ReDoc**: http://localhost:5000/redoc
+
+### Monitoring Access (Production)
+- **Grafana Dashboards**: https://grafana.team-robogo.student.k8s.aet.cit.tum.de
+- **AlertManager**: https://alertmanager.team-robogo.student.k8s.aet.cit.tum.de
+- **Operations Guide**: [documentation/operations-guide.md](documentation/operations-guide.md)
 
 ## 🏗️ System Architecture
 
@@ -37,6 +48,13 @@ curl -s http://localhost:8081/actuator/health | jq '.status' || echo "Backend st
 - **Database**: PostgreSQL with Redis caching
 - **AI Service**: FastAPI-based GenAI integration
 - **Infrastructure**: Docker Compose with Kubernetes support
+
+### Architecture Documentation
+
+For detailed architecture information, see:
+- [Top-Level Architecture](documentation/top-level-architecture.md) - Complete system architecture overview
+- [Analysis Object Model](documentation/analysis-object-model.md) - Business domain model and object relationships
+- [Data Schema](documentation/data-schema.md) - Database design and API data models
 
 ## 🤖 GenAI Integration
 
@@ -82,7 +100,7 @@ POST /genai/optimize-content
 genai:
   image: team-robogo/genai:latest
   ports:
-    - "8000:8000"
+    - "5000:5000"
   environment:
     - OPENAI_API_KEY=${OPENAI_API_KEY}
     - MODEL_NAME=gpt-4
@@ -98,8 +116,20 @@ genai:
 docker-compose exec genai python -m pip install -r requirements.txt
 
 # Test AI service
-curl -X POST http://localhost:8000/health
+curl -X POST http://localhost:5000/health
 ```
+
+### API Documentation Access
+
+#### GenAI Service API
+- **Swagger UI**: http://localhost:5000/docs
+- **ReDoc**: http://localhost:5000/redoc
+- **OpenAPI JSON**: http://localhost:5000/openapi.json
+
+#### Backend Server API
+- **Swagger UI**: http://localhost:8081/swagger-ui.html
+- **API Docs**: http://localhost:8081/v3/api-docs
+- **Health Check**: http://localhost:8081/actuator/health
 
 ## 🔄 CI/CD Pipeline
 
@@ -321,6 +351,32 @@ monitoring:
     endpoint: /metrics/postgres
 ```
 
+### Key Metrics
+
+#### Application Metrics
+- **HTTP Metrics**: Request rate, response time, error rate
+- **JVM Metrics**: Memory usage, garbage collection, thread count
+- **Business Metrics**: Active screens, slide deck updates, score updates
+- **Custom Counters**: Screen status changes, content updates
+
+#### Infrastructure Metrics  
+- **Database**: Connections, transaction rate, cache hit ratio
+- **Cache**: Memory usage, command processing, hit/miss rates
+- **System**: CPU, memory, disk usage, network I/O
+
+### Alerting Rules
+
+Configured alerts for:
+- **Service Health**: Service down, database unavailable
+- **Performance**: High CPU/memory usage, slow response times
+- **Business**: No active screens, high error rates, frequent updates
+
+### Dashboard Access
+
+- **Grafana**: https://grafana.team-robogo.student.k8s.aet.cit.tum.de
+- **AlertManager**: https://alertmanager.team-robogo.student.k8s.aet.cit.tum.de
+- **Prometheus**: Internal access via Grafana data source
+
 ### Logging
 
 ```yaml
@@ -360,9 +416,24 @@ docker-compose exec server ./gradlew flywayClean flywayMigrate
 
 ### API Documentation
 
-- **Swagger UI**: http://localhost:8081/swagger-ui.html
-- **OpenAPI Spec**: http://localhost:8081/v3/api-docs
-- **GenAI API**: http://localhost:8000/docs
+- **Backend Swagger UI**: http://localhost:8081/swagger-ui.html
+- **Backend OpenAPI Spec**: http://localhost:8081/v3/api-docs
+- **GenAI Swagger UI**: http://localhost:5000/docs
+- **GenAI ReDoc**: http://localhost:5000/redoc
+- **GenAI OpenAPI Spec**: http://localhost:5000/openapi.json
+
+### API Testing
+
+```bash
+# Test Backend API
+curl -X GET http://localhost:8081/actuator/health
+
+# Test GenAI API
+curl -X GET http://localhost:5000/health
+
+# Test with authentication
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8081/api/slidedecks
+```
 
 ## 🧪 Testing
 
@@ -390,11 +461,50 @@ curl -f http://localhost:8081/actuator/health || exit 1
 
 ## 📚 Documentation
 
-- [System Architecture](documentation/top-level-architecture.md)
-- [API Documentation](documentation/api-endpoints.md)
-- [Data Schema](documentation/data-schema.md)
-- [Use Case Analysis](documentation/use-case-diagram.md)
-- [Requirements Specification](documentation/requirements.md)
+### 🏗️ System Design
+- [Top-Level Architecture](documentation/top-level-architecture.md) - System architecture and component design
+- [Analysis Object Model](documentation/analysis-object-model.md) - Core business objects and domain model
+- [Data Schema](documentation/data-schema.md) - Database entities and API data models
+
+### 🔧 API & Development
+- [API Documentation](documentation/api-endpoints.md) - REST API endpoints and usage
+- [Use Case Analysis](documentation/use-case-diagram.md) - System use cases and workflows
+- [Requirements Specification](documentation/requirements.md) - Functional and non-functional requirements
+
+### 🛠️ Operations & Monitoring
+
+- [Operations Guide](documentation/operations-guide.md) - Complete operational guidance and procedures
+- [Dashboard Configuration](documentation/dashboard-configuration.md) - Grafana dashboard setup and configuration
+- [Monitoring Metrics](documentation/monitoring-metrics.md) - Detailed metrics documentation and queries
+- [Monitoring Guide](documentation/monitoring-guide.md) - Monitoring architecture and alerting setup
+
+### 📊 Monitoring Stack
+
+Our system includes comprehensive monitoring with:
+
+- **Prometheus** - Metrics collection and storage
+- **AlertManager** - Alert management and routing  
+- **Grafana** - Visualization and dashboards
+- **Loki** - Log aggregation
+- **Custom Business Metrics** - Domain-specific monitoring
+
+### 🚨 Alerting System
+
+Configured alerts for:
+- Service health (Gateway, Server, Database, GenAI)
+- Performance metrics (CPU, Memory, Response Time)
+- Business metrics (Active Screens, Error Rates, Update Frequency)
+
+### 📈 Available Dashboards
+
+1. **System Overview** - High-level system health
+2. **Application Performance** - Detailed app metrics  
+3. **Database Performance** - Database monitoring
+4. **GenAI Service** - AI service metrics
+5. **Business Metrics** - Business KPIs
+6. **Infrastructure** - System resources
+
+Access dashboards at: `https://grafana.team-robogo.student.k8s.aet.cit.tum.de`
 
 ## 🤝 Contributing
 

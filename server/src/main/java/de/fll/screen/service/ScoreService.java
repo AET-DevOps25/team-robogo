@@ -14,6 +14,7 @@ import de.fll.screen.repository.SlideDeckRepository;
 import de.fll.screen.assembler.TeamAssembler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import io.micrometer.core.instrument.Counter;
 import java.util.*;
 
 @Service
@@ -23,8 +24,10 @@ public class ScoreService {
     private final CategoryRepository categoryRepository;
     private final SlideRepository slideRepository;
     private final SlideDeckRepository slideDeckRepository;
+    private final Counter scoreUpdateCounter;
     private final TeamAssembler teamAssembler;
     private final RankingService rankingService;
+
 
     @Autowired
     public ScoreService(
@@ -33,6 +36,7 @@ public class ScoreService {
         CategoryRepository categoryRepository,
         SlideRepository slideRepository,
         SlideDeckRepository slideDeckRepository,
+        Counter scoreUpdateCounter,
         TeamAssembler teamAssembler,
         RankingService rankingService
     ) {
@@ -41,6 +45,7 @@ public class ScoreService {
         this.categoryRepository = categoryRepository;
         this.slideRepository = slideRepository;
         this.slideDeckRepository = slideDeckRepository;
+        this.scoreUpdateCounter = scoreUpdateCounter;
         this.teamAssembler = teamAssembler;
         this.rankingService = rankingService;
     }
@@ -60,6 +65,7 @@ public class ScoreService {
         }
         
         Score savedScore = scoreRepository.save(score);
+        scoreUpdateCounter.increment();
         
         // 更新相关的SlideDeck版本
         updateSlideDeckVersionsForScore(savedScore);
@@ -78,6 +84,7 @@ public class ScoreService {
         score.setTeam(team);
         
         Score savedScore = scoreRepository.save(score);
+        scoreUpdateCounter.increment();
         
         // 更新相关的SlideDeck版本
         updateSlideDeckVersionsForScore(savedScore);

@@ -1,38 +1,186 @@
 groups:
-  - name: example-alerts
+  - name: service-alerts
     rules:
       - alert: GatewayDown
         expr: up{job="gateway"} == 0
         for: 1m
         labels:
           severity: critical
+          service: gateway
         annotations:
           summary: "API Gateway is down"
           description: "API Gateway has been unreachable for 1 minute."
 
       - alert: ServerDown
-        expr: up{job="server"} == 0
+        expr: up{job="spring-boot-app"} == 0
         for: 1m
         labels:
           severity: critical
+          service: server
         annotations:
           summary: "Server is down"
-          description: "Server has been unreachable for 1 minute."
+          description: "Backend server has been unreachable for 1 minute."
 
       - alert: GenAIDown
-        expr: up{job="genai"} == 0
+        expr: up{job="genai-service"} == 0
         for: 1m
         labels:
           severity: warning
+          service: genai
         annotations:
           summary: "GenAI service is down"
           description: "GenAI service has been unreachable for 1 minute."
 
+      - alert: DatabaseDown
+        expr: up{job="postgres-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "Database is down"
+          description: "PostgreSQL database has been unreachable for 1 minute."
+
+      - alert: RedisDown
+        expr: up{job="redis-exporter"} == 0
+        for: 1m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache has been unreachable for 1 minute."
+
+  - name: performance-alerts
+    rules:
       - alert: HighGatewayCPU
-        expr: process_cpu_seconds_total{job="gateway"} > 0.8
+        expr: rate(process_cpu_seconds_total{job="gateway"}[5m]) * 100 > 80
         for: 5m
         labels:
           severity: warning
+          service: gateway
         annotations:
           summary: "Gateway CPU usage is high"
-          description: "Gateway process CPU usage has been above 80% for 5 minutes."
+          description: "Gateway CPU usage has been above 80% for 5 minutes."
+
+      - alert: HighServerCPU
+        expr: rate(process_cpu_seconds_total{job="spring-boot-app"}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: server
+        annotations:
+          summary: "Server CPU usage is high"
+          description: "Backend server CPU usage has been above 80% for 5 minutes."
+
+      - alert: HighMemoryUsage
+        expr: (process_resident_memory_bytes{job="spring-boot-app"} / 1024 / 1024) > 1024
+        for: 5m
+        labels:
+          severity: warning
+          service: server
+        annotations:
+          summary: "High memory usage"
+          description: "Server memory usage is above 1GB for 5 minutes."
+
+      - alert: HighDatabaseConnections
+        expr: pg_stat_database_numbackends{datname="robogo_db"} > 50
+        for: 2m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "High database connections"
+          description: "Database has more than 50 active connections for 2 minutes."
+
+  - name: business-alerts
+    rules:
+      - alert: NoActiveScreens
+        expr: active_screens_count == 0
+        for: 5m
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: "No active screens detected"
+          description: "No screens are currently active in the system for 5 minutes."
+
+      - alert: LowActiveScreens
+        expr: active_screens_count / total_screens_count < 0.5
+        for: 10m
+        labels:
+          severity: info
+          service: business
+        annotations:
+          summary: "Low active screens ratio"
+          description: "Less than 50% of screens are active for 10 minutes."
+
+      - alert: HighErrorRate
+        expr: rate(http_server_requests_total{job="spring-boot-app",status=~"5.."}[5m]) / rate(http_server_requests_total{job="spring-boot-app"}[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is above 5% for 2 minutes."
+
+      - alert: SlowResponseTime
+        expr: histogram_quantile(0.95, rate(http_server_requests_duration_seconds_bucket{job="spring-boot-app"}[5m])) > 2
+        for: 3m
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: "Slow response time"
+          description: "95th percentile response time is above 2 seconds for 3 minutes."
+
+      - alert: HighRequestRate
+        expr: rate(http_server_requests_total{job="spring-boot-app"}[1m]) > 100
+        for: 2m
+        labels:
+          severity: info
+          service: business
+        annotations:
+          summary: "High request rate"
+          description: "Request rate is above 100 requests per minute for 2 minutes."
+
+      - alert: GenAIHighLatency
+        expr: histogram_quantile(0.95, rate(genai_genai_http_request_duration_seconds_bucket{job="genai-service"}[5m])) > 10
+        for: 3m
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: "GenAI service high latency"
+          description: "GenAI service 95th percentile response time is above 10 seconds for 3 minutes."
+
+      - alert: GenAIHighErrorRate
+        expr: rate(genai_genai_http_exceptions_total{job="genai-service"}[5m]) / rate(genai_genai_http_requests_total{job="genai-service"}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: "GenAI service high error rate"
+          description: "GenAI service error rate is above 10% for 2 minutes."
+
+      - alert: FrequentSlideDeckUpdates
+        expr: rate(slide_deck_updates_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: info
+          service: business
+        annotations:
+          summary: "Frequent slide deck updates"
+          description: "Slide deck updates are happening more than 10 times per 5 minutes."
+
+      - alert: FrequentScoreUpdates
+        expr: rate(score_updates_total[5m]) > 20
+        for: 2m
+        labels:
+          severity: info
+          service: business
+        annotations:
+          summary: "Frequent score updates"
+          description: "Score updates are happening more than 20 times per 5 minutes."

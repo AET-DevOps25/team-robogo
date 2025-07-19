@@ -65,23 +65,7 @@ export async function deleteSlideDeck(deckId: string | number): Promise<void> {
   await authFetch<void>(`${BASE_URL}/${deckId}`, { method: 'DELETE' })
 }
 
-/**
- * 向 slideDeck 添加 slide（支持多态）
- * @param deckId slideDeck 的 id
- * @param slide slide 对象（多态）
- * @returns Promise<SlideDeck>
- */
-export async function addSlideToDeck(
-  deckId: string | number,
-  slide: SlideItem
-): Promise<SlideDeck> {
-  const { authFetch } = useAuthFetch()
-  return await authFetch<SlideDeck>(`${BASE_URL}/${deckId}/slides`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(slide)
-  })
-}
+
 
 /**
  * 重新排序 slideDeck 内的 slides
@@ -98,22 +82,6 @@ export async function reorderSlides(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(newOrder)
-  })
-}
-
-/**
- * 从 slideDeck 移除指定 slide
- * @param deckId slideDeck 的 id
- * @param slideId slide 的 id
- * @returns Promise<SlideDeck>
- */
-export async function removeSlideFromDeck(
-  deckId: string | number,
-  slideId: string | number
-): Promise<SlideDeck> {
-  const { authFetch } = useAuthFetch()
-  return await authFetch<SlideDeck>(`${BASE_URL}/${deckId}/slides/${slideId}`, {
-    method: 'DELETE'
   })
 }
 

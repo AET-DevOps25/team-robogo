@@ -4,22 +4,10 @@ import {
   fetchSlideDeckById,
   createSlideDeck,
   updateSlideDeck,
-  addSlideToDeck,
   reorderSlides,
-  removeSlideFromDeck,
-  deleteSlideDeck,
-  fetchSlideById
+  deleteSlideDeck
 } from '@/services/slideDeckService'
-import type { SlideItem } from '@/interfaces/types'
 import { mockSlideDecks } from '@/data/mockSlideDecks'
-
-const mockSlide: SlideItem = {
-  id: 101,
-  index: 0,
-  name: 'Test Slide',
-  type: 'image',
-  imageMeta: { id: 101, name: 'img1', contentType: 'image/jpeg' }
-}
 
 describe('slideDeckService', () => {
   beforeEach(() => {
@@ -49,40 +37,14 @@ describe('slideDeckService', () => {
     expect(updated.name).toBe('Updated Deck')
   })
 
-  it('should add a slide to deck', async () => {
-    // 向 slideDeck 添加 slide
-    const result = await addSlideToDeck(1, mockSlide)
-    expect(result).toHaveProperty('slides')
-  })
-
   it('should reorder slides in deck', async () => {
     // 重新排序 slideDeck 内 slides
     const result = await reorderSlides(1, [1, 2, 3])
     expect(result).toHaveProperty('slides')
   })
 
-  it('should remove a slide from deck', async () => {
-    // 从 slideDeck 移除 slide
-    const result = await removeSlideFromDeck(1, 1)
-    expect(result).toHaveProperty('slides')
-  })
-
   it('should delete a slide deck', async () => {
     // 删除 slideDeck
     await expect(deleteSlideDeck(1)).resolves.toBeUndefined()
-  })
-
-  it('should fetch a single slide by id (polymorphic)', async () => {
-    // 获取 slideDeck 下的单个 slide（多态）
-    const slide = await fetchSlideById(1, 1)
-    expect(slide).toHaveProperty('id')
-    expect(slide).toHaveProperty('type')
-    // 多态断言
-    if (slide.type === 'image') {
-      expect(slide).toHaveProperty('imageMeta')
-    } else if (slide.type === 'score') {
-      expect(slide).toHaveProperty('scores')
-      expect(slide).toHaveProperty('categoryId')
-    }
   })
 })

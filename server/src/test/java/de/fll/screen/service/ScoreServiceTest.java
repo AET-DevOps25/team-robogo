@@ -2,7 +2,6 @@ package de.fll.screen.service;
 
 import de.fll.core.dto.ScoreDTO;
 import de.fll.core.dto.ScoreSlideDTO;
-import de.fll.core.dto.TeamDTO;
 import de.fll.screen.model.Score;
 import de.fll.screen.model.Team;
 import de.fll.screen.model.Category;
@@ -14,44 +13,48 @@ import de.fll.screen.repository.CategoryRepository;
 import de.fll.screen.repository.SlideRepository;
 import de.fll.screen.repository.SlideDeckRepository;
 import de.fll.screen.assembler.TeamAssembler;
+import io.micrometer.core.instrument.Counter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class ScoreServiceTest {
 
-    @Mock
+    @MockBean
     private ScoreRepository scoreRepository;
 
-    @Mock
+    @MockBean
     private TeamRepository teamRepository;
 
-    @Mock
+    @MockBean
     private CategoryRepository categoryRepository;
 
-    @Mock
+    @MockBean
     private SlideRepository slideRepository;
 
-    @Mock
+    @MockBean
     private SlideDeckRepository slideDeckRepository;
 
-    @Mock
+    @MockBean
     private TeamAssembler teamAssembler;
 
-    @Mock
+    @MockBean
     private RankingService rankingService;
 
-    @InjectMocks
+    @MockBean(name = "scoreUpdateCounter")
+    private Counter scoreUpdateCounter;
+
+    @Autowired
     private ScoreService scoreService;
 
     private Team mockTeam;
@@ -79,6 +82,15 @@ class ScoreServiceTest {
         mockScoreSlide = new ScoreSlide();
         mockScoreSlide.setName("Test Score Slide");
         mockScoreSlide.setCategory(mockCategory);
+
+        // Mock Counter to avoid NullPointerException
+        lenient().doNothing().when(scoreUpdateCounter).increment();
+        
+        // Mock RankingService to avoid NullPointerException
+        lenient().when(rankingService.getRankedTeams(any(Category.class), any())).thenReturn(new ArrayList<>());
+        
+        // Mock SlideDeckRepository to avoid NullPointerException in updateSlideDeckVersionsForScore
+        lenient().when(slideDeckRepository.findSlideDecksByScore(anyLong(), anyLong())).thenReturn(new ArrayList<>());
     }
 
     @Test
@@ -90,8 +102,14 @@ class ScoreServiceTest {
 
         when(scoreRepository.findByTeam_Id(teamId)).thenReturn(Optional.empty());
         when(teamRepository.findById(teamId)).thenReturn(Optional.of(mockTeam));
-        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> i.getArgument(0));
-        when(slideDeckRepository.findSlideDecksByScore(anyLong(), anyLong())).thenReturn(new ArrayList<>());
+        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> {
+            Score savedScore = i.getArgument(0);
+            savedScore.setId(1L); // 设置ID
+            // 确保Team有正确的Category
+            savedScore.getTeam().setCategory(mockCategory);
+            return savedScore;
+        });
+        when(slideDeckRepository.findSlideDecksByScore(1L, mockCategory.getId())).thenReturn(new ArrayList<>());
 
         // Act
         Score result = scoreService.addScore(teamId, points, time);
@@ -112,8 +130,14 @@ class ScoreServiceTest {
         int time = 240;
 
         when(scoreRepository.findByTeam_Id(teamId)).thenReturn(Optional.of(mockScore));
-        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> i.getArgument(0));
-        when(slideDeckRepository.findSlideDecksByScore(anyLong(), anyLong())).thenReturn(new ArrayList<>());
+        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> {
+            Score savedScore = i.getArgument(0);
+            savedScore.setId(1L); // 设置ID
+            // 确保Team有正确的Category
+            savedScore.getTeam().setCategory(mockCategory);
+            return savedScore;
+        });
+        when(slideDeckRepository.findSlideDecksByScore(1L, mockCategory.getId())).thenReturn(new ArrayList<>());
 
         // Act
         Score result = scoreService.addScore(teamId, points, time);
@@ -148,8 +172,14 @@ class ScoreServiceTest {
 
         when(scoreRepository.findById(scoreId)).thenReturn(Optional.of(mockScore));
         when(teamRepository.findById(teamId)).thenReturn(Optional.of(mockTeam));
-        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> i.getArgument(0));
-        when(slideDeckRepository.findSlideDecksByScore(anyLong(), anyLong())).thenReturn(new ArrayList<>());
+        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> {
+            Score savedScore = i.getArgument(0);
+            savedScore.setId(1L); // 设置ID
+            // 确保Team有正确的Category
+            savedScore.getTeam().setCategory(mockCategory);
+            return savedScore;
+        });
+        when(slideDeckRepository.findSlideDecksByScore(1L, mockCategory.getId())).thenReturn(new ArrayList<>());
 
         // Act
         Score result = scoreService.updateScore(scoreId, teamId, points, time);
@@ -389,11 +419,21 @@ class ScoreServiceTest {
     @Test
     void updateSlideDeckVersionsForScore_ShouldUpdateVersions_WhenScoreHasValidData() {
         // Arrange
-        List<SlideDeck> affectedDecks = Arrays.asList(new SlideDeck());
+        SlideDeck deck = new SlideDeck();
+        deck.setName("Test Deck");
+        deck.setVersion(1);
+        List<SlideDeck> affectedDecks = Arrays.asList(deck);
+        
         when(scoreRepository.findByTeam_Id(mockTeam.getId())).thenReturn(Optional.empty());
         when(teamRepository.findById(mockTeam.getId())).thenReturn(Optional.of(mockTeam));
-        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> i.getArgument(0));
-        when(slideDeckRepository.findSlideDecksByScore(anyLong(), anyLong())).thenReturn(affectedDecks);
+        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> {
+            Score savedScore = i.getArgument(0);
+            savedScore.setId(1L); // 设置ID
+            // 确保Team有正确的Category
+            savedScore.getTeam().setCategory(mockCategory);
+            return savedScore;
+        });
+        when(slideDeckRepository.findSlideDecksByScore(1L, mockCategory.getId())).thenReturn(affectedDecks);
         when(slideDeckRepository.save(any(SlideDeck.class))).thenAnswer(i -> i.getArgument(0));
 
         // Act
@@ -407,13 +447,20 @@ class ScoreServiceTest {
     void updateSlideDeckVersionsForScore_ShouldHandleVersionOverflow() {
         // Arrange
         SlideDeck deck = new SlideDeck();
+        deck.setName("Test Deck");
         deck.setVersion(2000000000); // 接近最大值
         List<SlideDeck> affectedDecks = Arrays.asList(deck);
         
         when(scoreRepository.findByTeam_Id(mockTeam.getId())).thenReturn(Optional.empty());
         when(teamRepository.findById(mockTeam.getId())).thenReturn(Optional.of(mockTeam));
-        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> i.getArgument(0));
-        when(slideDeckRepository.findSlideDecksByScore(anyLong(), anyLong())).thenReturn(affectedDecks);
+        when(scoreRepository.save(any(Score.class))).thenAnswer(i -> {
+            Score savedScore = i.getArgument(0);
+            savedScore.setId(1L); // 设置ID
+            // 确保Team有正确的Category
+            savedScore.getTeam().setCategory(mockCategory);
+            return savedScore;
+        });
+        when(slideDeckRepository.findSlideDecksByScore(1L, mockCategory.getId())).thenReturn(affectedDecks);
         when(slideDeckRepository.save(any(SlideDeck.class))).thenAnswer(i -> i.getArgument(0));
 
         // Act

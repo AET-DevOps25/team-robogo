@@ -40,4 +40,14 @@ spec:
                 name: grafana
                 port:
                   number: {{ .Values.grafana.service.port }}
+    - host: "alertmanager.{{ .Values.ingress.host }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.project.name }}-alertmanager-service
+                port:
+                  number: {{ .Values.alertmanager.service.port }}
 {{- end }}

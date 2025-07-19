@@ -14,24 +14,15 @@ Team RoboGo is a distributed system designed for multi-screen presentation and s
 ![Component Architecture](component.svg)
 *Component architecture showing presentation, API, business logic, and data access layers*
 
-## Deployment Architecture
-
-![Deployment Architecture](deployment.png)
-*Deployment architecture showing development, Docker, and production environments*
-
 ## Data Flow Architecture
 
 ![Data Flow](functionality.png)
 *Data flow architecture showing client-server communication, caching, and AI integration*
 
-## Security Architecture
-
-![Security Architecture](syscon.png)
-*Security architecture showing client, API, and data security layers*
 
 ## Real-time Synchronization Architecture
 
-![Real-time Sync](mqtt.svg)
+![Real-time Sync](realtime-sync.png)
 *Real-time synchronization architecture showing screen polling and version control*
 
 ## Key Architectural Principles
@@ -73,7 +64,7 @@ Team RoboGo is a distributed system designed for multi-screen presentation and s
 - **Framework**: Spring Boot 3.x
 - **Database**: PostgreSQL
 - **Cache**: Redis
-- **Documentation**: SpringDoc OpenAPI
+- **Documentation**: Swagger-UI
 
 ### Infrastructure
 - **Containerization**: Docker
