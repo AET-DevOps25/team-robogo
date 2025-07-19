@@ -8,6 +8,8 @@ COPY . .
 # The API base is set to a relative path for production proxying
 ARG NUXT_PUBLIC_API_BASE=/
 ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
+# Clean any existing build artifacts and rebuild
+RUN rm -rf .nuxt .output node_modules/.cache
 RUN yarn build
 
 # ---- Runtime Stage ----
@@ -23,6 +25,10 @@ ENV HOST=0.0.0.0
 
 # Expose the port
 EXPOSE 3000
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/ || exit 1
 
 # Run the server
 CMD ["node", ".output/server/index.mjs"]

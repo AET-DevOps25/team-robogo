@@ -241,7 +241,6 @@
     await loadData()
   })
 
-  // 当页面被激活时（从其他页面返回）自动刷新数据
   onActivated(async () => {
     await loadData()
   })
