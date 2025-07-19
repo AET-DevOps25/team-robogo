@@ -34,3 +34,15 @@ variable "key_name" {
   type        = string
   default = "vockey"
 }
+
+variable "chair_api_key" {
+  description = "CHAIR API Key for GenAI service"
+  type        = string
+  sensitive   = true
+}
+
+variable "openai_api_key" {
+  description = "OpenAI API Key for GenAI service"
+  type        = string
+  sensitive   = true
+}

@@ -245,6 +245,13 @@ docs/_build/
 .pybuilder/
 target/
 
+# Kubernetes Secrets
+k8s-secrets/*.yaml
+!k8s-secrets/*-template.yaml
+
+# Terraform Secrets
+infra/terraform/secrets.tfvars
+
 # Jupyter Notebook
 .ipynb_checkpoints
 

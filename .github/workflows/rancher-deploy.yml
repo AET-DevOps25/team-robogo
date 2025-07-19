@@ -6,6 +6,12 @@ on:
       RANCHER_TOKEN:
         description: 'Rancher API Token'
         required: true
+      CHAIR_API_KEY:
+        description: 'CHAIR API Key for GenAI service'
+        required: true
+      OPENAI_API_KEY:
+        description: 'OpenAI API Key for GenAI service'
+        required: true
 
 jobs:
   deploy:
@@ -50,6 +56,13 @@ jobs:
           EOF
           chmod 600 .kubeconfig
 
+      - name: Create GenAI Secret
+        run: |
+          kubectl create secret generic genai-secret \
+            --from-literal=CHAIR_API_KEY="${{ github.event.inputs.CHAIR_API_KEY }}" \
+            --from-literal=OPENAI_API_KEY="${{ github.event.inputs.OPENAI_API_KEY }}" \
+            -n devops25-team-robogo --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Helm Deployment
         env:
           KUBECONFIG: ${{ github.workspace }}/.kubeconfig
@@ -60,3 +73,7 @@ jobs:
           kubectl annotate namespace devops25-team-robogo meta.helm.sh/release-name=screen --overwrite || true
           kubectl annotate namespace devops25-team-robogo meta.helm.sh/release-namespace=devops25-team-robogo --overwrite || true
           helm upgrade --install screen . --namespace devops25-team-robogo --skip-crds
+          
+      - name: Verify Secret Creation
+        run: |
+          kubectl get secret genai-secret -n devops25-team-robogo -o yaml
