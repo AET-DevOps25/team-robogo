@@ -19,6 +19,7 @@ spec:
         - "{{ .Values.ingress.host }}"
         - "grafana.{{ .Values.ingress.host }}"
         - "alertmanager.{{ .Values.ingress.host }}"
+
       secretName: "{{ .Values.ingress.secretName }}"
   {{- end }}
   rules:
@@ -53,3 +54,4 @@ spec:
                 port:
                   number: {{ .Values.alertmanager.service.port }}
 {{- end }}
+

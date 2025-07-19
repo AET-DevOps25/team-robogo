@@ -3,6 +3,9 @@ kind: Service
 metadata:
   name: grafana
   namespace: {{ .Release.Namespace }}
+  labels:
+    app: grafana
+    component: monitoring
 spec:
   ports:
     - port: {{ .Values.grafana.service.port }}

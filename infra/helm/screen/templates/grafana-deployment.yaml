@@ -27,6 +27,16 @@ spec:
               value: "false"
             - name: GF_AUTH_ANONYMOUS_ENABLED
               value: "false"
+            {{- if .Values.grafana.tls }}
+            - name: GF_SERVER_PROTOCOL
+              value: "https"
+            - name: GF_SERVER_DOMAIN
+              value: "grafana.{{ .Values.ingress.host }}"
+            - name: GF_SERVER_SERVE_FROM_SUB_PATH
+              value: "true"
+            - name: GF_SECURITY_COOKIE_SECURE
+              value: "true"
+            {{- end }}
           ports:
             - containerPort: {{ .Values.grafana.service.port }}
           resources:
