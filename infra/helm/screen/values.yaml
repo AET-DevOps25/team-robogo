@@ -87,6 +87,7 @@ alertmanager:
   service:
     port: 9093
   resources: {}
+  tls: true
   persistence:
     enabled: false
     size: 1Gi
@@ -167,6 +168,7 @@ grafana:
   resources: {}
   adminUser: admin
   adminPassword: admin
+  tls: true
   persistence:
     enabled: false
     size: 5Gi
