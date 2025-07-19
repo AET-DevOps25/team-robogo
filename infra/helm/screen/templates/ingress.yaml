@@ -17,6 +17,8 @@ spec:
   tls:
     - hosts:
         - "{{ .Values.ingress.host }}"
+        - "grafana.{{ .Values.ingress.host }}"
+        - "alertmanager.{{ .Values.ingress.host }}"
       secretName: "{{ .Values.ingress.secretName }}"
   {{- end }}
   rules:
