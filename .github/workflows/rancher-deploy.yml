@@ -56,7 +56,7 @@ jobs:
         run: |
           cd ./infra/helm/screen
           helm dependency build
-          kubectl label namespace team-robogo app.kubernetes.io/managed-by=Helm --overwrite || true
-          kubectl annotate namespace team-robogo meta.helm.sh/release-name=screen --overwrite || true
-          kubectl annotate namespace team-robogo meta.helm.sh/release-namespace=team-robogo --overwrite || true
-          helm upgrade --install screen . --namespace team-robogo --skip-crds
+          kubectl label namespace devops25-team-robogo app.kubernetes.io/managed-by=Helm --overwrite || true
+          kubectl annotate namespace devops25-team-robogo meta.helm.sh/release-name=screen --overwrite || true
+          kubectl annotate namespace devops25-team-robogo meta.helm.sh/release-namespace=devops25-team-robogo --overwrite || true
+          helm upgrade --install screen . --namespace devops25-team-robogo --skip-crds
