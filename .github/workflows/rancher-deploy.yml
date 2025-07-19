@@ -2,6 +2,10 @@ name: Rancher Deployment
 
 on:
   workflow_dispatch:
+    inputs:
+      RANCHER_TOKEN:
+        description: 'Rancher API Token'
+        required: true
 
 jobs:
   deploy:
@@ -22,8 +26,28 @@ jobs:
           version: 'v3.11.0'
 
       - name: Write Kubeconfig file
-        run: | 
-          echo "${{ secrets.RANCHER_KUBECONFIG }}" > .kubeconfig
+        run: |
+          cat > .kubeconfig <<EOF
+          apiVersion: v1
+          kind: Config
+          clusters:
+          - name: "student"
+            cluster:
+              server: "https://rancher.ase.cit.tum.de/k8s/clusters/c-m-nhcfjg9h"
+
+          users:
+          - name: "student"
+            user:
+              token: "${{ github.event.inputs.RANCHER_TOKEN }}"
+
+          contexts:
+          - name: "student"
+            context:
+              user: "student"
+              cluster: "student"
+
+          current-context: "student"
+          EOF
           chmod 600 .kubeconfig
 
       - name: Helm Deployment
