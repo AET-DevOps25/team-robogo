@@ -28,7 +28,7 @@ client:
   apiGatewayHost: gateway-service
   port: 80
   targetPort: 3000
-  nodePort: 30000
+  nodePort: 30001
 
 genai:
   image: ghcr.io/aet-devops25/team-robogo/genai:main
