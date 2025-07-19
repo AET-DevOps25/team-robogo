@@ -9,20 +9,21 @@ Team RoboGo is a distributed system designed for multi-screen presentation and s
 ![System Architecture](architecture.png)
 *High-level system architecture showing client, gateway, services, and infrastructure layers*
 
+![High-Level System Architecture](high-level.png)
+*Complete layered system architecture visualization*
+
 ## Component Architecture
 
 ![Component Architecture](component.svg)
 *Component architecture showing presentation, API, business logic, and data access layers*
 
-## Data Flow Architecture
-
-![Data Flow](functionality.png)
-*Data flow architecture showing client-server communication, caching, and AI integration*
+![Detailed Component Architecture](detailed-level.png)
+*Detailed component relationships and service interactions*
 
 
 ## Real-time Synchronization Architecture
 
-![Real-time Sync](realtime-sync.png)
+![Real-time Sync](sync.png)
 *Real-time synchronization architecture showing screen polling and version control*
 
 ## Key Architectural Principles
