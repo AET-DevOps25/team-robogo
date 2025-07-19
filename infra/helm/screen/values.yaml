@@ -20,6 +20,12 @@ server:
   adminUsername: admin
   adminPassword: admin
   adminEmail: admin@example.com
+  slides:
+    path: /data/slides
+    # persistence:
+    #   enabled: false
+    #   size: 1Gi
+    #   storageClassName: ""
 
 client:
   image: ghcr.io/aet-devops25/team-robogo/client:main

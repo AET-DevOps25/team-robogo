@@ -39,12 +39,10 @@ spec:
             - name: ADMIN_EMAIL
               value: {{ .Values.server.adminEmail }}
             - name: SLIDES_PATH
-              value: /data/slides
+              value: {{ .Values.server.slides.path }}
           volumeMounts:
             - name: slides-volume
-              mountPath: /data/slides
+              mountPath: {{ .Values.server.slides.path }}
       volumes:
         - name: slides-volume
-          hostPath:
-            path: /Users/zeyuli/CodeProject/team-robogo/data/slides
-            type: Directory
+          emptyDir: {}
