@@ -2,6 +2,10 @@ data "aws_vpc" "default" {
   default = true
 }
 
+resource "random_id" "suffix" {
+  byte_length = 4
+}
+
 provider "aws" {
   region     = var.aws_region
   access_key = var.aws_access_key
@@ -10,7 +14,7 @@ provider "aws" {
 }
 
 resource "aws_security_group" "robogo_ec2_sg" {
-  name        = "robogo-ec2-sg"
+  name        = "robogo-ec2-sg-${random_id.suffix.hex}"
   description = "Allow SSH, Kubernetes, and HTTP/HTTPS traffic"
   vpc_id      = data.aws_vpc.default.id
 
@@ -61,6 +65,6 @@ resource "aws_instance" "robogo_ec2" {
   vpc_security_group_ids = [aws_security_group.robogo_ec2_sg.id]
 
   tags = {
-    Name = "team-robogo-ec2"
+    Name = "team-robogo-ec2-${random_id.suffix.hex}"
   }
 }
