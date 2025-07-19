@@ -36,9 +36,9 @@ jobs:
       - name: Terraform Apply
         working-directory: ./infra/terraform
         run: terraform apply -auto-approve \
-          --var="aws_access_key="${{ github.event.inputs.AWS_ACCESS_KEY }}" \
-          --var="aws_secret_key="${{ github.event.inputs.AWS_SECRET_KEY }}" \
-          --var="aws_session_token="${{ github.event.inputs.AWS_SESSION_TOKEN }}"
+          --var="aws_access_key=${{ github.event.inputs.AWS_ACCESS_KEY }}" \
+          --var="aws_secret_key=${{ github.event.inputs.AWS_SECRET_KEY }}" \
+          --var="aws_session_token=${{ github.event.inputs.AWS_SESSION_TOKEN }}"
 
       - name: Get EC2 Public IP
         id: get_ip
