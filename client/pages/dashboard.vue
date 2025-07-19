@@ -218,7 +218,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, onActivated } from 'vue'
   import { useI18n } from 'vue-i18n'
   import AppHeader from '@/components/AppHeader.vue'
   import SlideDeckCard from '@/components/SlideDeckCard.vue'
@@ -238,6 +238,11 @@
   const slideDecks = ref<SlideDeck[]>([])
 
   onMounted(async () => {
+    await loadData()
+  })
+
+  // 当页面被激活时（从其他页面返回）自动刷新数据
+  onActivated(async () => {
     await loadData()
   })
 
