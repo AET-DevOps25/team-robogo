@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: genai
 spec:
-  replicas: 1
+  replicas: {{ .Values.genai.replicas }}
   selector:
     matchLabels:
       app: genai

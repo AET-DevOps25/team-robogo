@@ -12,11 +12,13 @@ gateway:
   image: ghcr.io/aet-devops25/team-robogo/api-gateway:main
   imagePullPolicy: Always
   port: 8080
+  replicas: 2
 
 server:
   image: ghcr.io/aet-devops25/team-robogo/server:main
   imagePullPolicy: Always
   port: 8081
+  replicas: 2
   adminUsername: admin
   adminPassword: admin
   adminEmail: admin@example.com
@@ -26,6 +28,7 @@ server:
 client:
   image: ghcr.io/aet-devops25/team-robogo/client:main
   imagePullPolicy: Always
+  replicas: 2
   apiGatewayHost: gateway-service
   port: 80
   targetPort: 3000
@@ -35,6 +38,7 @@ genai:
   image: ghcr.io/aet-devops25/team-robogo/genai:main
   imagePullPolicy: Always
   port: 5000
+  replicas: 2
   chairApiKey: "sk-xxx"
   openaiApiKey: "sk-yyy"
 
