@@ -6,6 +6,7 @@ import de.fll.screen.repository.SlideRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.micrometer.core.instrument.Counter;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,9 @@ public class SlideDeckService {
     @Autowired
     private SlideRepository slideRepository;
 
+    @Autowired
+    private Counter slideDeckUpdateCounter;
+
 
     public List<SlideDeck> getAllSlideDecks() {
         return slideDeckRepository.findAll();
@@ -39,6 +43,7 @@ public class SlideDeckService {
     }
 
     public SlideDeck createSlideDeck(SlideDeck slideDeck) {
+        slideDeckUpdateCounter.increment();
         return slideDeckRepository.save(slideDeck);
     }
 
@@ -64,6 +69,7 @@ public class SlideDeckService {
         
         // 更新deck的版本
         deck.setVersion(incrementVersion(deck.getVersion()));
+        slideDeckUpdateCounter.increment();
         return slideDeckRepository.save(deck);
     }
 
@@ -131,6 +137,7 @@ public class SlideDeckService {
         existing.setCompetition(updateData.getCompetition());
         // version is incremented to indicate that the slide deck has changed
         existing.setVersion(incrementVersion(existing.getVersion()));
+        slideDeckUpdateCounter.increment();
         return slideDeckRepository.save(existing);
     }
 

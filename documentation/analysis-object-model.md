@@ -6,191 +6,10 @@ The Analysis Object Model represents the core business objects and their relatio
 
 ## Object Model Diagram
 
-```mermaid
-classDiagram
-    class Competition {
-        +id: Long
-        +internalId: UUID
-        +name: String
-        +startDate: LocalDateTime
-        +endDate: LocalDateTime
-        +status: CompetitionStatus
-        +createSlideDeck(name, transitionTime): SlideDeck
-        +addCategory(name, scoring): Category
-        +getActiveSlideDecks(): List~SlideDeck~
-        +getAllCategories(): List~Category~
-    }
-    
-    class SlideDeck {
-        +id: Long
-        +name: String
-        +transitionTime: int
-        +version: int
-        +lastUpdate: LocalDateTime
-        +competition: Competition
-        +slides: List~Slide~
-        +screens: List~Screen~
-        +addSlide(slide): void
-        +removeSlide(slide): void
-        +reorderSlides(): void
-        +incrementVersion(): void
-        +isOutdated(clientVersion): boolean
-        +getNextSlide(currentSlide): Slide
-    }
-    
-    class Slide {
-        <<abstract>>
-        +id: Long
-        +name: String
-        +index: int
-        +slideDeck: SlideDeck
-        +type: SlideType
-        +getType(): SlideType
-        +getDisplayContent(): Object
-        +validateContent(): boolean
-    }
-    
-    class ImageSlide {
-        +imageMeta: SlideImageMeta
-        +getImageContent(): byte[]
-        +getImageMetadata(): SlideImageMeta
-        +validateImageFormat(): boolean
-    }
-    
-    class ScoreSlide {
-        +category: Category
-        +scores: List~Score~
-        +getSortedScores(): List~Score~
-        +getTopScores(limit): List~Score~
-        +calculateRankings(): Map~Team, int~
-        +updateScore(team, points, time): void
-    }
-    
-    class Category {
-        +id: Long
-        +name: String
-        +competition: Competition
-        +teams: List~Team~
-        +scoring: CategoryScoring
-        +addTeam(team): void
-        +removeTeam(team): void
-        +getTeamRankings(): List~Team~
-        +validateTeamAssignment(team): boolean
-    }
-    
-    class Team {
-        +id: Long
-        +name: String
-        +category: Category
-        +score: Score
-        +getScore(): Score
-        +updateScore(points, time): void
-        +getRanking(): int
-        +isInCategory(category): boolean
-    }
-    
-    class Score {
-        +id: Long
-        +points: double
-        +time: int
-        +team: Team
-        +timestamp: LocalDateTime
-        +compareToWithTime(other): int
-        +add(other): Score
-        +isValid(): boolean
-        +getFormattedTime(): String
-    }
-    
-    class Screen {
-        +id: Long
-        +name: String
-        +status: ScreenStatus
-        +slideDeck: SlideDeck
-        +currentSlide: Slide
-        +lastSyncTime: LocalDateTime
-        +register(): void
-        +assignSlideDeck(slideDeck): void
-        +updateStatus(status): void
-        +pollForUpdates(): SyncResponse
-        +displaySlide(slide): void
-        +reportError(error): void
-    }
-    
-    class SlideImageMeta {
-        +id: Long
-        +name: String
-        +contentType: String
-        +fileSize: long
-        +uploadDate: LocalDateTime
-        +content: SlideImageContent
-        +getContent(): byte[]
-        +getFileExtension(): String
-        +isValidFormat(): boolean
-        +getDisplayUrl(): String
-    }
-    
-    class SlideImageContent {
-        +id: Long
-        +content: byte[]
-        +imageMeta: SlideImageMeta
-        +getContent(): byte[]
-        +getContentSize(): long
-        +isValid(): boolean
-    }
-    
-    class User {
-        +id: Long
-        +username: String
-        +password: String
-        +role: UserRole
-        +lastLogin: LocalDateTime
-        +authenticate(password): boolean
-        +hasPermission(permission): boolean
-        +updateLastLogin(): void
-    }
-    
-    class SyncService {
-        +checkForUpdates(slideDeckId, clientVersion): SyncResponse
-        +distributeUpdate(slideDeck, screens): void
-        +handleConflict(resolution): void
-        +getSyncStatus(slideDeckId): SyncStatus
-        +forceSync(slideDeckId): void
-    }
-    
-    class VersionController {
-        +incrementVersion(slideDeck): void
-        +compareVersions(clientVersion, serverVersion): VersionComparison
-        +isUpdateRequired(clientVersion, serverVersion): boolean
-        +getVersionHistory(slideDeckId): List~VersionInfo~
-    }
-    
-    %% Relationships
-    Competition ||--o{ SlideDeck : has
-    Competition ||--o{ Category : has
-    SlideDeck ||--o{ Slide : contains
-    SlideDeck ||--o{ Screen : displayed_on
-    Category ||--o{ Team : contains
-    Team ||--|| Score : has
-    SlideImageMeta ||--|| SlideImageContent : has
-    SlideImageMeta ||--o{ ImageSlide : referenced_by
-    
-    %% Inheritance
-    Slide <|-- ImageSlide
-    Slide <|-- ScoreSlide
-    
-    %% Service relationships
-    SyncService --> SlideDeck : manages
-    SyncService --> Screen : updates
-    VersionController --> SlideDeck : controls
-    
-    classDef entity fill:#e8f5e8
-    classDef service fill:#f3e5f5
-    classDef abstract fill:#fff3e0
-    
-    class Competition,SlideDeck,Slide,ImageSlide,ScoreSlide,Category,Team,Score,Screen,SlideImageMeta,SlideImageContent,User entity
-    class SyncService,VersionController service
-    class Slide abstract
-```
+![Object Model Diagram](diagram.drawio.svg)
+
+
+
 
 ## Core Business Objects
 
@@ -324,9 +143,7 @@ classDiagram
 
 ### Data Integrity Rules
 1. **Referential Integrity**: All foreign key relationships maintained
-2. **Unique Constraints**: Team names unique within category
-3. **Cascade Operations**: Deleting slide deck removes all slides
-4. **Validation**: All input data validated before storage
+2. **Validation**: All input data validated before storage
 
 ### Performance Rules
 1. **Caching**: Frequently accessed data cached in Redis
@@ -350,7 +167,7 @@ classDiagram
 
 ### Deletion Lifecycle
 1. **Dependency Check**: Related objects checked
-2. **Cascade Operations**: Dependent objects handled
+2. **Reference Cleanup**: Remove references to deleted objects
 3. **Cleanup**: Resources released
 4. **Notification**: Related objects notified
 

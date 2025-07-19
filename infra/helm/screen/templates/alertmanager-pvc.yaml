@@ -1,0 +1,18 @@
+{{- if .Values.alertmanager.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.project.name }}-alertmanager-pvc
+  labels:
+    app: {{ .Values.project.name }}-alertmanager
+    component: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.alertmanager.persistence.size }}
+  {{- if .Values.alertmanager.persistence.storageClassName }}
+  storageClassName: {{ .Values.alertmanager.persistence.storageClassName }}
+  {{- end }}
+{{- end }} 

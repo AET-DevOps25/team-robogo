@@ -164,8 +164,25 @@ services:
       - gateway
       - client
 
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.listen-address=:9093'
+    depends_on:
+      - prometheus
+    labels:
+      - "logging.jobname=alertmanager"
+
 volumes:
   postgres_data:
   prometheus_data:
   grafana_data:
   redis_data:
+  alertmanager_data:

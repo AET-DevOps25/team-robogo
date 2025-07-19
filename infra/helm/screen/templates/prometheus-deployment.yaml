@@ -40,7 +40,7 @@ spec:
             name: prometheus-config
         - name: alert-rules
           configMap:
-            name: prometheus-alert-rules
+            name: {{ .Values.project.name }}-alert-rules
 {{- if .Values.prometheus.persistence.enabled }}
         - name: prometheus-data
           persistentVolumeClaim:

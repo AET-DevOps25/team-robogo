@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.project.name }}-alertmanager-service
+  labels:
+    app: {{ .Values.project.name }}-alertmanager
+    component: monitoring
+spec:
+  selector:
+    app: {{ .Values.project.name }}-alertmanager
+  ports:
+  - port: {{ .Values.alertmanager.service.port }}
+    targetPort: {{ .Values.alertmanager.service.port }}
+    protocol: TCP
+    name: http
+  type: ClusterIP 
