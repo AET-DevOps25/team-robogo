@@ -194,10 +194,8 @@
   import { useDeckStore } from '@/stores/useDeckStore'
   import { useSlidesStore } from '@/stores/useSlidesStore'
   import {
-    addSlideToDeck,
     reorderSlides,
     updateSlideDeckSpeed,
-    removeSlideFromDeck
   } from '@/services/slideDeckService'
   import type { SlideItem, SlideDeck } from '@/interfaces/types'
   import { useToast } from '@/composables/useToast'

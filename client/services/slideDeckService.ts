@@ -65,8 +65,6 @@ export async function deleteSlideDeck(deckId: string | number): Promise<void> {
   await authFetch<void>(`${BASE_URL}/${deckId}`, { method: 'DELETE' })
 }
 
-
-
 /**
  * 重新排序 slideDeck 内的 slides
  * @param deckId slideDeck 的 id
