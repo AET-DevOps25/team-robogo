@@ -99,12 +99,7 @@ public class SlideDeckController {
         slideDeckService.deleteSlideDeck(deckId);
     }
 
-    @PostMapping("/{deckId}/slides")
-    public SlideDeckDTO addSlideToDeck(@PathVariable Long deckId, @RequestBody SlideDTO slideDTO) {
-        Slide slide = slideAssembler.fromDTO(slideDTO);
-        SlideDeck deck = slideDeckService.addSlideToDeck(deckId, slide);
-        return slideDeckAssembler.toDTO(deck);
-    }
+
 
     @PostMapping("/{deckId}/slides/reorder")
     public SlideDeckDTO reorderSlides(@PathVariable Long deckId, @RequestBody List<Long> newOrder) {
@@ -112,11 +107,6 @@ public class SlideDeckController {
         return slideDeckAssembler.toDTO(deck);
     }
 
-    @DeleteMapping("/{deckId}/slides/{slideId}")
-    public SlideDeckDTO removeSlideFromDeck(@PathVariable Long deckId, @PathVariable Long slideId) {
-        SlideDeck deck = slideDeckService.removeSlideFromDeck(deckId, slideId);
-        return slideDeckAssembler.toDTO(deck);
-    }
 
     @GetMapping("/{deckId}/slides/{slideId}")
     public SlideDTO getSlideFromDeck(

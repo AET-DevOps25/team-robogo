@@ -24,11 +24,10 @@ public class ScoreService {
     private final CategoryRepository categoryRepository;
     private final SlideRepository slideRepository;
     private final SlideDeckRepository slideDeckRepository;
+    private final Counter scoreUpdateCounter;
     private final TeamAssembler teamAssembler;
     private final RankingService rankingService;
 
-    @Autowired
-    private Counter scoreUpdateCounter;
 
     @Autowired
     public ScoreService(
@@ -37,6 +36,7 @@ public class ScoreService {
         CategoryRepository categoryRepository,
         SlideRepository slideRepository,
         SlideDeckRepository slideDeckRepository,
+        Counter scoreUpdateCounter,
         TeamAssembler teamAssembler,
         RankingService rankingService
     ) {
@@ -45,6 +45,7 @@ public class ScoreService {
         this.categoryRepository = categoryRepository;
         this.slideRepository = slideRepository;
         this.slideDeckRepository = slideDeckRepository;
+        this.scoreUpdateCounter = scoreUpdateCounter;
         this.teamAssembler = teamAssembler;
         this.rankingService = rankingService;
     }

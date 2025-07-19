@@ -20,9 +20,6 @@ public class SlideDeckSyncService {
     @Autowired
     private SlideDeckRepository slideDeckRepository;
 
-    @Autowired
-    private SlideDeckService slideDeckService;
-
     /**
      * Get current sync status for a slide deck
      * @param deckId Slide deck ID

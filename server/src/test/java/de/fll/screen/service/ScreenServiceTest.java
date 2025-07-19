@@ -1,14 +1,15 @@
 package de.fll.screen.service;
 
-import de.fll.core.dto.ScreenContentDTO;
-import de.fll.core.dto.SlideDeckDTO;
 import de.fll.screen.model.Screen;
-import de.fll.screen.model.ScreenStatus;
 import de.fll.screen.model.SlideDeck;
+import de.fll.screen.model.ScreenStatus;
 import de.fll.screen.repository.ScreenRepository;
 import de.fll.screen.repository.SlideDeckRepository;
 import de.fll.screen.repository.CompetitionRepository;
 import de.fll.screen.assembler.SlideDeckAssembler;
+import de.fll.core.dto.ScreenContentDTO;
+import de.fll.core.dto.SlideDeckDTO;
+import io.micrometer.core.instrument.Counter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +22,15 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ScreenServiceTest {
+
+    @InjectMocks
+    private ScreenService screenService;
 
     @Mock
     private ScreenRepository screenRepository;
@@ -39,8 +44,8 @@ class ScreenServiceTest {
     @Mock
     private SlideDeckAssembler slideDeckAssembler;
 
-    @InjectMocks
-    private ScreenService screenService;
+    @Mock
+    private Counter screenStatusChangeCounter;
 
     private Screen mockScreen;
     private SlideDeck mockSlideDeck;
@@ -52,7 +57,10 @@ class ScreenServiceTest {
         mockScreen.setStatus(ScreenStatus.ONLINE);
 
         mockSlideDeck = new SlideDeck();
-        mockSlideDeck.setVersion(1);
+        mockSlideDeck.setName("Test SlideDeck");
+
+        // Mock Counter to avoid NullPointerException
+        lenient().doNothing().when(screenStatusChangeCounter).increment();
     }
 
     @Test
