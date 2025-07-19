@@ -6,3 +6,9 @@ Dockerfile
 .gitignore
 README.md
 .env
+.nuxt
+.output
+dist
+coverage
+.vscode
+*.log

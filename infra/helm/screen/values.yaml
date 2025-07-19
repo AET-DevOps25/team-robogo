@@ -33,6 +33,8 @@ client:
   port: 80
   targetPort: 3000
   nodePort: 30001
+  env:
+    NODE_ENV: "production"
 
 genai:
   image: ghcr.io/aet-devops25/team-robogo/genai:main
