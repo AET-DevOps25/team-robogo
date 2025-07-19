@@ -89,13 +89,6 @@ jobs:
           sudo apt update
           sudo apt install -y ansible
 
-      - name: Create GenAI Secret
-        run: |
-          kubectl create secret generic genai-secret \
-            --from-literal=CHAIR_API_KEY="${{ github.event.inputs.CHAIR_API_KEY }}" \
-            --from-literal=OPENAI_API_KEY="${{ github.event.inputs.OPENAI_API_KEY }}" \
-            -n devops25-team-robogo --dry-run=client -o yaml | kubectl apply -f -
-
       - name: Generate Ansible inventory
         run: |
           echo "[ec2]" > infra/inventory.ini
@@ -121,6 +114,13 @@ jobs:
 
       - name: Test kubectl access
         run: kubectl get nodes
+
+      - name: Create GenAI Secret
+        run: |
+          kubectl create secret generic genai-secret \
+            --from-literal=CHAIR_API_KEY="${{ github.event.inputs.CHAIR_API_KEY }}" \
+            --from-literal=OPENAI_API_KEY="${{ github.event.inputs.OPENAI_API_KEY }}" \
+            -n devops25-team-robogo --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Deploy Helm chart
         run: |
