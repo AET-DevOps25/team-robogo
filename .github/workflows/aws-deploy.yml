@@ -122,6 +122,9 @@ jobs:
             --from-literal=CHAIR_API_KEY="${{ github.event.inputs.CHAIR_API_KEY }}" \
             --from-literal=OPENAI_API_KEY="${{ github.event.inputs.OPENAI_API_KEY }}" \
             -n devops25-team-robogo --dry-run=client -o yaml | kubectl apply -f -
+          kubectl label secret genai-secret -n devops25-team-robogo app.kubernetes.io/managed-by=Helm --overwrite
+          kubectl annotate secret genai-secret -n devops25-team-robogo meta.helm.sh/release-name=screen --overwrite
+          kubectl annotate secret genai-secret -n devops25-team-robogo meta.helm.sh/release-namespace=devops25-team-robogo --overwrite
 
       - name: Deploy Helm chart
         run: |
