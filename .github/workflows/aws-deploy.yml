@@ -120,13 +120,12 @@ jobs:
           kubectl create secret generic genai-secret \
             --from-literal=CHAIR_API_KEY="${{ github.event.inputs.CHAIR_API_KEY }}" \
             --from-literal=OPENAI_API_KEY="${{ github.event.inputs.OPENAI_API_KEY }}" \
-            -n devops25-team-robogo --dry-run=client -o yaml | kubectl apply -f -
+            -n devops25-team-robogo --create-namespace --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Deploy Helm chart
         run: |
-          kubectl delete namespace devops25-team-robogo --ignore-not-found
           helm dependency build ./infra/helm/screen
-          helm upgrade --install screen ./infra/helm/screen --namespace devops25-team-robogo --create-namespace \
+          helm upgrade --install screen ./infra/helm/screen --namespace devops25-team-robogo \
             -f ./infra/helm/screen/values.yaml \
             --set grafana.enabled=false \
             --set prometheus.enabled=false \
