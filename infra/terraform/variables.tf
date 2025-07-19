@@ -1,6 +1,6 @@
 variable "aws_region" {
   description = "AWS region"
-  default     = "ap-northeast-1"
+  default     = "us-east-1"
 }
 
 variable "aws_access_key" {
@@ -20,7 +20,7 @@ variable "ami_id" {
 
 variable "instance_type" {
   description = "EC2 instance type"
-  default     = "t3.medium"
+  default     = "t3.large"
 }
 
 variable "key_name" {

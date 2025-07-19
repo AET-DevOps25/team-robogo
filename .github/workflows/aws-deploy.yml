@@ -4,14 +4,44 @@ name: AWS Deployment
 # When everything is working, I will change this to secrets.
 on:
   workflow_dispatch:
-    inputs:
-      EC2_HOST:
-        description: 'public ip of the ec2 instance'
-        required: true
 
 jobs:
-  deploy:
+  provision:
     runs-on: ubuntu-latest
+    outputs:
+      ec2_ip: ${{ steps.get_ip.outputs.ec2_ip }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.0
+
+      - name: Terraform Init
+        working-directory: ./infra/terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: ./infra/terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: terraform apply -auto-approve --var="ami_id=ami-020cba7c55df1f61" --var="key_name=vockey"
+
+      - name: Get EC2 Public IP
+        id: get_ip
+        working-directory: ./infra/terraform
+        run: |
+          echo "ec2_ip=$(terraform output -raw ec2_public_ip)" >> $GITHUB_OUTPUT
+
+  deploy:
+    needs: provision
+    runs-on: ubuntu-latest
+
+    env:
+      EC2_HOST: ${{ needs.provision.outputs.ec2_ip }}
 
     steps:
       - name: Checkout repository
@@ -26,11 +56,6 @@ jobs:
             echo "Invalid private key provided. Please check the AWS_PRIVATE_KEY secret."
             exit 1
           fi
-
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.12.1
 
       - name: Install Helm
         uses: azure/setup-helm@v4
@@ -50,7 +75,7 @@ jobs:
       - name: Generate Ansible inventory
         run: |
           echo "[ec2]" > infra/inventory.ini
-          echo "target ansible_host=${{ github.event.inputs.EC2_HOST }} ansible_user=ubuntu ansible_ssh_private_key_file=./infra/pk.pem" >> infra/inventory.ini
+          echo "target ansible_host=${{ needs.provision.outputs.ec2_ip }} ansible_user=ubuntu ansible_ssh_private_key_file=./infra/pk.pem" >> infra/inventory.ini
 
       - name: Run Ansible Playbook
         env:
@@ -60,9 +85,9 @@ jobs:
 
       - name: Fetch and adapt kubeconfig from EC2
         run: |
-          ssh -i ./infra/pk.pem -o StrictHostKeyChecking=no ubuntu@${{ github.event.inputs.EC2_HOST }} "cat /home/ubuntu/.kube/config" > ./kubeconfig
-          sed -i "s|127.0.0.1|${{ github.event.inputs.EC2_HOST }}|" ./kubeconfig
-          sed -i "s|localhost|${{ github.event.inputs.EC2_HOST }}|" ./kubeconfig
+          ssh -i ./infra/pk.pem -o StrictHostKeyChecking=no ubuntu@${{ needs.provision.outputs.ec2_ip }} "cat /home/ubuntu/.kube/config" > ./kubeconfig
+          sed -i "s|127.0.0.1|${{ needs.provision.outputs.ec2_ip }}|" ./kubeconfig
+          sed -i "s|localhost|${{ needs.provision.outputs.ec2_ip }}|" ./kubeconfig
           sed -i "/certificate-authority/d" ./kubeconfig
           sed -i "/server:/a \ \ \ \ insecure-skip-tls-verify: true" ./kubeconfig
 
@@ -86,18 +111,4 @@ jobs:
             --set redis.enabled=false \
             --set postgresExporter.enabled=false
 
-     # - name: Copy Helm chart to EC2
-     #   run: |
-     #    scp -o StrictHostKeyChecking=no -i infra/pk.pem -r ./infra/helm/screen ubuntu@${{ github.event.inputs.EC2_HOST }}:/home/ubuntu/screen-chart
-
-
-     # - name: Deploy using Helm
-     #   run: |
-     #     ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=5 -o StrictHostKeyChecking=no -i infra/pk.pem ubuntu@${{ github.event.inputs.EC2_HOST }} << 'EOF'
-     #     kubectl delete namespace team-robogo --ignore-not-found
-     #     export KUBECONFIG=/home/ubuntu/.kube/config
-     #     helm dependency build /home/ubuntu/screen-chart
-     #     helm upgrade --install team-robogo /home/ubuntu/screen-chart --namespace team-robogo --create-namespace
-     #     rm -rf /home/ubuntu/screen-chart
-     #     EOF
 
