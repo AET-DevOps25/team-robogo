@@ -12,13 +12,6 @@ spec:
       labels:
         app: server
     spec:
-      initContainers:
-        - name: init-slides-dir
-          image: busybox:1.35
-          command: ['sh', '-c', 'mkdir -p {{ .Values.server.slides.path }} && chmod 755 {{ .Values.server.slides.path }}']
-          volumeMounts:
-            - name: slides-volume
-              mountPath: {{ .Values.server.slides.path }}
       containers:
         - name: server
           image: {{ .Values.server.image }}
@@ -47,9 +40,3 @@ spec:
               value: {{ .Values.server.adminEmail }}
             - name: SLIDES_PATH
               value: {{ .Values.server.slides.path }}
-          volumeMounts:
-            - name: slides-volume
-              mountPath: {{ .Values.server.slides.path }}
-      volumes:
-        - name: slides-volume
-          emptyDir: {}
