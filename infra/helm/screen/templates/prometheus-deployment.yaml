@@ -41,11 +41,5 @@ spec:
         - name: alert-rules
           configMap:
             name: {{ .Values.project.name }}-alert-rules
-{{- if .Values.prometheus.persistence.enabled }}
         - name: prometheus-data
-          persistentVolumeClaim:
-            claimName: prometheus-data
-{{- else }}
-        - name: prometheus-data
-          emptyDir: {}
-{{- end }} 
+          emptyDir: {} 

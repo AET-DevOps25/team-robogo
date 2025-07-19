@@ -37,9 +37,4 @@ spec:
         configMap:
           name: {{ .Values.project.name }}-alertmanager-config
       - name: alertmanager-storage
-        {{- if .Values.alertmanager.persistence.enabled }}
-        persistentVolumeClaim:
-          claimName: {{ .Values.project.name }}-alertmanager-pvc
-        {{- else }}
-        emptyDir: {}
-        {{- end }} 
+        emptyDir: {} 

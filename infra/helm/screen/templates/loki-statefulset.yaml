@@ -32,19 +32,5 @@ spec:
         - name: config
           configMap:
             name: loki-config
-{{- if .Values.loki.persistence.enabled }}
-  volumeClaimTemplates:
-    - metadata:
-        name: loki-data
-      spec:
-        accessModes: [ "ReadWriteOnce" ]
-        resources:
-          requests:
-            storage: {{ .Values.loki.persistence.size }}
-        {{- if .Values.loki.persistence.storageClassName }}
-        storageClassName: {{ .Values.loki.persistence.storageClassName }}
-        {{- end }}
-{{- else }}
         - name: loki-data
           emptyDir: {}
-{{- end }}

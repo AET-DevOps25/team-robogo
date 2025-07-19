@@ -1,5 +1,5 @@
 apiVersion: v2
-name: robogo
+name: screen
 description: Robogo all-in-one deployment
 type: application
 version: 1.0.0
