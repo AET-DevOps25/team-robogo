@@ -13,9 +13,15 @@ variable "aws_secret_key" {
   type        = string
 }
 
+variable "aws_session_token" {
+  description = "AWS session token"
+  type        = string
+}
+
 variable "ami_id" {
   description = "AMI ID for EC2 (Ubuntu 22.04 LTS)"
   type        = string
+  default = "ami-020cba7c55df1f615"
 }
 
 variable "instance_type" {
@@ -26,4 +32,5 @@ variable "instance_type" {
 variable "key_name" {
   description = "SSH key pair name"
   type        = string
+  default = "vockey"
 }

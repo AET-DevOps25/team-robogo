@@ -4,6 +4,15 @@ name: AWS Deployment
 # When everything is working, I will change this to secrets.
 on:
   workflow_dispatch:
+    aws_access_key:
+      description: 'AWS Access Key'
+      required: true
+    aws_secret_key:
+      description: 'AWS Secret Key'
+      required: true
+    aws_session_token:
+      description: 'AWS Session Token'
+      required: true
 
 jobs:
   provision:
@@ -25,10 +34,10 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ./infra/terraform
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: terraform apply -auto-approve --var="ami_id=ami-020cba7c55df1f61" --var="key_name=vockey"
+        run: terraform apply -auto-approve --var="key_name=" \
+          --var="aws_access_key=${{ github.event.inputs.aws_access_key }}" \
+          --var="aws_secret_key=${{ github.event.inputs.aws_secret_key }}" \
+          --var="aws_session_token=${{ github.event.inputs.aws_session_token }}
 
       - name: Get EC2 Public IP
         id: get_ip
