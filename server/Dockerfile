@@ -18,5 +18,7 @@ RUN gradle clean build -x test --no-daemon --stacktrace --info
 FROM gcr.io/distroless/java17-debian12
 WORKDIR /app
 COPY --from=build /app/server/build/libs/*.jar app.jar
+# Copy slides data
+COPY --from=build /app/data/slides /data/slides
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]

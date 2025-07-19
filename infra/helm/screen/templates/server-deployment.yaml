@@ -52,9 +52,4 @@ spec:
               mountPath: {{ .Values.server.slides.path }}
       volumes:
         - name: slides-volume
-{{- if .Values.server.slides.persistence.enabled }}
-          persistentVolumeClaim:
-            claimName: slides-pvc
-{{- else }}
           emptyDir: {}
-{{- end }}

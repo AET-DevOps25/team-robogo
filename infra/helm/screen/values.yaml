@@ -22,15 +22,10 @@ server:
   adminEmail: admin@example.com
   slides:
     path: /data/slides
-    persistence:
-      enabled: true
-      size: 1Gi
-      storageClassName: ""
 
 client:
   image: ghcr.io/aet-devops25/team-robogo/client:main
   imagePullPolicy: Always
-  imageTag: main
   apiGatewayHost: gateway-service
   port: 80
   targetPort: 3000
@@ -69,10 +64,6 @@ loki:
   resources: {}
   service:
     port: 3100
-  persistence:
-    enabled: false
-    size: 5Gi
-    storageClassName: ""
 
 prometheus:
   image:
@@ -81,10 +72,6 @@ prometheus:
   service:
     port: 9090
   resources: {}
-  persistence:
-    enabled: false
-    size: 5Gi
-    storageClassName: ""
 
 alertmanager:
   image:
@@ -94,10 +81,6 @@ alertmanager:
     port: 9093
   resources: {}
   tls: true
-  persistence:
-    enabled: false
-    size: 1Gi
-    storageClassName: ""
   config:
     global:
       resolve_timeout: 5m
@@ -174,11 +157,6 @@ grafana:
   resources: {}
   adminUser: admin
   adminPassword: admin
-  tls: true
-  persistence:
-    enabled: false
-    size: 5Gi
-    storageClassName: ""
   datasources:
     - name: Prometheus
       type: prometheus
@@ -192,8 +170,10 @@ grafana:
       isDefault: false
   grafana.ini:
     server:
-      root_url: "%(protocol)s://%(domain)s/grafana/"
+      protocol: http
+      root_url: "http://grafana.team-robogo.student.k8s.aet.cit.tum.de/grafana/"
       serve_from_sub_path: true
+      cookie_secure: false
 
 postgresExporter:
   port: 9187
