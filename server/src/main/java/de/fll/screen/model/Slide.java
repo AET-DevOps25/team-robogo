@@ -9,7 +9,8 @@ import jakarta.persistence.*;
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 @Table(
     name = "slide",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"slidedeck_id", "index"})
+    uniqueConstraints = @UniqueConstraint(columnNames = {"slidedeck_id", "index"}),
+    indexes = @Index(name = "idx_slide_deck_index", columnList = "slidedeck_id, index")
 )
 public abstract class Slide {
 
