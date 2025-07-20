@@ -154,7 +154,7 @@ jobs:
           kubectl annotate namespace devops25-team-robogo meta.helm.sh/release-namespace=devops25-team-robogo --overwrite || true
           helm upgrade --install screen ./infra/helm/screen --namespace devops25-team-robogo \
             -f ./infra/helm/screen/values.yaml \
-            --set ingress.host="team-robogo.${{ needs.provision.outputs.ec2_dns }}"
+            --set ingress.host="${{ needs.provision.outputs.ec2_dns }}"
 
       - name: Verify Secret Creation
         run: |
