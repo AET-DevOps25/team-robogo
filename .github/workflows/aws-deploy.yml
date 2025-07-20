@@ -154,9 +154,11 @@ jobs:
           kubectl annotate namespace devops25-team-robogo meta.helm.sh/release-namespace=devops25-team-robogo --overwrite || true
           helm upgrade --install screen ./infra/helm/screen --namespace devops25-team-robogo \
             -f ./infra/helm/screen/values.yaml \
-            --set ingress.host="${{ needs.provision.outputs.ec2_dns }}"
+            --set ingress.host="${{ needs.provision.outputs.ec2_dns }}" \
+            --set ingress.className="traefik"
+  
 
-      - name: Verify Secret Creation
+  - name: Verify Secret Creation
         run: |
           kubectl get secret genai-secret -n devops25-team-robogo -o yaml
 
