@@ -124,7 +124,7 @@ jobs:
             echo "Secret genai-secret already exists, patching it..."
             kubectl patch secret genai-secret -n devops25-team-robogo \
               --type='merge' \
-              -p="{\"data\":{\"CHAIR_API_KEY\":\"$(echo -n "${{ github.event.inputs.CHAIR_API_KEY }}" | base64)\",\"OPENAI_API_KEY\":\"$(echo -n "${{ github.event.inputs.OPENAI_API_KEY }}" | base64)\"}}"
+              -p="{\"data\":{\"CHAIR_API_KEY\":\"$(echo -n "${{ github.event.inputs.CHAIR_API_KEY }}" | base64 -w0)\",\"OPENAI_API_KEY\":\"$(echo -n "${{ github.event.inputs.OPENAI_API_KEY }}" | base64 -w0)\"}}"
           else
             echo "Creating new secret genai-secret..."
             kubectl create secret generic genai-secret \
