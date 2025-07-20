@@ -64,6 +64,11 @@ resource "aws_instance" "robogo_ec2" {
   key_name      = var.key_name
   vpc_security_group_ids = [aws_security_group.robogo_ec2_sg.id]
 
+  root_block_device {
+    volume_size = 50
+    volume_type = "gp3"
+  }
+
   tags = {
     Name = "team-robogo-ec2-${random_id.suffix.hex}"
   }
