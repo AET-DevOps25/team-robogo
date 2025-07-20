@@ -158,7 +158,7 @@ jobs:
             --set ingress.className="traefik"
   
 
-  - name: Verify Secret Creation
+      - name: Verify Secret Creation
         run: |
           kubectl get secret genai-secret -n devops25-team-robogo -o yaml
 
