@@ -145,13 +145,7 @@ jobs:
           kubectl annotate namespace devops25-team-robogo meta.helm.sh/release-name=screen --overwrite || true
           kubectl annotate namespace devops25-team-robogo meta.helm.sh/release-namespace=devops25-team-robogo --overwrite || true
           helm upgrade --install screen ./infra/helm/screen --namespace devops25-team-robogo \
-            -f ./infra/helm/screen/values.yaml \
-            --set grafana.enabled=false \
-            --set prometheus.enabled=false \
-            --set loki.enabled=false \
-            --set promtail.enabled=false \
-            --set redis.enabled=false \
-            --set postgresExporter.enabled=false
+            -f ./infra/helm/screen/values.yaml
 
       - name: Verify Secret Creation
         run: |
