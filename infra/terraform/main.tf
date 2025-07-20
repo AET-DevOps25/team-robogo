@@ -50,6 +50,14 @@ resource "aws_security_group" "robogo_ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Client
+  ingress {
+    from_port = 30001
+    to_port   = 30001
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
