@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       ec2_ip: ${{ steps.get_ip.outputs.ec2_ip }}
+      ec2_dns: ${{ steps.get_dns.outputs.ec2_dns }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -53,12 +54,19 @@ jobs:
         run: |
           echo "ec2_ip=$(terraform output -raw ec2_public_ip)" >> $GITHUB_OUTPUT
 
+      - name: Get EC2 Public DNS
+        id: get_dns
+        working-directory: ./infra/terraform
+        run: |
+          echo "ec2_dns=$(terraform output -raw ec2_public_dns)" >> $GITHUB_OUTPUT
+
   deploy:
     needs: provision
     runs-on: ubuntu-latest
 
     env:
       EC2_HOST: ${{ needs.provision.outputs.ec2_ip }}
+      EC2_DNS: ${{ steps.get_dns.outputs.ec2_dns }}
 
     steps:
       - name: Checkout repository
@@ -145,7 +153,8 @@ jobs:
           kubectl annotate namespace devops25-team-robogo meta.helm.sh/release-name=screen --overwrite || true
           kubectl annotate namespace devops25-team-robogo meta.helm.sh/release-namespace=devops25-team-robogo --overwrite || true
           helm upgrade --install screen ./infra/helm/screen --namespace devops25-team-robogo \
-            -f ./infra/helm/screen/values.yaml
+            -f ./infra/helm/screen/values.yaml \
+            --set ingress.host="team-robogo.${{ needs.provision.outputs.ec2_dns }}"
 
       - name: Verify Secret Creation
         run: |
